@@ -1,0 +1,865 @@
+/*------------------------------------*\
+  #BASE & RESET
+\*------------------------------------*/
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 100%; /* Base pour rem units (1rem = 16px par défaut, ajusté ci-dessous) */
+    scroll-behavior: smooth;
+    /* Améliore le rendu des polices */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden; /* Empêche le débordement horizontal causé par certaines animations */
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: var(--font-size-base); /* Défini ci-dessous via variable */
+    line-height: var(--line-height-base); /* Défini ci-dessous via variable */
+    color: var(--color-text-primary);
+    background-color: var(--color-background-body);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden; /* Empêche le débordement horizontal */
+}
+
+/* Style de base pour les éléments animés par AOS */
+[data-aos] {
+    /* Optionnel: Définir un état initial si AOS ne le gère pas parfaitement */
+    /* Par exemple, commencer avec une opacité de 0 */
+    /* opacity: 0; */
+    /* Assurer que les transitions CSS sont appliquées */
+    transition-property: opacity, transform;
+    will-change: opacity, transform; /* Indication pour la performance */
+}
+
+
+/*------------------------------------*\
+  #VARIABLES CSS (CUSTOM PROPERTIES)
+\*------------------------------------*/
+:root {
+    /* Palette Sémantique (Mode Clair par défaut) */
+    --color-text-primary: #1f2937; /* Gris très foncé */
+    --color-text-secondary: #6b7280; /* Gris moyen */
+    --color-text-accent: var(--color-accent-link);
+    --color-text-inverted: #ffffff; /* Blanc */
+    --color-text-code: #111827; /* Gris foncé pour code */
+    --color-text-feedback-info: #1e40af; /* Bleu foncé pour info */
+    --color-text-feedback-warning: #854d0e; /* Marron foncé pour warning */
+    --color-text-feedback-error: #991b1b; /* Rouge foncé pour error */
+    --color-text-feedback-success: #14532d; /* Vert foncé pour success */
+
+    --color-background-body: #ffffff; /* Blanc */
+    --color-background-subtle: #f9fafb; /* Gris très clair */
+    --color-background-code: #f3f4f6; /* Gris clair pour code */
+    --color-background-feedback-info: #eff6ff; /* Bleu très clair */
+    --color-background-feedback-warning: #fefce8; /* Jaune très clair */
+    --color-background-feedback-error: #fef2f2; /* Rouge très clair */
+    --color-background-feedback-success: #f0fdf4; /* Vert très clair */
+
+    --color-accent-link: #2563eb; /* Bleu vif */
+    --color-accent-link-hover: #1d4ed8; /* Bleu plus foncé */
+    --color-accent-focus-ring: #93c5fd; /* Bleu clair pour focus */
+
+    --color-border-subtle: #e5e7eb; /* Gris clair */
+    --color-border-strong: #d1d5db; /* Gris moyen */
+    --color-border-feedback-info: #60a5fa; /* Bleu moyen */
+    --color-border-feedback-warning: #facc15; /* Jaune vif */
+    --color-border-feedback-error: #f87171; /* Rouge clair */
+    --color-border-feedback-success: #4ade80; /* Vert clair */
+
+    /* Typographie */
+    --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --font-family-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    --font-size-base: 1.0625rem; /* 17px si 1rem = 16px */
+    --font-size-small: 0.8rem;   /* ~13.6px */
+    --font-size-h4: 1.25rem;     /* ~21.2px */
+    --font-size-h3: 1.56rem;     /* ~26.6px */
+    --font-size-h2: 1.95rem;     /* ~33.2px */
+    --font-size-h1: 2.44rem;     /* ~41.5px */
+    --font-size-code: 0.9rem;    /* ~15.3px */
+
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --line-height-base: 1.7;
+    --line-height-heading: 1.3;
+    --line-height-code: 1.6;
+
+    /* Espacement */
+    --spacing-xs: 0.25rem;  /* 4px */
+    --spacing-sm: 0.5rem;   /* 8px */
+    --spacing-md: 1rem;     /* 16px */
+    --spacing-lg: 1.5rem;   /* 24px */
+    --spacing-xl: 2rem;     /* 32px */
+    --spacing-xxl: 3rem;    /* 48px */
+
+    /* Autres */
+    --content-max-width: 70ch; /* Longueur de ligne optimale */
+    --border-radius: 4px;
+    --focus-ring-width: 3px;
+    --transition-duration: 0.2s; /* Durée de transition standard */
+}
+
+/* Optionnel : Mode Sombre */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-text-primary: #e5e7eb; /* Gris clair */
+        --color-text-secondary: #9ca3af; /* Gris moyen */
+        --color-text-inverted: #1f2937; /* Gris très foncé */
+        --color-text-code: #d1d5db; /* Gris clair pour code */
+        --color-text-feedback-info: #93c5fd; /* Bleu clair */
+        --color-text-feedback-warning: #fde047; /* Jaune clair */
+        --color-text-feedback-error: #fda4af; /* Rouge clair */
+        --color-text-feedback-success: #86efac; /* Vert clair */
+
+        --color-background-body: #111827; /* Gris très foncé */
+        --color-background-subtle: #1f2937; /* Gris un peu moins foncé */
+        --color-background-code: #374151; /* Gris foncé pour code */
+        --color-background-feedback-info: #1e3a8a; /* Bleu foncé */
+        --color-background-feedback-warning: #78350f; /* Marron foncé */
+        --color-background-feedback-error: #7f1d1d; /* Rouge foncé */
+        --color-background-feedback-success: #166534; /* Vert foncé */
+
+        --color-accent-link: #60a5fa; /* Bleu clair */
+        --color-accent-link-hover: #93c5fd; /* Bleu plus clair */
+        --color-accent-focus-ring: #60a5fa; /* Bleu clair pour focus */
+
+        --color-border-subtle: #374151; /* Gris foncé */
+        --color-border-strong: #4b5563; /* Gris moyen foncé */
+        --color-border-feedback-info: #2563eb; /* Bleu vif */
+        --color-border-feedback-warning: #ca8a04; /* Jaune foncé */
+        --color-border-feedback-error: #dc2626; /* Rouge vif */
+        --color-border-feedback-success: #16a34a; /* Vert vif */
+    }
+}
+
+/*------------------------------------*\
+  #ACCESSIBILITÉ
+\*------------------------------------*/
+/* Focus visible pour tous les éléments interactifs */
+:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-accent-focus-ring);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 var(--focus-ring-width) var(--color-accent-focus-ring); /* Fallback */
+    border-radius: var(--border-radius); /* Assortir au border-radius de l'élément si possible */
+    transition: outline var(--transition-duration) ease, box-shadow var(--transition-duration) ease; /* Transition douce */
+}
+
+/* Cacher visuellement mais garder accessible aux lecteurs d'écran */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/*------------------------------------*\
+  #LAYOUT
+\*------------------------------------*/
+.page-header,
+.page-footer {
+    background-color: var(--color-background-subtle);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border-subtle);
+    transition: background-color var(--transition-duration) ease; /* Transition couleur */
+}
+.page-footer {
+    border-top: 1px solid var(--color-border-subtle);
+    border-bottom: none;
+    margin-top: auto; /* Pousse le footer en bas */
+    font-size: var(--font-size-small);
+    color: var(--color-text-secondary);
+    text-align: center;
+}
+
+main {
+    flex-grow: 1; /* Prend l'espace vertical restant */
+    padding: var(--spacing-xl) 0; /* Espace vertical */
+}
+
+/* Conteneur principal pour limiter la largeur du contenu */
+.content-wrapper {
+    max-width: calc(var(--content-max-width) + var(--spacing-xl) * 2); /* 70ch + padding */
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-xl);
+    padding-right: var(--spacing-xl);
+}
+
+/* Structure Grid optionnelle pour Main + Aside */
+.main-grid {
+     display: grid;
+     grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); /* 75% main, 25% aside approx */
+     gap: var(--spacing-xxl);
+}
+
+.main-content {
+     grid-column: 1 / 2;
+     /* Limite la largeur du texte dans le contenu principal */
+     max-width: var(--content-max-width);
+}
+
+.sidebar {
+     grid-column: 2 / 3;
+}
+
+/* Responsive: Colonne unique sur écrans plus petits */
+@media (max-width: 1024px) {
+   .main-grid {
+        grid-template-columns: minmax(0, 1fr); /* Colonne unique */
+    }
+   .main-content,
+   .sidebar {
+        grid-column: 1 / -1; /* Prend toute la largeur */
+    }
+   .sidebar {
+        margin-top: var(--spacing-xl);
+    }
+}
+/* Ajustement pour que le contenu principal prenne toute la largeur par défaut */
+article {
+     max-width: var(--content-max-width);
+     margin: 0 auto; /* Centre l'article si plus étroit que content-wrapper */
+}
+
+
+/*------------------------------------*\
+  #TYPOGRAPHIE
+\*------------------------------------*/
+h1, h2, h3, h4 {
+    font-family: var(--font-family-sans);
+    color: var(--color-text-primary);
+    line-height: var(--line-height-heading);
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+    /* Signalisation: Hiérarchie claire */
+}
+
+h1 {
+    font-size: var(--font-size-h1);
+    font-weight: var(--font-weight-bold);
+    margin-top: 0; /* Pas de marge en haut pour le premier titre */
+}
+
+h2 {
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-bold);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border-subtle); /* Soulignement subtil */
+    margin-top: var(--spacing-xxl); /* Plus d'espace avant H2 */
+}
+
+h3 {
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-semibold);
+    margin-top: var(--spacing-xl);
+}
+
+h4 {
+    font-size: var(--font-size-h4);
+    font-weight: var(--font-weight-semibold);
+    margin-top: var(--spacing-lg);
+}
+
+p {
+    margin-top: 0;
+    margin-bottom: var(--spacing-lg); /* WCAG 1.4.12: Espace paragraphe >= 2 * taille police */
+    /* Chunking: Paragraphes bien séparés */
+}
+
+/* Limiter la largeur des éléments textuels pour la lisibilité */
+p, ul, ol, blockquote {
+     /* Appliqué au conteneur parent article, mais peut être réaffirmé si nécessaire */
+     /* max-width: var(--content-max-width); */
+}
+
+a {
+    color: var(--color-accent-link);
+    text-decoration: none;
+    border-bottom: 1px solid transparent; /* Espace pour soulignement au survol */
+    transition: color var(--transition-duration) ease, border-color var(--transition-duration) ease;
+    /* Signalisation: Liens clairs */
+}
+
+a:hover,
+a:focus {
+    color: var(--color-accent-link-hover);
+    border-bottom-color: var(--color-accent-link-hover);
+    /* Signalisation: État interactif clair */
+}
+
+strong {
+    font-weight: var(--font-weight-bold);
+    color: inherit; /* Hérite couleur parent par défaut */
+    /* Signalisation: Emphase forte mais non criarde */
+}
+
+em {
+    font-style: italic;
+    color: inherit;
+    /* Signalisation: Emphase légère */
+}
+
+small {
+    font-size: var(--font-size-small);
+    color: var(--color-text-secondary);
+}
+
+/* WCAG 1.4.12 Spacing compliance */
+body {
+    line-height: var(--line-height-base); /* >= 1.5 */
+    letter-spacing: 0.01em; /* >= 0.12 (approximatif, dépend de la police) */
+    word-spacing: 0.05em; /* >= 0.16 (approximatif, dépend de la police) */
+}
+p {
+    margin-bottom: calc(var(--font-size-base) * 1.5); /* Ajusté pour un espacement légèrement moins grand que 2x */
+}
+
+/*------------------------------------*\
+  #ÉLÉMENTS DE CONTENU
+\*------------------------------------*/
+
+/* Listes */
+ul, ol {
+    margin-top: 0;
+    margin-bottom: var(--spacing-lg);
+    padding-left: var(--spacing-xl); /* Indentation */
+    /* Chunking: Listes comme blocs distincts */
+}
+
+li {
+    margin-bottom: var(--spacing-sm); /* Espace entre items */
+}
+
+li > ul,
+li > ol {
+    margin-top: var(--spacing-sm);
+    margin-bottom: 0; /* Pas de double marge en bas */
+}
+
+/* Blocs de Code */
+figure.code-block {
+    margin: var(--spacing-xl) 0;
+    /* Dual Coding: Visuel distinct pour le code */
+    /* Enclosure: Groupe le code et sa légende */
+}
+
+figure.code-block figcaption {
+    font-size: var(--font-size-small);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+    text-align: center;
+}
+
+pre {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-code);
+    line-height: var(--line-height-code);
+    color: var(--color-code-text);
+    background-color: var(--color-background-code);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    overflow-x: auto; /* Défilement horizontal si nécessaire */
+    margin: var(--spacing-lg) 0; /* Marge standard si pas dans une figure */
+    transition: background-color var(--transition-duration) ease;
+    /* Qualité IDE: Style propre et lisible */
+}
+figure > pre {
+    margin: 0; /* Annuler la marge si dans une figure */
+}
+
+
+/* Cibler l'élément code DANS pre */
+pre > code {
+    font-family: inherit; /* Hérite de pre */
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+    background: none; /* Pas de fond sur code lui-même */
+    padding: 0; /* Pas de padding sur code lui-même */
+    display: block; /* Assure que code prend la largeur */
+    white-space: pre; /* Préserve les espaces et retours ligne */
+}
+/* Code en ligne */
+code:not(pre > code) {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-code);
+    color: var(--color-code-text);
+    background-color: var(--color-background-code);
+    padding: 0.2em 0.4em;
+    border-radius: var(--border-radius);
+    white-space: nowrap;
+    transition: background-color var(--transition-duration) ease;
+}
+
+
+/* Styles de base pour coloration syntaxique (compatible Prism/Highlight.js) */
+/* ... (styles de tokens inchangés) ... */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata,
+.hljs-comment,
+.hljs-meta {
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+.token.punctuation,
+.hljs-punctuation {
+    color: #9ca3af; /* Gris */
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted,
+.hljs-attribute,
+.hljs-number,
+.hljs-literal,
+.hljs-symbol {
+    color: #ef4444; /* Rouge */
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted,
+.hljs-selector-tag,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-string,
+.hljs-char.escape_,
+.hljs-built_in {
+    color: #10b981; /* Vert */
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css.token.string,
+.style.token.string,
+.hljs-operator,
+.hljs-link {
+    color: #f59e0b; /* Orange/Ambre */
+    background: none; /* Annuler fond potentiel */
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword,
+.hljs-keyword,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-type {
+    color: var(--color-accent-link); /* Bleu */
+}
+
+.token.function,
+.token.class-name,
+.hljs-function,
+.hljs-title,
+.hljs-class.hljs-title {
+    color: #c026d3; /* Fuchsia/Violet */
+}
+
+.token.regex,
+.token.important,
+.token.variable,
+.hljs-regexp,
+.hljs-variable,
+.hljs-template-variable {
+    color: #f59e0b; /* Orange/Ambre */
+}
+
+.token.important,
+.token.bold,
+.hljs-strong {
+    font-weight: bold;
+}
+.token.italic,
+.hljs-emphasis {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
+
+/* Tableaux */
+table {
+    width: 100%;
+    margin: var(--spacing-xl) 0;
+    border-collapse: collapse; /* Fusionne les bordures */
+    border: 1px solid var(--color-border-subtle);
+    font-size: var(--font-size-small); /* Texte un peu plus petit dans les tableaux */
+    table-layout: auto; /* Ajusté pour mieux s'adapter au contenu */
+    transition: border-color var(--transition-duration) ease;
+    /* Lisibilité: Structure claire */
+}
+
+caption {
+    caption-side: bottom; /* Légende en bas par défaut */
+    text-align: center;
+    margin-top: var(--spacing-sm);
+    font-size: var(--font-size-small);
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+th, td {
+    border: 1px solid var(--color-border-subtle);
+    padding: var(--spacing-md); /* Espace intérieur généreux */
+    text-align: left; /* Alignement par défaut */
+    vertical-align: top; /* Alignement vertical par défaut */
+    overflow-wrap: break-word; /* Coupe les mots longs si nécessaire */
+    transition: border-color var(--transition-duration) ease, background-color var(--transition-duration) ease;
+}
+
+thead th {
+    background-color: var(--color-background-subtle);
+    font-weight: var(--font-weight-semibold);
+    vertical-align: bottom;
+}
+
+tbody tr {
+    transition: background-color var(--transition-duration) ease; /* Transition pour hover */
+}
+
+tbody tr:nth-child(even) {
+    background-color: var(--color-background-subtle); /* Lignes alternées (Zebra striping) */
+    /* Lisibilité: Facilite suivi des lignes */
+}
+tbody tr:hover {
+    background-color: color-mix(in srgb, var(--color-background-subtle) 70%, var(--color-accent-link) 30%); /* Léger surlignage au survol */
+}
+
+
+tbody td {
+     /* Optionnel: centrer le texte dans les cellules de données */
+     /* text-align: center; */
+}
+
+tfoot th, tfoot td {
+    font-weight: var(--font-weight-semibold);
+    border-top: 2px solid var(--color-border-strong); /* Sépare le footer */
+}
+
+/* Figures et Légendes */
+figure {
+    margin: var(--spacing-xl) 0; /* Espace autour de la figure */
+    /* Dual Coding: Groupe image/schéma et légende */
+}
+
+figure img,
+figure svg,
+figure pre.mermaid { /* Cible le conteneur Mermaid */
+    display: block; /* Évite espace sous l'image */
+    max-width: 100%; /* Image responsive */
+    height: auto; /* Maintient ratio */
+    margin-left: auto;
+    margin-right: auto; /* Centre l'élément si plus petit que conteneur */
+    border: 1px solid var(--color-border-subtle); /* Optionnel: bordure légère */
+    border-radius: var(--border-radius);
+    transition: border-color var(--transition-duration) ease, box-shadow var(--transition-duration) ease;
+}
+figure:hover img,
+figure:hover svg,
+figure:hover pre.mermaid {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Légère ombre au survol */
+}
+
+
+figure figcaption {
+    display: block; /* Assure qu'elle est sur sa propre ligne */
+    margin-top: var(--spacing-sm);
+    font-size: var(--font-size-small);
+    color: var(--color-text-secondary);
+    text-align: center;
+    line-height: 1.5;
+    /* Dual Coding: Légende associée */
+}
+
+/* Placeholder pour Mermaid (pas de rendu JS ici) */
+pre.mermaid {
+    background-color: var(--color-background-body); /* Fond normal pour le rendu */
+    border: 1px solid var(--color-border-subtle); /* Bordure discrète */
+    padding: var(--spacing-lg);
+    text-align: center;
+    color: var(--color-text-primary); /* Texte normal pour le code source */
+    font-family: var(--font-family-mono);
+    min-height: 100px; /* Pour visualiser le placeholder avant rendu */
+    display: block; /* Changé pour affichage correct */
+    overflow: visible; /* Permet au SVG de dépasser si besoin */
+    transition: border-color var(--transition-duration) ease, background-color var(--transition-duration) ease;
+}
+/* Style appliqué par Mermaid.js au SVG rendu */
+.mermaid svg {
+    display: block;
+    margin: auto; /* Centre le diagramme rendu */
+    max-width: 100%;
+    height: auto;
+    transition: transform 0.3s ease; /* Légère animation sur le SVG */
+}
+figure:hover .mermaid svg {
+    transform: scale(1.02); /* Léger zoom au survol de la figure */
+}
+
+
+/* Citations / Callouts */
+blockquote {
+    margin: var(--spacing-xl) var(--spacing-xl); /* Indentation via marge */
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-left: 4px solid var(--color-border-strong);
+    background-color: var(--color-background-subtle);
+    font-style: italic;
+    color: var(--color-text-secondary);
+    transition: border-color var(--transition-duration) ease, background-color var(--transition-duration) ease;
+    /* Signalisation: Visuellement distinct du texte normal */
+}
+
+blockquote p {
+    margin-bottom: var(--spacing-md); /* Espace interne */
+}
+blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* Source de la citation (si placée hors blockquote) */
+cite {
+    font-style: normal;
+    font-size: var(--font-size-small);
+    color: var(--color-text-secondary);
+    display: block; /* Met la citation sur sa propre ligne */
+    text-align: right; /* Aligne à droite */
+    margin-top: var(--spacing-sm);
+}
+blockquote + cite,
+blockquote + p cite { /* Si la citation est dans un <p> après le blockquote */
+     margin-left: var(--spacing-xl);
+     margin-right: var(--spacing-xl);
+     margin-top: calc(-1 * var(--spacing-md)); /* Rapproche un peu */
+     margin-bottom: var(--spacing-lg);
+}
+
+/* Callouts / Asides (Notes, Avertissements, etc.) */
+aside.callout {
+    margin: var(--spacing-xl) 0;
+    padding: var(--spacing-lg);
+    border-left-width: 4px;
+    border-left-style: solid;
+    border-radius: var(--border-radius);
+    transition: border-color var(--transition-duration) ease, background-color var(--transition-duration) ease, box-shadow var(--transition-duration) ease;
+    /* Signalisation & Enclosure: Blocs d'information distincts */
+}
+aside.callout:hover {
+     box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Légère ombre au survol */
+}
+
+
+aside.callout p:last-child {
+    margin-bottom: 0;
+}
+
+aside.callout strong { /* Titre optionnel du callout */
+    display: block;
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--spacing-sm);
+    font-style: normal; /* Annule italique potentiel du parent */
+}
+
+/* Variante : Note / Information */
+aside.callout.note {
+    background-color: var(--color-background-feedback-info);
+    border-color: var(--color-border-feedback-info);
+    color: var(--color-text-feedback-info);
+}
+aside.callout.note strong {
+    color: var(--color-text-feedback-info); /* Assortir couleur titre */
+}
+aside.callout.note a {
+     color: var(--color-text-feedback-info);
+     font-weight: var(--font-weight-medium);
+     border-bottom-color: var(--color-text-feedback-info);
+}
+aside.callout.note a:hover,
+aside.callout.note a:focus {
+     opacity: 0.8;
+     border-bottom-color: transparent;
+}
+
+/* Variante : Avertissement / Attention */
+aside.callout.warning {
+    background-color: var(--color-background-feedback-warning);
+    border-color: var(--color-border-feedback-warning);
+    color: var(--color-text-feedback-warning);
+}
+ aside.callout.warning strong {
+    color: var(--color-text-feedback-warning);
+}
+aside.callout.warning a {
+     color: var(--color-text-feedback-warning);
+     font-weight: var(--font-weight-medium);
+     border-bottom-color: var(--color-text-feedback-warning);
+}
+ aside.callout.warning a:hover,
+ aside.callout.warning a:focus {
+     opacity: 0.8;
+     border-bottom-color: transparent;
+}
+
+/* Ajouter d'autres variantes si nécessaire (error, success, tip) sur le même modèle */
+aside.callout.error {
+    background-color: var(--color-background-feedback-error);
+    border-color: var(--color-border-feedback-error);
+    color: var(--color-text-feedback-error);
+}
+aside.callout.error strong { color: var(--color-text-feedback-error); }
+aside.callout.error a { color: var(--color-text-feedback-error); font-weight: var(--font-weight-medium); border-bottom-color: var(--color-text-feedback-error); }
+aside.callout.error a:hover, aside.callout.error a:focus { opacity: 0.8; border-bottom-color: transparent; }
+
+aside.callout.success {
+    background-color: var(--color-background-feedback-success);
+    border-color: var(--color-border-feedback-success);
+    color: var(--color-text-feedback-success);
+}
+aside.callout.success strong { color: var(--color-text-feedback-success); }
+aside.callout.success a { color: var(--color-text-feedback-success); font-weight: var(--font-weight-medium); border-bottom-color: var(--color-text-feedback-success); }
+aside.callout.success a:hover, aside.callout.success a:focus { opacity: 0.8; border-bottom-color: transparent; }
+
+/* Séparateur horizontal */
+hr {
+    border: 0;
+    height: 1px;
+    background-color: var(--color-border-subtle);
+    margin: var(--spacing-xxl) 0;
+}
+
+
+/*------------------------------------*\
+  #RESPONSIVE DESIGN
+\*------------------------------------*/
+/* Ajustements pour écrans plus petits si nécessaire */
+@media (max-width: 768px) {
+    html {
+        font-size: 93.75%; /* Réduit légèrement la base (15px) */
+    }
+    main {
+        padding: var(--spacing-lg) 0;
+    }
+   .content-wrapper {
+        padding-left: var(--spacing-lg);
+        padding-right: var(--spacing-lg);
+    }
+     h1 { font-size: 2rem; } /* Ajuster échelle typo si besoin */
+     h2 { font-size: 1.7rem; }
+
+     pre {
+         padding: var(--spacing-md);
+     }
+     table {
+         font-size: calc(var(--font-size-small) * 0.95); /* Encore plus petit sur mobile */
+     }
+     th, td {
+         padding: var(--spacing-sm);
+     }
+     /* Amélioration responsive pour les tableaux */
+     table, thead, tbody, th, td, tr {
+         display: block;
+     }
+     thead tr {
+         position: absolute;
+         top: -9999px;
+         left: -9999px;
+     }
+     tr {
+         border: 1px solid var(--color-border-strong);
+         margin-bottom: var(--spacing-md);
+         background-color: var(--color-background-body); /* Fond par défaut pour les lignes */
+     }
+     td {
+         border: none;
+         border-bottom: 1px solid var(--color-border-subtle);
+         position: relative;
+         padding-left: 50%; /* Espace pour le label */
+         text-align: right; /* Aligner le contenu à droite */
+         min-height: calc(var(--spacing-sm) * 2 + var(--font-size-small) * var(--line-height-base)); /* Hauteur minimale pour alignement */
+         display: flex; /* Utiliser flex pour aligner */
+         align-items: center; /* Centrer verticalement */
+         justify-content: flex-end; /* Aligner à droite */
+     }
+     td:before {
+         position: absolute;
+         top: 0; /* Aligner en haut */
+         left: var(--spacing-sm);
+         width: 45%; /* Largeur du label */
+         padding-right: var(--spacing-sm);
+         white-space: nowrap;
+         overflow: hidden; /* Empêcher le débordement du label */
+         text-overflow: ellipsis; /* Ajouter des points de suspension si trop long */
+         content: attr(data-label); /* Utilise l'attribut data-label */
+         font-weight: var(--font-weight-semibold);
+         text-align: left; /* Aligner le label à gauche */
+         height: 100%; /* Prendre toute la hauteur */
+         display: flex; /* Utiliser flex pour aligner */
+         align-items: center; /* Centrer verticalement */
+         color: var(--color-text-secondary); /* Couleur du label */
+     }
+     td:last-child {
+         border-bottom: 0; /* Pas de bordure pour la dernière cellule */
+     }
+     tbody tr:nth-child(even) {
+         background-color: var(--color-background-body); /* Désactiver zebra sur mobile */
+     }
+     tbody tr:nth-child(odd) {
+         background-color: var(--color-background-subtle); /* Appliquer fond alterné */
+     }
+     tbody tr:hover {
+         background-color: color-mix(in srgb, var(--color-background-subtle) 70%, var(--color-accent-link) 30%); /* Garder le hover */
+     }
+     caption {
+         caption-side: top; /* Remettre la légende en haut sur mobile */
+         margin-bottom: var(--spacing-md);
+         margin-top: 0;
+     }
+
+}
+
+@media (max-width: 480px) {
+     html {
+         font-size: 87.5%; /* Base 14px */
+     }
+     h1 { font-size: 1.8rem; }
+     h2 { font-size: 1.5rem; }
+    .content-wrapper {
+        padding-left: var(--spacing-md);
+        padding-right: var(--spacing-md);
+    }
+     td {
+         padding-left: 40%; /* Ajuster l'espace label */
+     }
+     td:before {
+         width: 35%; /* Ajuster largeur label */
+     }
+}

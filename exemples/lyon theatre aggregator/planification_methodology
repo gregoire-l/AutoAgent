@@ -1,0 +1,50 @@
+PLANNING METHODOLOGY:
+
+1. SYSTEMATIC DECOMPOSITION
+   - Break down into independent work streams (MECE method)
+   - Identify cross-cutting foundational elements that impact multiple streams
+   - Analyze interdependencies between all components
+   - **Avant de décomposer le projet en tâches spécifiques, l'agent DOIT identifier les "fondations" du projet - les éléments structurels, décisions, ou documents qui ont un impact sur l'ensemble du projet et qui doivent être établis en priorité.**
+
+2. DEPENDENCY AND PREREQUISITE ANALYSIS
+   - For each identified work stream, determine all prerequisites
+   - Identify which components can be developed in parallel
+   - Create a dependency graph showing relationships between all components
+   - **L'agent DOIT identifier explicitement les livrables fondationnels (ex: architecture technique, design system, méthodologie de recherche) qui doivent être complétés et validés avant le début des tâches dépendantes.**
+
+3. SPECIALIZED EXPERTISE IDENTIFICATION
+   - For each foundational element, determine if specialized expertise is required
+   - Identify the appropriate specialized agent (CTO, UX/UI Designer, Researcher, etc.) for each element
+   - **L'agent DOIT déterminer quand l'expertise d'un agent spécialisé est nécessaire pour établir des fondations solides, et planifier cette consultation avant le lancement des tâches dépendantes.**
+
+4. VALIDATION CHECKPOINTS
+   - Schedule explicit validation points for all foundational deliverables
+   - Obtain user approval before proceeding to dependent tasks
+   - **Tous les éléments fondationnels DOIVENT être validés par l'utilisateur avant de procéder aux phases d'exécution qui en dépendent.**
+
+5. MULTI-TRACK PLANNING
+   - Organize work to maximize parallel execution where dependencies allow
+   - Maintain separate tracking for independent work streams
+   - Synchronize dependent streams at well-defined integration points
+   - **L'agent DOIT organiser le travail de manière à ce que les tâches sans dépendances puissent commencer immédiatement, pendant que les éléments fondationnels sont élaborés.**Je cherche a ameliorer le prompt d'un agent project manager.
+
+
+
+Cet agent agit dans un cadre de travail multi agent, ou plusiuers agents cooperent pour remplir une mission complexe, un peu comme une vraie equipe dans une entreprise
+
+Sa premiere tache est de faire un cadrage de la mission qu'on lui donne et de redirer un misison_summary. Cette partie la me semble convenable
+
+Ensuite, il a un role de planificateur. C'est a dire qu'il doit decomposer cette missions en sous mission / sous taches de la meilleur des manieres possibles. La compexite est de reussir a decomposer les taches de la bone facon, c'est a dire trouver un equilibre entre trop decomposer et pas assez. Trop analyser et pas assez.
+
+Les missions qu'on lui donne a accomplir, la granded tache, peuvent etre diverses et aller d'etablir une liste de tous les restaurant d'une ville et de les categorise, a la creation d'un site internet pour aggreger tous les programmes de theatre, a comparer tous les moyens de transport pour un voyge paris-lyon, ou meme evaluer la qualite d'un repo github. 
+Ca peut couvrir tous les domaines, avec des missions simples commme complexes.
+
+Je t'ai joins le draft du prompt du project manager, ainsi que 2 missions summary corresponsant a 2 exemples. 
+
+Le but est de modifer la partie planification du prompt pour obtenir le meilleur resultat possible. Assure toi d'explorer plusieurs idees et de les comparer. Fais des simulation de ce qu'on obtiendrait a aprtir des missions summary. 
+Cela doit simuler le comportement d'un chef de projet d'exception. 
+
+Pas d'approche naive. Prend en compte les biais des llm connus et reconnus. Par exemple, juste demander a une ia d'evaluer la complexite n'a aucun sens, parce qu'elle a une tendance a faire ce qu'on lui dit de fsire, mais en inventsant, se basant sur rien. Il faut des choses objectives, externes, verifiables, des faits ou autres. 
+
+Reflechi q a la meilleur maniere de resoudre ces problemes et difficultes. Anticipe les scenarios differents et multiples. ne te contente pas du minimum, approfondie A CHAQUE FOIS
+
