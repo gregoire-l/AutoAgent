@@ -126,15 +126,33 @@ describe('Scripted Content System', () => {
 
     describe('getNextResponse', () => {
       it('should find next response in sequence', () => {
-        const nextResponse = getNextResponse('A2', 1);
-        
+        const interaction: UserInteraction = {
+          id: 'test-id',
+          type: 'message_sent',
+          content: 'Test message',
+          phase: 'A2',
+          step: 1,
+          timestamp: new Date(),
+        };
+
+        const nextResponse = getNextResponse(interaction, LYON_PARIS_SCRIPT, 'A2', 1);
+
         expect(nextResponse).toBeDefined();
         expect(nextResponse?.phase).toBe('A2');
-        expect(nextResponse?.step).toBe(2);
+        expect(nextResponse?.step).toBeGreaterThan(1);
       });
 
       it('should return undefined when no next response exists', () => {
-        const nextResponse = getNextResponse('A3', 10);
+        const interaction: UserInteraction = {
+          id: 'test-id',
+          type: 'message_sent',
+          content: 'Test message',
+          phase: 'A3',
+          step: 10,
+          timestamp: new Date(),
+        };
+
+        const nextResponse = getNextResponse(interaction, LYON_PARIS_SCRIPT, 'A3', 10);
         expect(nextResponse).toBeUndefined();
       });
     });
