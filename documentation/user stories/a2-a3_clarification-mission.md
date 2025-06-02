@@ -8,7 +8,7 @@
 2. **Envoi et Transition Fluide :** L'utilisateur appuie sur Entrée. Une **animation rapide et élégante** se produit :  
    * Le champ de saisie **glisse vers la gauche et se redimensionne** pour devenir l'input standard du panneau **Chat** qui se matérialise (\~40% de l'écran).  
    * La demande initiale de l'utilisateur apparaît comme premier message dans ce Chat (bulle droite, bleue \#3B82F6).  
-   * Simultanément, le panneau **Canvas** se dévoile sur la droite (\~60%), déjà enrichi par l'analyse instantanée de l'agent.
+   * Simultanément, le panhy neau **Canvas** se dévoile sur la droite (\~60%), déjà enrichi par l'analyse instantanée de l'agent.
 
 **(Phase A2 : Clarification Dynamique et Co-construction)**
 

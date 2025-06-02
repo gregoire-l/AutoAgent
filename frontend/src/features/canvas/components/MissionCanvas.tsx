@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { MissionSection } from './MissionSection';
 import { useBoundStore } from '@/store';
 import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
 
 interface MissionCanvasProps {
   className?: string;
@@ -15,6 +16,15 @@ export function MissionCanvas({ className }: MissionCanvasProps) {
   const selectedSectionId = useBoundStore(state => state.selectedSectionId);
   const selectSection = useBoundStore(state => state.selectSection);
   const clearSelection = useBoundStore(state => state.clearSelection);
+  const [progressAnimating, setProgressAnimating] = useState(false);
+
+  // Get clarification flow state for real-time updates
+  const isActive = useBoundStore(state =>
+    'isActive' in state ? state.isActive : false
+  );
+  const agentTyping = useBoundStore(state =>
+    'agentTyping' in state ? state.agentTyping : false
+  );
 
   // Calculate progress
   const confirmedSections = sections.filter(
@@ -25,6 +35,13 @@ export function MissionCanvas({ className }: MissionCanvasProps) {
     totalSections > 0
       ? Math.round((confirmedSections / totalSections) * 100)
       : 0;
+
+  // Animate progress bar when progress changes
+  useEffect(() => {
+    setProgressAnimating(true);
+    const timer = setTimeout(() => setProgressAnimating(false), 800);
+    return () => clearTimeout(timer);
+  }, [progressPercentage]);
 
   const handleSectionSelect = (sectionId: string) => {
     if (selectedSectionId === sectionId) {
@@ -41,8 +58,18 @@ export function MissionCanvas({ className }: MissionCanvasProps) {
         <div className='space-y-3'>
           <div className='flex items-center justify-between'>
             <h1 className='text-lg font-semibold'>Canvas de Mission</h1>
-            <Badge variant='secondary' className='text-xs'>
+            <Badge
+              variant='secondary'
+              className={cn(
+                'text-xs transition-all duration-300',
+                progressAnimating && 'scale-110 shadow-lg',
+                isActive && 'ring-2 ring-blue-400 ring-opacity-50'
+              )}
+            >
               {confirmedSections}/{totalSections} confirmés
+              {agentTyping && (
+                <span className="ml-1 animate-pulse">⚡</span>
+              )}
             </Badge>
           </div>
 
@@ -58,9 +85,13 @@ export function MissionCanvas({ className }: MissionCanvasProps) {
               <span>Progression</span>
               <span>{progressPercentage}%</span>
             </div>
-            <div className='bg-muted h-2 w-full rounded-full'>
+            <div className='bg-muted h-2 w-full rounded-full overflow-hidden'>
               <div
-                className='bg-primary h-2 rounded-full transition-all duration-300'
+                className={cn(
+                  'bg-primary h-2 rounded-full transition-all duration-500 ease-out',
+                  progressAnimating && 'shadow-lg shadow-primary/50',
+                  isActive && 'animate-pulse'
+                )}
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
@@ -82,13 +113,23 @@ export function MissionCanvas({ className }: MissionCanvasProps) {
             </div>
           ) : (
             <div className='grid gap-3'>
-              {sections.map(section => (
-                <MissionSection
+              {sections.map((section, index) => (
+                <div
                   key={section.id}
-                  section={section}
-                  isSelected={selectedSectionId === section.id}
-                  onSelect={() => handleSectionSelect(section.id)}
-                />
+                  className={cn(
+                    'transition-all duration-300 ease-in-out',
+                    isActive && 'animate-in fade-in slide-in-from-left-4',
+                  )}
+                  style={{
+                    animationDelay: isActive ? `${index * 100}ms` : '0ms'
+                  }}
+                >
+                  <MissionSection
+                    section={section}
+                    isSelected={selectedSectionId === section.id}
+                    onSelect={() => handleSectionSelect(section.id)}
+                  />
+                </div>
               ))}
             </div>
           )}
