@@ -4,16 +4,16 @@ import { useBoundStore } from '@/store';
 /**
  * Hook to initialize the application with demo data
  * This should be called once when the app starts
+ * Canvas is now left empty for progressive loading
  */
 export function useDemoInitialization() {
   const initializeChatDemo = useBoundStore(state => state.initializeDemoData);
-  const initializeCanvasDemo = useBoundStore(state => state.initializeDemoData);
 
   useEffect(() => {
-    // Initialize both chat and canvas with demo data
+    // Initialize only chat with demo data
+    // Canvas remains empty for progressive loading system
     initializeChatDemo();
-    initializeCanvasDemo();
-  }, [initializeChatDemo, initializeCanvasDemo]);
+  }, [initializeChatDemo]);
 }
 
 /**

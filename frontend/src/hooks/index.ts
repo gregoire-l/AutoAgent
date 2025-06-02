@@ -7,6 +7,7 @@ export {
   useDemoInitialization,
   useDemoDataStatus,
 } from './useDemoInitialization';
+export { useProgressiveCanvasLoading } from './useProgressiveCanvasLoading';
 
 // Additional hooks will be exported here as they are created
 // Example:
