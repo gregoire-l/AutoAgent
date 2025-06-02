@@ -20,7 +20,8 @@ export function AppContainer() {
   const sendMessage = useBoundStore(state => state.sendMessage);
 
   // Initialize store and demo data
-  useStoreInitialization();
+  // Pass clarificationMode to skip demo messages when clarification flow will be active
+  useStoreInitialization(clarificationMode);
   useDemoInitialization();
 
   const handleStartMission = (initialMessage: string, isClarificationMode?: boolean) => {
