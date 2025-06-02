@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { StatusIndicator } from './StatusIndicator';
 import { ShimmerButton } from '@/components/ui/shimmer-button';
 import { TextAnimate } from '@/components/ui/text-animate';
+import { ProgressiveText } from '@/components/ui/progressive-text';
+import { getLyonParisExampleConfidence } from '@/lib/confidence-utils';
 import { useBoundStore } from '@/store';
 import { cn } from '@/lib/utils';
 import { ANIMATIONS } from '@/lib/constants';
@@ -16,6 +18,7 @@ interface MissionSectionProps {
   section: MissionSectionData;
   isSelected?: boolean;
   onSelect?: () => void;
+  clarificationStep?: number;
   className?: string;
 }
 
@@ -23,6 +26,7 @@ export function MissionSection({
   section,
   isSelected = false,
   onSelect,
+  clarificationStep = 1,
   className,
 }: MissionSectionProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -185,9 +189,16 @@ export function MissionSection({
           <>
             {/* Text Content */}
             {section.content && (
-              <p className='text-muted-foreground mb-3 text-sm'>
+              <ProgressiveText
+                confidence={getLyonParisExampleConfidence(section.title, clarificationStep)}
+                animation="blurInUp"
+                by="word"
+                delay={0.3}
+                className='mb-3 text-sm'
+                startOnView={false}
+              >
                 {section.content}
-              </p>
+              </ProgressiveText>
             )}
 
             {/* Options */}
@@ -212,7 +223,16 @@ export function MissionSection({
                         htmlFor={option.id}
                         className='cursor-pointer text-sm transition-colors duration-200 hover:text-primary'
                       >
-                        {option.label}
+                        <ProgressiveText
+                          confidence={option.selected ? 1.0 : 0.6}
+                          animation="fadeIn"
+                          by="word"
+                          delay={0.1}
+                          className="text-sm"
+                          startOnView={false}
+                        >
+                          {option.label}
+                        </ProgressiveText>
                       </Label>
                     </div>
                   ))}

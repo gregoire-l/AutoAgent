@@ -1,33 +1,38 @@
 import { cn } from '@/lib/utils';
 import type { MessageData } from '../types'
-import { TypingAnimation } from '@/components/ui/typing-animation'
+import { ProgressiveText } from '@/components/ui/progressive-text'
+import { getChatMessageConfidence } from '@/lib/confidence-utils'
 import { TextAnimate } from '@/components/magicui/text-animate'
-import { ANIMATIONS } from '@/lib/constants';
 
 interface MessageProps {
   message: MessageData;
+  messageIndex?: number;
   className?: string;
 }
 
 interface MessageContentProps {
-  message: MessageData
+  message: MessageData;
+  messageIndex?: number;
 }
 
-function MessageContent({ message }: MessageContentProps) {
+function MessageContent({ message, messageIndex = 0 }: MessageContentProps) {
   if (message.role === 'assistant') {
     return (
-      <TypingAnimation
-        duration={ANIMATIONS.TYPING_CHARACTER_DELAY}
+      <ProgressiveText
+        confidence={getChatMessageConfidence(message.role, message.content, messageIndex)}
+        animation="blurInUp"
+        by="word"
+        delay={0.2}
         className="text-sm whitespace-pre-wrap break-words"
-        as="p"
+        startOnView={false}
       >
         {message.content}
-      </TypingAnimation>
+      </ProgressiveText>
     );
   }
 
   return (
-    <TextAnimate animation="fadeIn" className="text-sm">
+    <TextAnimate animation="fadeIn" className="text-sm" startOnView={false}>
       <p className="whitespace-pre-wrap break-words">
         {message.content}
       </p>
@@ -35,7 +40,7 @@ function MessageContent({ message }: MessageContentProps) {
   );
 }
 
-export function Message({ message, className }: MessageProps) {
+export function Message({ message, messageIndex = 0, className }: MessageProps) {
   const isUser = message.role === 'user';
 
   const getStatusColor = (status: MessageData['status']) => {
@@ -84,10 +89,10 @@ export function Message({ message, className }: MessageProps) {
             'rounded-lg px-3 py-2',
             isUser
               ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground'
+              : 'bg-muted'
           )}
         >
-          <MessageContent message={message} />
+          <MessageContent message={message} messageIndex={messageIndex} />
         </div>
 
         {/* Message Meta */}
