@@ -1,9 +1,38 @@
 import { cn } from '@/lib/utils';
-import type { MessageData } from '../types';
+import type { MessageData } from '../types'
+import { TypingAnimation } from '@/components/ui/typing-animation'
+import { TextAnimate } from '@/components/magicui/text-animate'
+import { ANIMATIONS } from '@/lib/constants';
 
 interface MessageProps {
   message: MessageData;
   className?: string;
+}
+
+interface MessageContentProps {
+  message: MessageData
+}
+
+function MessageContent({ message }: MessageContentProps) {
+  if (message.role === 'assistant') {
+    return (
+      <TypingAnimation
+        duration={ANIMATIONS.TYPING_CHARACTER_DELAY}
+        className="text-sm whitespace-pre-wrap break-words"
+        as="p"
+      >
+        {message.content}
+      </TypingAnimation>
+    );
+  }
+
+  return (
+    <TextAnimate animation="fadeIn" className="text-sm">
+      <p className="whitespace-pre-wrap break-words">
+        {message.content}
+      </p>
+    </TextAnimate>
+  );
 }
 
 export function Message({ message, className }: MessageProps) {
@@ -52,13 +81,13 @@ export function Message({ message, className }: MessageProps) {
         {/* Message Bubble */}
         <div
           className={cn(
-            'rounded-lg px-3 py-2 text-sm',
+            'rounded-lg px-3 py-2',
             isUser
               ? 'bg-primary text-primary-foreground'
               : 'bg-muted text-muted-foreground'
           )}
         >
-          <p className='break-words whitespace-pre-wrap'>{message.content}</p>
+          <MessageContent message={message} />
         </div>
 
         {/* Message Meta */}

@@ -7,6 +7,8 @@ import { useStoreInitialization, useDemoInitialization } from '@/hooks';
 import { MissionCanvas } from '@/features/canvas';
 import { ChatPanel } from '@/features/chat';
 import { ClarificationFlowManager } from '@/features/mission-clarification';
+import { generateId } from '@/lib/helpers';
+import type { MessageData } from '@/features/chat/types';
 
 // ChatPanel is now replaced by the actual ChatPanel component from features/chat
 
@@ -17,7 +19,7 @@ export function AppContainer() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [clarificationMode, setClarificationMode] = useState(false);
 
-  const sendMessage = useBoundStore(state => state.sendMessage);
+  const addMessage = useBoundStore(state => state.addMessage);
 
   // Initialize store and demo data
   // Pass clarificationMode to skip demo messages when clarification flow will be active
@@ -32,16 +34,22 @@ export function AppContainer() {
       setClarificationMode(true);
     }
 
+    // Add the initial message immediately with 'sent' status
+    if (!isClarificationMode) {
+      const userMessage: MessageData = {
+        id: generateId(),
+        content: initialMessage,
+        role: 'user',
+        timestamp: new Date(),
+        status: 'sent'
+      };
+      addMessage(userMessage);
+    }
+
     // Transition animation
     setTimeout(() => {
       setShowMainLayout(true);
       setIsTransitioning(false);
-
-      // Send the initial message only if not in clarification mode
-      // Clarification mode will handle its own message flow
-      if (!isClarificationMode) {
-        void sendMessage(initialMessage);
-      }
     }, 500);
   };
 
