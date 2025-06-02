@@ -25,6 +25,10 @@ export function MessageInput({
   const addMessage = useBoundStore(state => state.addMessage);
   const connectionStatus = useBoundStore(state => state.isConnected);
 
+  // Clarification mode detection and actions
+  const isInClarificationMode = useBoundStore(state => state.isActive);
+  const addUserInteraction = useBoundStore(state => state.addUserInteraction);
+
   const handleSubmit = async () => {
     const trimmedInput = input.trim();
     if (!trimmedInput || isLoading || disabled) return;
@@ -40,6 +44,19 @@ export function MessageInput({
 
     addMessage(userMessage);
     setInput('');
+
+    if (isInClarificationMode) {
+      // Route through clarification flow system
+      addUserInteraction({
+        type: 'message',
+        content: trimmedInput,
+      });
+
+      // Don't simulate agent response - let clarification flow handle it
+      return;
+    }
+
+    // Normal message flow for non-clarification mode
     setIsLoading(true);
 
     // Simulate agent response (replace with real API call)
