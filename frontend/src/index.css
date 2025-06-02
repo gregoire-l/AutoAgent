@@ -254,3 +254,80 @@ body {
 .animate-rippling {
   animation: rippling 600ms ease-out;
 }
+
+/* Micro-interaction animations */
+@keyframes micro-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes micro-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes micro-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+  }
+}
+
+@keyframes micro-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes micro-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.animate-micro-bounce {
+  animation: micro-bounce 0.6s ease-in-out;
+}
+
+.animate-micro-pulse {
+  animation: micro-pulse 2s ease-in-out infinite;
+}
+
+.animate-micro-glow {
+  animation: micro-glow 2s ease-in-out infinite;
+}
+
+.animate-micro-shimmer {
+  animation: micro-shimmer 2s linear infinite;
+}
+
+.animate-micro-float {
+  animation: micro-float 3s ease-in-out infinite;
+}
+
+/* Accessibility: Respect motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-micro-bounce,
+  .animate-micro-pulse,
+  .animate-micro-glow,
+  .animate-micro-shimmer,
+  .animate-micro-float {
+    animation: none;
+  }
+}

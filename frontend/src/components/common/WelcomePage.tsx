@@ -1,11 +1,12 @@
 import { useState, useTransition } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { LYON_PARIS_EXAMPLE } from '@/features/mission-clarification';
 import { TextAnimate } from '@/components/magicui/text-animate';
+import { MicroInteractionCard } from '@/components/ui/micro-interaction-card';
+import { GlowButton } from '@/components/ui/glow-button';
 
 interface WelcomePageProps {
   onStartMission: (initialMessage: string, isClarificationMode?: boolean) => void;
@@ -118,11 +119,13 @@ export function WelcomePage({ onStartMission, className }: WelcomePageProps) {
               transition: { duration: 0.8, ease: [0.4, 0, 0.2, 1] }
             }}
           >
-            <Card
+            <MicroInteractionCard
               className={cn(
                 'border-muted-foreground/25 hover:border-muted-foreground/50 border-2 border-dashed',
                 'transition-all duration-300 ease-in-out'
               )}
+              glowColor="#3B82F6"
+              enableParallax={true}
             >
               <CardContent className='p-6'>
                 <div className='space-y-4'>
@@ -138,15 +141,37 @@ export function WelcomePage({ onStartMission, className }: WelcomePageProps) {
                     >
                       Décrivez votre mission
                     </TextAnimate>
-                    <Textarea
-                      id='mission-input'
-                      placeholder="Ex: J'aurais besoin d'organiser un A/R Lyon-Paris pour 4 potes..."
-                      value={message}
-                      onChange={e => setMessage(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      className="mt-2 min-h-[120px] resize-none text-base"
-                      autoFocus
-                    />
+                    <motion.div
+                      className="relative mt-2"
+                      whileFocus={{ scale: 1.01 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Textarea
+                        id='mission-input'
+                        placeholder="Ex: J'aurais besoin d'organiser un A/R Lyon-Paris pour 4 potes..."
+                        value={message}
+                        onChange={e => setMessage(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        className={cn(
+                          "min-h-[120px] resize-none text-base transition-all duration-200",
+                          "hover:border-muted-foreground/50 focus:shadow-lg",
+                          message.length > 0 && "border-primary/50"
+                        )}
+                        autoFocus
+                      />
+
+                      {/* Glow effect when typing */}
+                      <motion.div
+                        className="absolute inset-0 rounded-md opacity-0 pointer-events-none"
+                        style={{
+                          boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)',
+                        }}
+                        animate={{
+                          opacity: message.length > 0 ? 0.5 : 0,
+                        }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    </motion.div>
                   </div>
 
                   <div className='flex items-center justify-between'>
@@ -160,17 +185,22 @@ export function WelcomePage({ onStartMission, className }: WelcomePageProps) {
                     >
                       Appuyez sur Entrée pour commencer, Shift+Entrée pour une nouvelle ligne
                     </TextAnimate>
-                    <Button
+                    <GlowButton
                       onClick={handleSubmit}
                       disabled={!message.trim() || isAnimating || isPending}
-                      className="min-w-[100px]"
+                      className={cn(
+                        "min-w-[100px]",
+                        message.trim() && !isAnimating && !isPending && "animate-micro-pulse"
+                      )}
+                      glowColor={message.trim() ? "#10B981" : "#6B7280"}
+                      glowIntensity={message.trim() ? "medium" : "low"}
                     >
                       {isAnimating || isPending ? 'Démarrage...' : 'Commencer'}
-                    </Button>
+                    </GlowButton>
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </MicroInteractionCard>
           </motion.div>
 
           {/* Lyon-Paris Example - Prominent */}
@@ -197,16 +227,28 @@ export function WelcomePage({ onStartMission, className }: WelcomePageProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.1, duration: 0.5 }}
             >
-              <Card className='border-blue-200 bg-blue-50/50 hover:bg-blue-50 transition-colors dark:border-blue-800 dark:bg-blue-950/50 dark:hover:bg-blue-950/70'>
+              <MicroInteractionCard
+                className='border-blue-200 bg-blue-50/50 hover:bg-blue-50 transition-colors dark:border-blue-800 dark:bg-blue-950/50 dark:hover:bg-blue-950/70'
+                glowColor="#3B82F6"
+                hoverScale={1.03}
+                enableParallax={false}
+              >
                 <CardContent className='p-4'>
-                  <Button
-                    variant='ghost'
-                    size='sm'
+                  <motion.button
                     className='h-auto w-full justify-start p-3 text-left text-wrap hover:bg-transparent'
                     onClick={() => setMessage(LYON_PARIS_EXAMPLE)}
                     disabled={isAnimating || isPending}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ duration: 0.1 }}
                   >
-                    <span className='mr-2 text-lg'>🚄</span>
+                    <motion.span
+                      className='mr-2 text-lg'
+                      whileHover={{ scale: 1.2, rotate: 5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      🚄
+                    </motion.span>
                     <div className='flex flex-col items-start'>
                       <span className='text-sm font-medium text-blue-700 dark:text-blue-300'>
                         Voyage Lyon-Paris (Exemple de clarification)
@@ -215,9 +257,9 @@ export function WelcomePage({ onStartMission, className }: WelcomePageProps) {
                         {LYON_PARIS_EXAMPLE.substring(0, 80)}...
                       </span>
                     </div>
-                  </Button>
+                  </motion.button>
                 </CardContent>
-              </Card>
+              </MicroInteractionCard>
             </motion.div>
           </motion.div>
 
@@ -258,16 +300,30 @@ export function WelcomePage({ onStartMission, className }: WelcomePageProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1.6 + index * 0.1, duration: 0.4 }}
                 >
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className="h-auto justify-start p-3 text-left text-wrap hover:scale-105 hover:shadow-sm transition-all duration-300 ease-in-out"
-                    onClick={() => setMessage(example)}
-                    disabled={isAnimating || isPending}
+                  <MicroInteractionCard
+                    className="h-auto justify-start p-0 border-0 bg-transparent shadow-none"
+                    glowColor="#10B981"
+                    hoverScale={1.05}
+                    tapScale={0.95}
                   >
-                    <span className='mr-2 text-xs opacity-60'>💡</span>
-                    <span className='text-sm'>{example}</span>
-                  </Button>
+                    <motion.button
+                      className="w-full h-auto justify-start p-3 text-left text-wrap transition-all duration-300 ease-in-out rounded-md hover:bg-accent/50"
+                      onClick={() => setMessage(example)}
+                      disabled={isAnimating || isPending}
+                      whileHover={{ x: 5 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <motion.span
+                        className='mr-2 text-xs opacity-60'
+                        whileHover={{ scale: 1.3, rotate: 10 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        💡
+                      </motion.span>
+                      <span className='text-sm'>{example}</span>
+                    </motion.button>
+                  </MicroInteractionCard>
                 </motion.div>
               ))}
             </motion.div>

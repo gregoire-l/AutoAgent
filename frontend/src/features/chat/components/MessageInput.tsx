@@ -1,9 +1,10 @@
 import { useState, useRef, type KeyboardEvent } from 'react';
-import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, Loader2 } from 'lucide-react';
 import { useBoundStore } from '@/store';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { GlowButton } from '@/components/ui/glow-button';
 
 interface MessageInputProps {
   className?: string;
@@ -106,41 +107,88 @@ export function MessageInput({
   const canSend = input.trim().length > 0 && !isDisabled;
 
   return (
-    <div className={cn('border-border border-t p-4', className)}>
+    <motion.div
+      className={cn('border-border border-t p-4', className)}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className='flex items-end gap-2'>
-        <div className='flex-1'>
-          <Textarea
-            ref={textareaRef}
-            value={input}
-            onChange={e => handleInputChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={placeholder}
-            disabled={isDisabled}
-            className='max-h-[120px] min-h-[40px] resize-none'
-            rows={1}
-          />
-        </div>
+        <motion.div
+          className='flex-1'
+          whileHover={{ scale: 1.01 }}
+          transition={{ duration: 0.2 }}
+        >
+          <motion.div
+            className="relative"
+            whileFocus={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Textarea
+              ref={textareaRef}
+              value={input}
+              onChange={e => handleInputChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={placeholder}
+              disabled={isDisabled}
+              className={cn(
+                'max-h-[120px] min-h-[40px] resize-none transition-all duration-200',
+                'hover:border-muted-foreground/50 focus:shadow-lg',
+                input.length > 0 && 'border-primary/50'
+              )}
+              rows={1}
+            />
 
-        <Button
+            {/* Glow effect when focused */}
+            <motion.div
+              className="absolute inset-0 rounded-md opacity-0 pointer-events-none"
+              style={{
+                boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)',
+              }}
+              animate={{
+                opacity: input.length > 0 ? 0.5 : 0,
+              }}
+              transition={{ duration: 0.3 }}
+            />
+          </motion.div>
+        </motion.div>
+
+        <GlowButton
           onClick={() => void handleSubmit()}
           disabled={!canSend}
-          size='icon'
-          className='h-10 w-10 flex-shrink-0'
+          size="md"
+          className={cn(
+            'h-10 w-10 flex-shrink-0 p-0',
+            canSend && 'animate-micro-pulse'
+          )}
+          glowColor={canSend ? '#10B981' : '#6B7280'}
+          glowIntensity={canSend ? 'medium' : 'low'}
         >
           {isLoading ? (
             <Loader2 className='h-4 w-4 animate-spin' />
           ) : (
-            <Send className='h-4 w-4' />
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ duration: 0.1 }}
+            >
+              <Send className='h-4 w-4' />
+            </motion.div>
           )}
-        </Button>
+        </GlowButton>
       </div>
 
       {!connectionStatus && (
-        <p className='mt-2 text-xs text-red-500'>
+        <motion.p
+          className='mt-2 text-xs text-red-500'
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
           Connexion perdue - Reconnexion en cours...
-        </p>
+        </motion.p>
       )}
-    </div>
+    </motion.div>
   );
 }
 
