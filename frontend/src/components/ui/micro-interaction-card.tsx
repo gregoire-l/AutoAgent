@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useOptimizedAnimation } from '@/hooks/useOptimizedAnimation';
+import { OPTIMIZED_VARIANTS } from '@/lib/animation-utils';
 
 interface MicroInteractionCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -26,9 +28,25 @@ export const MicroInteractionCard = React.forwardRef<
 }, ref) => {
   const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
 
+  // Optimized animation variants
+  const animationVariants = useOptimizedAnimation({
+    ...OPTIMIZED_VARIANTS.hover,
+    whileHover: {
+      scale: hoverScale,
+      boxShadow: `0 10px 25px rgba(0,0,0,0.1), 0 0 20px ${glowColor}20`,
+      y: -2,
+      rotateX: enableParallax ? mousePosition.y * 0.5 : 0,
+      rotateY: enableParallax ? mousePosition.x * 0.5 : 0,
+    },
+    whileTap: { scale: tapScale },
+    whileFocus: {
+      boxShadow: `0 0 0 3px ${glowColor}50`,
+    },
+  });
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!enableParallax) return;
-    
+
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left - rect.width / 2) / 20;
     const y = (e.clientY - rect.top - rect.height / 2) / 20;
@@ -47,25 +65,10 @@ export const MicroInteractionCard = React.forwardRef<
       className={cn(
         "relative overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300",
         "hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        "cursor-pointer",
+        "cursor-pointer optimized-animation",
         className
       )}
-      whileHover={{
-        scale: hoverScale,
-        boxShadow: `0 10px 25px rgba(0,0,0,0.1), 0 0 20px ${glowColor}20`,
-        y: -2,
-        rotateX: enableParallax ? mousePosition.y * 0.5 : 0,
-        rotateY: enableParallax ? mousePosition.x * 0.5 : 0,
-      }}
-      whileTap={{ scale: tapScale }}
-      whileFocus={{
-        boxShadow: `0 0 0 3px ${glowColor}50`,
-      }}
-      transition={{
-        type: 'spring',
-        stiffness: 300,
-        damping: 20,
-      }}
+      {...animationVariants}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{

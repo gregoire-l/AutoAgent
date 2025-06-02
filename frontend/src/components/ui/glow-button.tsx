@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useOptimizedAnimation } from '@/hooks/useOptimizedAnimation';
+import { OPTIMIZED_VARIANTS } from '@/lib/animation-utils';
 
 interface GlowButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -40,6 +42,16 @@ export const GlowButton = React.forwardRef<HTMLButtonElement, GlowButtonProps>(
       ghost: 'hover:bg-accent hover:text-accent-foreground',
     };
 
+    // Optimized animation variants
+    const animationVariants = useOptimizedAnimation({
+      ...OPTIMIZED_VARIANTS.glow,
+      whileHover: {
+        scale: 1.05,
+        boxShadow: `0 0 ${glowIntensityMap[glowIntensity]} ${glowColor}60`,
+      },
+      whileTap: { scale: 0.95 },
+    });
+
     return (
       <motion.button
         ref={ref}
@@ -47,21 +59,12 @@ export const GlowButton = React.forwardRef<HTMLButtonElement, GlowButtonProps>(
           "relative inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium",
           "ring-offset-background transition-all duration-300 focus-visible:outline-none",
           "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-          "disabled:pointer-events-none disabled:opacity-50 overflow-hidden",
+          "disabled:pointer-events-none disabled:opacity-50 overflow-hidden optimized-animation",
           sizeMap[size],
           variantMap[variant],
           className
         )}
-        whileHover={{
-          scale: 1.05,
-          boxShadow: `0 0 ${glowIntensityMap[glowIntensity]} ${glowColor}60`,
-        }}
-        whileTap={{ scale: 0.95 }}
-        transition={{
-          type: 'spring',
-          stiffness: 400,
-          damping: 17,
-        }}
+        {...animationVariants}
         {...props}
       >
         {/* Animated background gradient */}

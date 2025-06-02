@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useOptimizedAnimation } from '@/hooks/useOptimizedAnimation';
+import { OPTIMIZED_VARIANTS } from '@/lib/animation-utils';
 
 interface MicroInteractionInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   glowColor?: string;
@@ -37,6 +39,20 @@ export const MicroInteractionInput = React.forwardRef<
     props.onChange?.(e);
   };
 
+  // Optimized animation variants
+  const containerVariants = useOptimizedAnimation({
+    ...OPTIMIZED_VARIANTS.hover,
+    whileHover: { scale: 1.01 },
+    whileFocus: { scale: 1.01 },
+  });
+
+  const labelVariants = useOptimizedAnimation({
+    animate: {
+      scale: isFocused || hasValue ? 0.85 : 1,
+      y: isFocused || hasValue ? -20 : 0,
+    },
+  });
+
   return (
     <div className="relative">
       {/* Floating label */}
@@ -44,28 +60,22 @@ export const MicroInteractionInput = React.forwardRef<
         <motion.label
           className={cn(
             "absolute left-3 text-sm text-muted-foreground pointer-events-none transition-all duration-200",
-            isFocused || hasValue 
-              ? "top-0 -translate-y-1/2 bg-background px-1 text-xs" 
+            isFocused || hasValue
+              ? "top-0 -translate-y-1/2 bg-background px-1 text-xs"
               : "top-1/2 -translate-y-1/2"
           )}
           style={{
             color: isFocused ? glowColor : undefined,
           }}
-          animate={{
-            scale: isFocused || hasValue ? 0.85 : 1,
-            y: isFocused || hasValue ? -20 : 0,
-          }}
-          transition={{ duration: 0.2 }}
+          {...labelVariants}
         >
           {label}
         </motion.label>
       )}
 
       <motion.div
-        className="relative"
-        whileHover={{ scale: 1.01 }}
-        whileFocus={{ scale: 1.01 }}
-        transition={{ duration: 0.2 }}
+        className="relative optimized-animation"
+        {...containerVariants}
       >
         {/* Glow effect */}
         <motion.div

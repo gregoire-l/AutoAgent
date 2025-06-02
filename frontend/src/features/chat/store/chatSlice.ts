@@ -6,6 +6,9 @@ import { getCurrentDemoData } from '@/lib/demo-data';
 
 // Chat slice interface
 export interface ChatSlice extends ChatState {
+  // Preloading state
+  preloadedMessage: string;
+
   // Actions
   sendMessage: (content: string) => Promise<void>;
   receiveMessage: (response: AgentResponse) => void;
@@ -15,6 +18,11 @@ export interface ChatSlice extends ChatState {
   clearMessages: () => void;
   addMessage: (message: MessageData) => void;
   initializeDemoData: () => void;
+
+  // Preloading actions
+  preloadNextMessage: (message: string) => void;
+  clearPreloadedMessage: () => void;
+  usePreloadedMessage: () => void;
 }
 
 // Chat slice creator
@@ -26,6 +34,7 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (
   isTyping: false,
   composerInput: '',
   isConnected: true,
+  preloadedMessage: '',
 
   // Actions
   sendMessage: async (content: string) => {
@@ -129,6 +138,23 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (
       isConnected: true,
       isTyping: false,
       composerInput: '',
+      preloadedMessage: '',
     });
+  },
+
+  // Preloading actions
+  preloadNextMessage: (message: string) => {
+    set({ preloadedMessage: message });
+  },
+
+  clearPreloadedMessage: () => {
+    set({ preloadedMessage: '' });
+  },
+
+  usePreloadedMessage: () => {
+    set(state => ({
+      composerInput: state.preloadedMessage,
+      preloadedMessage: '',
+    }));
   },
 });

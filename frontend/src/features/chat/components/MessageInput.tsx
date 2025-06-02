@@ -5,6 +5,9 @@ import { useBoundStore } from '@/store';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { GlowButton } from '@/components/ui/glow-button';
+import { useOptimizedAnimation } from '@/hooks/useOptimizedAnimation';
+import { useAnimationPerformance } from '@/hooks/useAnimationPerformance';
+import { OPTIMIZED_VARIANTS } from '@/lib/animation-utils';
 
 interface MessageInputProps {
   className?: string;
@@ -25,6 +28,30 @@ export function MessageInput({
 
   const addMessage = useBoundStore(state => state.addMessage);
   const connectionStatus = useBoundStore(state => state.isConnected);
+  const preloadedMessage = useBoundStore(state => state.preloadedMessage);
+  const applyPreloadedMessage = useBoundStore(state => state.usePreloadedMessage);
+
+  // Performance optimization hooks
+  const { optimizedRef, onAnimationStart, onAnimationComplete } = useAnimationPerformance({
+    enableHardwareAcceleration: true,
+    monitorPerformance: false, // Disable in production
+  });
+
+  // Optimized animation variants
+  const containerVariants = useOptimizedAnimation({
+    ...OPTIMIZED_VARIANTS.slideUp,
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+  });
+
+  const inputContainerVariants = useOptimizedAnimation({
+    ...OPTIMIZED_VARIANTS.hover,
+    whileHover: { scale: 1.01 },
+  });
+
+  const focusVariants = useOptimizedAnimation({
+    whileFocus: { scale: 1.02 },
+  });
 
   // Clarification mode detection and actions
   const isInClarificationMode = useBoundStore(state => state.isActive);
@@ -108,21 +135,45 @@ export function MessageInput({
 
   return (
     <motion.div
-      className={cn('border-border border-t p-4', className)}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      ref={optimizedRef}
+      className={cn('border-border border-t p-4 optimized-animation', className)}
+      {...containerVariants}
+      onAnimationStart={() => onAnimationStart('MessageInput')}
+      onAnimationComplete={() => onAnimationComplete('MessageInput')}
     >
-      <div className='flex items-end gap-2'>
+      {/* Preloaded message indicator */}
+      {preloadedMessage && (
         <motion.div
-          className='flex-1'
-          whileHover={{ scale: 1.01 }}
+          className="mb-2 p-2 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-800"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.2 }}
         >
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-blue-600 dark:text-blue-400">
+              Message préchargé: {preloadedMessage.substring(0, 50)}...
+            </span>
+            <motion.button
+              className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+              onClick={() => applyPreloadedMessage()}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Utiliser
+            </motion.button>
+          </div>
+        </motion.div>
+      )}
+
+      <div className='flex items-end gap-2'>
+        <motion.div
+          className='flex-1 optimized-animation'
+          {...inputContainerVariants}
+        >
           <motion.div
-            className="relative"
-            whileFocus={{ scale: 1.02 }}
-            transition={{ duration: 0.2 }}
+            className="relative optimized-animation"
+            {...focusVariants}
           >
             <Textarea
               ref={textareaRef}

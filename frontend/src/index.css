@@ -321,6 +321,30 @@ body {
   animation: micro-float 3s ease-in-out infinite;
 }
 
+/* Performance optimizations for animations */
+.optimized-animation {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Remove will-change after animation completes */
+.animation-complete {
+  will-change: auto;
+}
+
+/* Hardware acceleration for frequently animated elements */
+.hw-accelerated {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* Smooth transitions for layout changes */
+.layout-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Accessibility: Respect motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .animate-micro-bounce,
@@ -328,6 +352,22 @@ body {
   .animate-micro-glow,
   .animate-micro-shimmer,
   .animate-micro-float {
-    animation: none;
+    animation: none !important;
+  }
+
+  /* Disable all transitions and animations */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep essential animations but make them instant */
+  .essential-animation {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
