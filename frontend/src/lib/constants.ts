@@ -22,6 +22,11 @@ export const ANIMATIONS = {
   BEAM_ANIMATION_DURATION: 3000, // milliseconds
   PULSATING_DURATION: 1500, // milliseconds
   SHIMMER_DURATION: 3000, // milliseconds
+  // Enhanced Agent Simulation timings
+  AGENT_THINKING_DURATION: 1500, // milliseconds
+  AGENT_ANALYZING_DURATION: 2500, // milliseconds
+  AGENT_TYPING_DURATION: 1000, // milliseconds
+  TOTAL_AGENT_SIMULATION: 5000, // milliseconds (1.5 + 2.5 + 1.0)
 } as const;
 
 // UI Constants

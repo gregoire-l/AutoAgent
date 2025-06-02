@@ -1,6 +1,7 @@
 import { useCallback, useTransition, useMemo } from 'react'
 import { useBoundStore } from '@/store'
 import { delay } from '@/lib/helpers'
+import { ANIMATIONS } from '@/lib/constants'
 import type { ClarificationPhase, ScriptedResponse } from '../types'
 
 /**
@@ -17,6 +18,7 @@ export function useClarificationFlow() {
   const isSimulationMode = useBoundStore(state => state.isSimulationMode)
   const agentTyping = useBoundStore(state => state.agentTyping)
   const agentThinking = useBoundStore(state => state.agentThinking)
+  const agentState = useBoundStore(state => state.agentState)
   const scriptedResponses = useBoundStore(state => state.scriptedResponses)
   const userInteractions = useBoundStore(state => state.userInteractions)
   const highlightedSections = useBoundStore(state => state.highlightedSections)
@@ -32,6 +34,7 @@ export function useClarificationFlow() {
     isSimulationMode,
     agentTyping,
     agentThinking,
+    agentState,
     scriptedResponses,
     userInteractions,
     highlightedSections,
@@ -45,6 +48,7 @@ export function useClarificationFlow() {
     isSimulationMode,
     agentTyping,
     agentThinking,
+    agentState,
     scriptedResponses,
     userInteractions,
     highlightedSections,
@@ -54,6 +58,7 @@ export function useClarificationFlow() {
   ])
   const setAgentTyping = useBoundStore(state => state.setAgentTyping)
   const setAgentThinking = useBoundStore(state => state.setAgentThinking)
+  const setAgentState = useBoundStore(state => state.setAgentState)
   const receiveMessage = useBoundStore(state => state.receiveMessage)
   const setTyping = useBoundStore(state => state.setTyping)
   const updateSectionStatus = useBoundStore(state => state.updateSectionStatus)
@@ -66,7 +71,91 @@ export function useClarificationFlow() {
   const canAdvanceStep = useBoundStore(state => state.canAdvanceStep)
 
   /**
-   * Process agent response with realistic timing and animations
+   * Enhanced process agent response with sophisticated visual states
+   * Extends the original processAgentResponse with Magic UI animations
+   */
+  const enhancedProcessAgentResponse = useCallback(async (response: ScriptedResponse) => {
+    if (!response) return
+
+    // État 1: Thinking (1.5s) - PulsatingButton
+    setAgentState('thinking')
+    setAgentThinking(true)
+    await delay(ANIMATIONS.AGENT_THINKING_DURATION)
+
+    // État 2: Analyzing + Canvas progressif (2.5s) - ShimmerButton
+    setAgentState('analyzing')
+    setAgentThinking(false)
+
+    // Trigger progressive canvas loading during analyzing phase
+    if (response.canvasUpdates && response.canvasUpdates.length > 0) {
+      startTransition(() => {
+        response.canvasUpdates?.forEach(update => {
+          // Add to pending updates for progressive animations
+          addCanvasUpdate(update)
+        })
+
+        // Process canvas updates progressively during analyzing
+        processCanvasUpdates()
+      })
+    }
+
+    await delay(ANIMATIONS.AGENT_ANALYZING_DURATION)
+
+    // État 3: Typing (1s) - TypingAnimation
+    setAgentState('typing')
+    setAgentTyping(true)
+    setTyping(true)
+    await delay(ANIMATIONS.AGENT_TYPING_DURATION)
+
+    // Send the message
+    startTransition(() => {
+      receiveMessage({
+        content: response.content,
+        canvasUpdates: response.canvasUpdates,
+      })
+
+      setAgentTyping(false)
+      setTyping(false)
+      setAgentState('idle')
+    })
+
+    // Process remaining canvas updates if any
+    if (response.canvasUpdates && response.canvasUpdates.length > 0) {
+      startTransition(() => {
+        response.canvasUpdates?.forEach(update => {
+          // Update section status
+          if (update.status) {
+            updateSectionStatus(update.sectionId, update.status)
+          }
+
+          // Update section content
+          if (update.content) {
+            updateSectionContent(update.sectionId, update.content)
+          }
+
+          // Handle highlighting
+          if (update.highlight) {
+            highlightSection(update.sectionId)
+          }
+        })
+      })
+    }
+  }, [
+    setAgentState,
+    setAgentThinking,
+    setAgentTyping,
+    setTyping,
+    receiveMessage,
+    updateSectionStatus,
+    updateSectionContent,
+    highlightSection,
+    addCanvasUpdate,
+    processCanvasUpdates,
+  ])
+
+  /**
+   * Original process agent response with realistic timing and animations
+   * Kept for backward compatibility
    */
   const processAgentResponse = useCallback(async (response: ScriptedResponse) => {
     if (!response) return
@@ -90,7 +179,7 @@ export function useClarificationFlow() {
         content: response.content,
         canvasUpdates: response.canvasUpdates,
       })
-      
+
       setAgentTyping(false)
       setTyping(false)
     })
@@ -103,21 +192,21 @@ export function useClarificationFlow() {
           if (update.status) {
             updateSectionStatus(update.sectionId, update.status)
           }
-          
+
           // Update section content
           if (update.content) {
             updateSectionContent(update.sectionId, update.content)
           }
-          
+
           // Handle highlighting
           if (update.highlight) {
             highlightSection(update.sectionId)
           }
-          
+
           // Add to pending updates for animations
           addCanvasUpdate(update)
         })
-        
+
         // Process all pending updates
         processCanvasUpdates()
       })
@@ -186,12 +275,14 @@ export function useClarificationFlow() {
     // State
     clarificationState,
     isPending,
-    
+    agentState,
+
     // Actions
     processAgentResponse,
+    enhancedProcessAgentResponse,
     advanceToNextStep,
     advanceToNextPhase,
-    
+
     // Utilities
     shouldAutoAdvance,
     getNextPhase,

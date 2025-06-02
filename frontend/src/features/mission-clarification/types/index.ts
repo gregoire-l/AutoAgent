@@ -1,7 +1,9 @@
 // Mission Clarification types and interfaces
 // Define all clarification flow-related types here
 
-export type ClarificationPhase = 'A1' | 'A2' | 'A3';
+export type ClarificationPhase = 'A1' | 'A2' | 'A3'
+
+export type AgentState = 'thinking' | 'analyzing' | 'typing' | 'idle';
 
 export interface ScriptedResponse {
   id: string;
@@ -42,6 +44,7 @@ export interface ClarificationState {
   // Agent state
   agentTyping: boolean;
   agentThinking: boolean;
+  agentState: AgentState;
   
   // Content management
   scriptedResponses: ScriptedResponse[];

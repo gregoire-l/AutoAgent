@@ -16,7 +16,7 @@ export function ClarificationFlowManager({
   // Use custom hook for flow logic
   const {
     clarificationState,
-    processAgentResponse,
+    enhancedProcessAgentResponse,
     advanceToNextStep,
     advanceToNextPhase,
     shouldAutoAdvance,
@@ -90,9 +90,9 @@ export function ClarificationFlowManager({
 
     const currentResponse = getCurrentResponse()
     if (currentResponse && !agentTyping && !agentThinking) {
-      // Delay before processing response
+      // Delay before processing response with enhanced visual states
       const timer = setTimeout(() => {
-        void processAgentResponse(currentResponse)
+        void enhancedProcessAgentResponse(currentResponse)
       }, nextResponseDelay)
 
       return () => clearTimeout(timer)
@@ -106,7 +106,7 @@ export function ClarificationFlowManager({
     agentThinking,
     nextResponseDelay,
     getCurrentResponse,
-    processAgentResponse,
+    enhancedProcessAgentResponse,
   ])
 
   // Handle user interactions and trigger appropriate responses

@@ -6,6 +6,7 @@ import type {
   UserInteraction,
   CanvasUpdate,
   ClarificationFlowConfig,
+  AgentState,
 } from '../types';
 import { generateId } from '@/lib/helpers';
 
@@ -31,6 +32,7 @@ export interface ClarificationSlice extends ClarificationState {
   // Agent state actions
   setAgentTyping: (typing: boolean) => void;
   setAgentThinking: (thinking: boolean) => void;
+  setAgentState: (state: AgentState) => void;
   
   // Content management actions
   loadScriptedResponses: (responses: ScriptedResponse[]) => void;
@@ -68,6 +70,7 @@ export const createClarificationSlice: StateCreator<
   isActive: false,
   agentTyping: false,
   agentThinking: false,
+  agentState: 'idle',
   scriptedResponses: [],
   userInteractions: [],
   highlightedSections: [],
@@ -138,6 +141,7 @@ export const createClarificationSlice: StateCreator<
       isSimulationMode: false,
       agentTyping: false,
       agentThinking: false,
+      agentState: 'idle',
       userInteractions: [],
       highlightedSections: [],
       pendingCanvasUpdates: [],
@@ -151,6 +155,7 @@ export const createClarificationSlice: StateCreator<
       isActive: false,
       agentTyping: false,
       agentThinking: false,
+      agentState: 'idle',
       highlightedSections: [],
       pendingCanvasUpdates: [],
     });
@@ -163,6 +168,10 @@ export const createClarificationSlice: StateCreator<
 
   setAgentThinking: (thinking: boolean) => {
     set({ agentThinking: thinking });
+  },
+
+  setAgentState: (agentState: AgentState) => {
+    set({ agentState });
   },
 
   // Content management actions
