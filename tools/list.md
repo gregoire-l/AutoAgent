@@ -27,3 +27,16 @@ control browser
 
 
 
+
+
+
+
+
+
+
+## deep research 
+- generer rapport
+
+
+
+
