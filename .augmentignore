@@ -1,2 +1,4 @@
 ressources/
 prompts/
+node_modules/
+dist/
