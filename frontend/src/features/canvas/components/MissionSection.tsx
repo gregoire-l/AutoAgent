@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { StatusIndicator } from './StatusIndicator';
 import { ShimmerButton } from '@/components/ui/shimmer-button';
-import { TextAnimate } from '@/components/ui/text-animate';
+import { TextAnimate } from '@/components/magicui/text-animate';
 import { ProgressiveText } from '@/components/ui/progressive-text';
 import { getLyonParisExampleConfidence } from '@/lib/confidence-utils';
 import { useBoundStore } from '@/store';

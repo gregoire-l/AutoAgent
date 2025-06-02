@@ -3,7 +3,7 @@ import { useRef, forwardRef } from 'react';
 import { AnimatedBeam } from '@/components/ui/animated-beam';
 import { ShimmerButton } from '@/components/ui/shimmer-button';
 import { StatusIndicator } from './StatusIndicator';
-import { TextAnimate } from '@/components/ui/text-animate';
+import { TextAnimate } from '@/components/magicui/text-animate';
 import { cn } from '@/lib/utils';
 import { ANIMATIONS } from '@/lib/constants';
 import type { MissionSectionData } from '../types';
