@@ -1,4 +1,4 @@
-import { useCallback, useTransition } from 'react'
+import { useCallback, useTransition, useMemo } from 'react'
 import { useBoundStore } from '@/store'
 import { delay } from '@/lib/helpers'
 import type { ClarificationPhase, ScriptedResponse } from '../types'
@@ -10,21 +10,48 @@ import type { ClarificationPhase, ScriptedResponse } from '../types'
 export function useClarificationFlow() {
   const [isPending, startTransition] = useTransition()
 
-  // Store selectors - clarification state is directly on the store
-  const clarificationState = useBoundStore(state => ({
-    currentPhase: state.currentPhase,
-    currentStep: state.currentStep,
-    isActive: state.isActive,
-    isSimulationMode: state.isSimulationMode,
-    agentTyping: state.agentTyping,
-    agentThinking: state.agentThinking,
-    scriptedResponses: state.scriptedResponses,
-    userInteractions: state.userInteractions,
-    highlightedSections: state.highlightedSections,
-    pendingCanvasUpdates: state.pendingCanvasUpdates,
-    nextResponseDelay: state.nextResponseDelay,
-    lastInteractionTime: state.lastInteractionTime,
-  }))
+  // Store selectors - use individual selectors to avoid creating new objects
+  const currentPhase = useBoundStore(state => state.currentPhase)
+  const currentStep = useBoundStore(state => state.currentStep)
+  const isActive = useBoundStore(state => state.isActive)
+  const isSimulationMode = useBoundStore(state => state.isSimulationMode)
+  const agentTyping = useBoundStore(state => state.agentTyping)
+  const agentThinking = useBoundStore(state => state.agentThinking)
+  const scriptedResponses = useBoundStore(state => state.scriptedResponses)
+  const userInteractions = useBoundStore(state => state.userInteractions)
+  const highlightedSections = useBoundStore(state => state.highlightedSections)
+  const pendingCanvasUpdates = useBoundStore(state => state.pendingCanvasUpdates)
+  const nextResponseDelay = useBoundStore(state => state.nextResponseDelay)
+  const lastInteractionTime = useBoundStore(state => state.lastInteractionTime)
+
+  // Memoize the clarification state object to prevent infinite re-renders
+  const clarificationState = useMemo(() => ({
+    currentPhase,
+    currentStep,
+    isActive,
+    isSimulationMode,
+    agentTyping,
+    agentThinking,
+    scriptedResponses,
+    userInteractions,
+    highlightedSections,
+    pendingCanvasUpdates,
+    nextResponseDelay,
+    lastInteractionTime,
+  }), [
+    currentPhase,
+    currentStep,
+    isActive,
+    isSimulationMode,
+    agentTyping,
+    agentThinking,
+    scriptedResponses,
+    userInteractions,
+    highlightedSections,
+    pendingCanvasUpdates,
+    nextResponseDelay,
+    lastInteractionTime,
+  ])
   const setAgentTyping = useBoundStore(state => state.setAgentTyping)
   const setAgentThinking = useBoundStore(state => state.setAgentThinking)
   const receiveMessage = useBoundStore(state => state.receiveMessage)

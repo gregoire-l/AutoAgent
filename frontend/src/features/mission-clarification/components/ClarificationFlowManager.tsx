@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import { useBoundStore } from '@/store'
 import { LYON_PARIS_SCRIPT, getNextResponse } from '../data'
 import { useClarificationFlow } from '../hooks/useClarificationFlow'
@@ -33,13 +33,13 @@ export function ClarificationFlowManager({
     nextResponseDelay,
   } = clarificationState
 
-  // Store actions
-  const startClarification = useBoundStore(state => state.startClarification)
-  const completeClarification = useBoundStore(state => state.completeClarification)
-  const loadScriptedResponses = useBoundStore(state => state.loadScriptedResponses)
-  const getCurrentResponse = useBoundStore(state => state.getCurrentResponse)
-  const isFlowComplete = useBoundStore(state => state.isFlowComplete)
-  const setMissionTitle = useBoundStore(state => state.setMissionTitle)
+  // Store actions - memoized to prevent unnecessary re-renders
+  const startClarification = useBoundStore(useCallback((state) => state.startClarification, []))
+  const completeClarification = useBoundStore(useCallback((state) => state.completeClarification, []))
+  const loadScriptedResponses = useBoundStore(useCallback((state) => state.loadScriptedResponses, []))
+  const getCurrentResponse = useBoundStore(useCallback((state) => state.getCurrentResponse, []))
+  const isFlowComplete = useBoundStore(useCallback((state) => state.isFlowComplete, []))
+  const setMissionTitle = useBoundStore(useCallback((state) => state.setMissionTitle, []))
 
   // Initialize clarification flow when activated
   useEffect(() => {
@@ -53,7 +53,7 @@ export function ClarificationFlowManager({
       // Start clarification flow
       startClarification('A2')
     }
-  }, [isActive, clarificationState.isActive, loadScriptedResponses, setMissionTitle, startClarification])
+  }, [isActive, clarificationState.isActive]) // Removed store actions from dependencies to prevent loops
 
   // Monitor for step changes and trigger agent responses
   useEffect(() => {
@@ -75,9 +75,8 @@ export function ClarificationFlowManager({
     currentPhase,
     agentTyping,
     agentThinking,
-    getCurrentResponse,
-    processAgentResponse,
     nextResponseDelay,
+    // Removed getCurrentResponse and processAgentResponse to prevent loops
   ])
 
   // Handle user interactions and trigger appropriate responses
@@ -85,17 +84,17 @@ export function ClarificationFlowManager({
     if (!isActive || userInteractions.length === 0) return
 
     const lastInteraction = userInteractions[userInteractions.length - 1]
-    
+
     // Find appropriate response based on interaction
     const nextResponse = getNextResponse(lastInteraction, scriptedResponses, currentPhase, currentStep)
-    
+
     if (nextResponse) {
       // Advance step and process response
       setTimeout(() => {
         advanceToNextStep()
       }, 500) // Brief delay for user action feedback
     }
-  }, [userInteractions, isActive, scriptedResponses, currentPhase, currentStep, advanceToNextStep])
+  }, [userInteractions, isActive, scriptedResponses, currentPhase, currentStep]) // Removed advanceToNextStep to prevent loops
 
   // Handle flow completion
   useEffect(() => {
@@ -103,7 +102,7 @@ export function ClarificationFlowManager({
       completeClarification()
       onComplete()
     }
-  }, [isFlowComplete, isActive, completeClarification, onComplete])
+  }, [isActive, onComplete]) // Removed isFlowComplete and completeClarification to prevent loops
 
   // Handle phase transitions based on progress
   useEffect(() => {
@@ -118,7 +117,7 @@ export function ClarificationFlowManager({
         }, 1000)
       }
     }
-  }, [currentPhase, currentStep, isActive, shouldAutoAdvance, getNextPhase, advanceToNextPhase])
+  }, [currentPhase, currentStep, isActive]) // Removed shouldAutoAdvance, getNextPhase, advanceToNextPhase to prevent loops
 
   // This component doesn't render anything - it's a pure orchestrator
   return null

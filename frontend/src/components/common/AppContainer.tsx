@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { WelcomePage } from './WelcomePage';
 import { MainLayout } from './MainLayout';
+import { ErrorBoundary } from './ErrorBoundary';
 import { useBoundStore } from '@/store';
 import { useStoreInitialization, useDemoInitialization } from '@/hooks';
 import { MissionCanvas } from '@/features/canvas';
@@ -72,10 +73,16 @@ export function AppContainer() {
 
       {/* Clarification Flow Manager - renders when clarification mode is active */}
       {clarificationMode && (
-        <ClarificationFlowManager
-          isActive={clarificationMode}
-          onComplete={handleClarificationComplete}
-        />
+        <ErrorBoundary
+          onError={(error, errorInfo) => {
+            console.error('ClarificationFlowManager error:', error, errorInfo);
+          }}
+        >
+          <ClarificationFlowManager
+            isActive={clarificationMode}
+            onComplete={handleClarificationComplete}
+          />
+        </ErrorBoundary>
       )}
     </>
   );
