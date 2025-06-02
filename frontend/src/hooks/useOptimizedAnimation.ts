@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
 import { useReducedMotion } from './useReducedMotion';
+import type { TargetAndTransition, Transition } from 'motion/react';
 
 interface AnimationVariants {
-  initial?: Record<string, unknown>;
-  animate?: Record<string, unknown>;
-  exit?: Record<string, unknown>;
-  transition?: Record<string, unknown>;
-  whileHover?: Record<string, unknown>;
-  whileTap?: Record<string, unknown>;
-  whileFocus?: Record<string, unknown>;
+  initial?: TargetAndTransition;
+  animate?: TargetAndTransition;
+  exit?: TargetAndTransition;
+  transition?: Transition;
+  whileHover?: TargetAndTransition;
+  whileTap?: TargetAndTransition;
+  whileFocus?: TargetAndTransition;
 }
 
 interface OptimizedAnimationOptions {
@@ -64,7 +65,7 @@ export const useOptimizedAnimation = (
 
     if (enableHardwareAcceleration) {
       // Add will-change and transform3d for hardware acceleration
-      const addHardwareAcceleration = (variant: Record<string, unknown>) => {
+      const addHardwareAcceleration = (variant: TargetAndTransition): TargetAndTransition => {
         if (variant && typeof variant === 'object') {
           return {
             ...variant,
@@ -96,7 +97,7 @@ export const useOptimizedAnimation = (
         stiffness: 300,
         damping: 20,
         ...optimizedVariants.transition,
-      };
+      } as Transition;
     }
 
     return optimizedVariants;

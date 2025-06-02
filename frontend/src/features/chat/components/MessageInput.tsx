@@ -3,7 +3,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Send, Loader2 } from 'lucide-react';
 import { useBoundStore } from '@/store';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { GlowButton } from '@/components/ui/glow-button';
 import { useOptimizedAnimation } from '@/hooks/useOptimizedAnimation';
 import { useAnimationPerformance } from '@/hooks/useAnimationPerformance';
