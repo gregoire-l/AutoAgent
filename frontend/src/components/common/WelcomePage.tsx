@@ -1,9 +1,11 @@
 import { useState, useTransition } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { LYON_PARIS_EXAMPLE } from '@/features/mission-clarification';
+import { TextAnimate } from '@/components/magicui/text-animate';
 
 interface WelcomePageProps {
   onStartMission: (initialMessage: string, isClarificationMode?: boolean) => void;
@@ -53,153 +55,225 @@ export function WelcomePage({ onStartMission, className }: WelcomePageProps) {
   };
 
   return (
-    <div
-      className={cn(
-        'bg-background flex min-h-screen items-center justify-center p-4',
-        'transition-all duration-500 ease-in-out',
-        isAnimating && 'scale-95 opacity-50',
-        className
-      )}
-    >
-      <div
+    <AnimatePresence mode="wait">
+      <motion.div
+        key="welcome-page"
+        initial={{ opacity: 1 }}
+        exit={{
+          opacity: 0,
+          scale: 0.95,
+          transition: { duration: 0.8, ease: [0.4, 0, 0.2, 1] }
+        }}
         className={cn(
-          'w-full max-w-2xl space-y-8',
-          'transition-all duration-500 ease-in-out',
-          isAnimating && 'transform -translate-x-8 scale-95'
+          'bg-background flex min-h-screen items-center justify-center p-4',
+          className
         )}
       >
-        {/* Logo/Title */}
-        <div className='space-y-4 text-center'>
-          <h1 className='text-4xl font-bold tracking-tight'>AutoAgent</h1>
-          <p className='text-xl' style={{ color: '#D4D4D8' }}>
-            Salut ! Prêt(e) à démarrer une mission ? Dis-moi tout...
-          </p>
-        </div>
-
-        {/* Main Input Card */}
-        <Card
-          className={cn(
-            'border-muted-foreground/25 hover:border-muted-foreground/50 border-2 border-dashed',
-            'transition-all duration-300 ease-in-out',
-            isAnimating && 'transform translate-x-full opacity-0'
-          )}
+        <motion.div
+          initial={{ opacity: 1 }}
+          exit={{
+            x: '-30%',
+            scale: 0.95,
+            transition: { duration: 0.8, ease: [0.4, 0, 0.2, 1] }
+          }}
+          className="w-full max-w-2xl space-y-8"
         >
-          <CardContent className='p-6'>
-            <div className='space-y-4'>
-              <div>
-                <label
-                  htmlFor='mission-input'
-                  className='text-muted-foreground text-sm font-medium'
-                >
-                  Décrivez votre mission
-                </label>
-                <Textarea
-                  id='mission-input'
-                  placeholder="Ex: J'aurais besoin d'organiser un A/R Lyon-Paris pour 4 potes..."
-                  value={message}
-                  onChange={e => setMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className={cn(
-                    'mt-2 min-h-[120px] resize-none text-base',
-                    'transition-all duration-500 ease-in-out',
-                    isAnimating && 'transform translate-x-full scale-95'
-                  )}
-                  autoFocus
-                />
-              </div>
+          {/* Logo/Title */}
+          <motion.div
+            className='space-y-4 text-center'
+            exit={{
+              y: -20,
+              opacity: 0,
+              transition: { duration: 0.6, ease: 'easeInOut' }
+            }}
+          >
+            <TextAnimate
+              animation="blurInUp"
+              by="character"
+              as="h1"
+              className='text-4xl font-bold tracking-tight'
+              startOnView={false}
+            >
+              AutoAgent
+            </TextAnimate>
+            <TextAnimate
+              animation="slideUp"
+              by="word"
+              as="p"
+              className='text-xl'
+              style={{ color: '#D4D4D8' }}
+              delay={0.3}
+              startOnView={false}
+            >
+              Salut ! Prêt(e) à démarrer une mission ? Dis-moi tout...
+            </TextAnimate>
+          </motion.div>
 
-              <div className='flex items-center justify-between'>
-                <p className='text-muted-foreground text-xs'>
-                  Appuyez sur Entrée pour commencer, Shift+Entrée pour une
-                  nouvelle ligne
-                </p>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={!message.trim() || isAnimating || isPending}
-                  className={cn(
-                    'min-w-[100px]',
-                    'transition-all duration-300 ease-in-out',
-                    (isAnimating || isPending) && 'scale-95 opacity-50'
-                  )}
-                >
-                  {isAnimating || isPending ? 'Démarrage...' : 'Commencer'}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          {/* Main Input Card */}
+          <motion.div
+            layoutId="input-field"
+            exit={{
+              x: '100%',
+              opacity: 0,
+              transition: { duration: 0.8, ease: [0.4, 0, 0.2, 1] }
+            }}
+          >
+            <Card
+              className={cn(
+                'border-muted-foreground/25 hover:border-muted-foreground/50 border-2 border-dashed',
+                'transition-all duration-300 ease-in-out'
+              )}
+            >
+              <CardContent className='p-6'>
+                <div className='space-y-4'>
+                  <div>
+                    <TextAnimate
+                      animation="fadeIn"
+                      by="word"
+                      as="label"
+                      htmlFor='mission-input'
+                      className='text-muted-foreground text-sm font-medium'
+                      delay={0.5}
+                      startOnView={false}
+                    >
+                      Décrivez votre mission
+                    </TextAnimate>
+                    <Textarea
+                      id='mission-input'
+                      placeholder="Ex: J'aurais besoin d'organiser un A/R Lyon-Paris pour 4 potes..."
+                      value={message}
+                      onChange={e => setMessage(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      className="mt-2 min-h-[120px] resize-none text-base"
+                      autoFocus
+                    />
+                  </div>
 
-        {/* Lyon-Paris Example - Prominent */}
-        <div
-          className={cn(
-            'space-y-3',
-            'transition-all duration-500 ease-in-out',
-            isAnimating && 'transform translate-y-4 opacity-0'
-          )}
-        >
-          <p className='text-muted-foreground text-center text-sm font-medium'>
-            Essayez notre exemple de clarification de mission :
-          </p>
-          <Card className='border-blue-200 bg-blue-50/50 hover:bg-blue-50 transition-colors dark:border-blue-800 dark:bg-blue-950/50 dark:hover:bg-blue-950/70'>
-            <CardContent className='p-4'>
-              <Button
-                variant='ghost'
-                size='sm'
-                className='h-auto w-full justify-start p-3 text-left text-wrap hover:bg-transparent'
-                onClick={() => setMessage(LYON_PARIS_EXAMPLE)}
-                disabled={isAnimating || isPending}
-              >
-                <span className='mr-2 text-lg'>🚄</span>
-                <div className='flex flex-col items-start'>
-                  <span className='text-sm font-medium text-blue-700 dark:text-blue-300'>
-                    Voyage Lyon-Paris (Exemple de clarification)
-                  </span>
-                  <span className='text-xs text-blue-600/80 dark:text-blue-400/80 mt-1'>
-                    {LYON_PARIS_EXAMPLE.substring(0, 80)}...
-                  </span>
+                  <div className='flex items-center justify-between'>
+                    <TextAnimate
+                      animation="fadeIn"
+                      by="word"
+                      as="p"
+                      className='text-muted-foreground text-xs'
+                      delay={0.7}
+                      startOnView={false}
+                    >
+                      Appuyez sur Entrée pour commencer, Shift+Entrée pour une nouvelle ligne
+                    </TextAnimate>
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={!message.trim() || isAnimating || isPending}
+                      className="min-w-[100px]"
+                    >
+                      {isAnimating || isPending ? 'Démarrage...' : 'Commencer'}
+                    </Button>
+                  </div>
                 </div>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-        {/* Other Examples */}
-        <div
-          className={cn(
-            'space-y-3',
-            'transition-all duration-500 ease-in-out delay-100',
-            isAnimating && 'transform translate-y-4 opacity-0'
-          )}
-        >
-          <p className='text-muted-foreground text-center text-sm font-medium'>
-            Autres exemples de missions :
-          </p>
-          <div className='grid gap-2 sm:grid-cols-2'>
-            {[
-              "Organiser un voyage d'affaires à Berlin",
-              'Comparer des solutions de stockage cloud',
-              "Trouver un restaurant pour un dîner d'équipe",
-              "Analyser les options d'assurance auto",
-            ].map((example, index) => (
-              <Button
-                key={index}
-                variant='ghost'
-                size='sm'
-                className={cn(
-                  'h-auto justify-start p-3 text-left text-wrap',
-                  'transition-all duration-300 ease-in-out',
-                  'hover:scale-105 hover:shadow-sm'
-                )}
-                onClick={() => setMessage(example)}
-                disabled={isAnimating || isPending}
-              >
-                <span className='mr-2 text-xs opacity-60'>💡</span>
-                <span className='text-sm'>{example}</span>
-              </Button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
+          {/* Lyon-Paris Example - Prominent */}
+          <motion.div
+            className="space-y-3"
+            exit={{
+              y: 20,
+              opacity: 0,
+              transition: { duration: 0.6, ease: 'easeInOut', delay: 0.1 }
+            }}
+          >
+            <TextAnimate
+              animation="fadeIn"
+              by="word"
+              as="p"
+              className='text-muted-foreground text-center text-sm font-medium'
+              delay={0.9}
+              startOnView={false}
+            >
+              Essayez notre exemple de clarification de mission :
+            </TextAnimate>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.1, duration: 0.5 }}
+            >
+              <Card className='border-blue-200 bg-blue-50/50 hover:bg-blue-50 transition-colors dark:border-blue-800 dark:bg-blue-950/50 dark:hover:bg-blue-950/70'>
+                <CardContent className='p-4'>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    className='h-auto w-full justify-start p-3 text-left text-wrap hover:bg-transparent'
+                    onClick={() => setMessage(LYON_PARIS_EXAMPLE)}
+                    disabled={isAnimating || isPending}
+                  >
+                    <span className='mr-2 text-lg'>🚄</span>
+                    <div className='flex flex-col items-start'>
+                      <span className='text-sm font-medium text-blue-700 dark:text-blue-300'>
+                        Voyage Lyon-Paris (Exemple de clarification)
+                      </span>
+                      <span className='text-xs text-blue-600/80 dark:text-blue-400/80 mt-1'>
+                        {LYON_PARIS_EXAMPLE.substring(0, 80)}...
+                      </span>
+                    </div>
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+
+          {/* Other Examples */}
+          <motion.div
+            className="space-y-3"
+            exit={{
+              y: 20,
+              opacity: 0,
+              transition: { duration: 0.6, ease: 'easeInOut', delay: 0.2 }
+            }}
+          >
+            <TextAnimate
+              animation="fadeIn"
+              by="word"
+              as="p"
+              className='text-muted-foreground text-center text-sm font-medium'
+              delay={1.3}
+              startOnView={false}
+            >
+              Autres exemples de missions :
+            </TextAnimate>
+            <motion.div
+              className='grid gap-2 sm:grid-cols-2'
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5, duration: 0.5 }}
+            >
+              {[
+                "Organiser un voyage d'affaires à Berlin",
+                'Comparer des solutions de stockage cloud',
+                "Trouver un restaurant pour un dîner d'équipe",
+                "Analyser les options d'assurance auto",
+              ].map((example, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.6 + index * 0.1, duration: 0.4 }}
+                >
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    className="h-auto justify-start p-3 text-left text-wrap hover:scale-105 hover:shadow-sm transition-all duration-300 ease-in-out"
+                    onClick={() => setMessage(example)}
+                    disabled={isAnimating || isPending}
+                  >
+                    <span className='mr-2 text-xs opacity-60'>💡</span>
+                    <span className='text-sm'>{example}</span>
+                  </Button>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }

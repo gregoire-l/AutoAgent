@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { WelcomePage } from './WelcomePage';
 import { MainLayout } from './MainLayout';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -9,6 +10,7 @@ import { ChatPanel } from '@/features/chat';
 import { ClarificationFlowManager } from '@/features/mission-clarification';
 import { generateId } from '@/lib/helpers';
 import type { MessageData } from '@/features/chat/types';
+import { TextAnimate } from '@/components/magicui/text-animate';
 
 // ChatPanel is now replaced by the actual ChatPanel component from features/chat
 
@@ -46,11 +48,11 @@ export function AppContainer() {
       addMessage(userMessage);
     }
 
-    // Transition animation
+    // Transition animation - increased delay for smoother choreographed transition
     setTimeout(() => {
       setShowMainLayout(true);
       setIsTransitioning(false);
-    }, 500);
+    }, 800);
   };
 
   // Handle clarification flow completion
@@ -61,38 +63,67 @@ export function AppContainer() {
 
   if (isTransitioning) {
     return (
-      <div className='bg-background flex min-h-screen items-center justify-center'>
-        <div className='space-y-4 text-center'>
-          <div className='border-primary mx-auto h-8 w-8 animate-spin rounded-full border-2 border-t-transparent' />
-          <p className='text-muted-foreground'>
+      <motion.div
+        className='bg-background flex min-h-screen items-center justify-center'
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <motion.div
+          className='space-y-6 text-center'
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5, ease: 'easeOut' }}
+        >
+          <motion.div
+            className='border-primary mx-auto h-12 w-12 rounded-full border-3 border-t-transparent'
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          />
+          <TextAnimate
+            animation="blurInUp"
+            by="word"
+            as="p"
+            className='text-muted-foreground text-lg'
+            delay={0.5}
+            startOnView={false}
+          >
             Initialisation de votre mission...
-          </p>
-        </div>
-      </div>
+          </TextAnimate>
+        </motion.div>
+      </motion.div>
     );
   }
 
-  if (!showMainLayout) {
-    return <WelcomePage onStartMission={handleStartMission} />;
-  }
-
   return (
-    <>
-      <MainLayout chatPanel={<ChatPanel />} canvasPanel={<MissionCanvas />} />
-
-      {/* Clarification Flow Manager - renders when clarification mode is active */}
-      {clarificationMode && (
-        <ErrorBoundary
-          onError={(error, errorInfo) => {
-            console.error('ClarificationFlowManager error:', error, errorInfo);
-          }}
+    <AnimatePresence mode="wait">
+      {!showMainLayout ? (
+        <WelcomePage key="welcome" onStartMission={handleStartMission} />
+      ) : (
+        <motion.div
+          key="main-layout"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <ClarificationFlowManager
-            isActive={clarificationMode}
-            onComplete={handleClarificationComplete}
-          />
-        </ErrorBoundary>
+          <MainLayout chatPanel={<ChatPanel />} canvasPanel={<MissionCanvas />} />
+
+          {/* Clarification Flow Manager - renders when clarification mode is active */}
+          {clarificationMode && (
+            <ErrorBoundary
+              onError={(error, errorInfo) => {
+                console.error('ClarificationFlowManager error:', error, errorInfo);
+              }}
+            >
+              <ClarificationFlowManager
+                isActive={clarificationMode}
+                onComplete={handleClarificationComplete}
+              />
+            </ErrorBoundary>
+          )}
+        </motion.div>
       )}
-    </>
+    </AnimatePresence>
   );
 }
