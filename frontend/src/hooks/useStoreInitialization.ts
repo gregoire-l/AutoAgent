@@ -4,8 +4,9 @@ import { useBoundStore } from '@/store';
 /**
  * Hook to initialize the store with default data
  * This should be called once at the app level
+ * @param skipDemoMessages - When true, skips adding demo user/agent messages (for clarification mode)
  */
-export function useStoreInitialization() {
+export function useStoreInitialization(skipDemoMessages = false) {
   const initializeMissionSections = useBoundStore(
     state => state.initializeMissionSections
   );
@@ -33,7 +34,7 @@ export function useStoreInitialization() {
     // Set initial connection status
     setConnectionStatus(true);
 
-    // Add welcome message and demo conversation with unique IDs
+    // Add welcome message and conditionally add demo conversation
     const timestamp = Date.now();
     const welcomeMessage = {
       id: `welcome-message-${timestamp}`,
@@ -43,29 +44,33 @@ export function useStoreInitialization() {
       status: 'sent' as const,
     };
 
-    const userMessage = {
-      id: `user-demo-${timestamp}`,
-      content: 'Je dois organiser un voyage Lyon-Paris pour 4 personnes',
-      role: 'user' as const,
-      timestamp: new Date(timestamp - 240000), // 4 minutes ago
-      status: 'sent' as const,
-    };
-
-    const agentMessage = {
-      id: `agent-demo-${timestamp}`,
-      content:
-        "Parfait ! Je vais t'aider à organiser ce voyage. J'ai créé les sections de mission sur le canvas. Peux-tu me donner plus de détails sur tes contraintes ? Par exemple, le budget ou les dates ?",
-      role: 'assistant' as const,
-      timestamp: new Date(timestamp - 180000), // 3 minutes ago
-      status: 'sent' as const,
-    };
-
     addMessage(welcomeMessage);
-    addMessage(userMessage);
-    addMessage(agentMessage);
+
+    // Conditionally add demo messages (skip in clarification mode)
+    if (!skipDemoMessages) {
+      const userMessage = {
+        id: `user-demo-${timestamp}`,
+        content: 'Je dois organiser un voyage Lyon-Paris pour 4 personnes',
+        role: 'user' as const,
+        timestamp: new Date(timestamp - 240000), // 4 minutes ago
+        status: 'sent' as const,
+      };
+
+      const agentMessage = {
+        id: `agent-demo-${timestamp}`,
+        content:
+          "Parfait ! Je vais t'aider à organiser ce voyage. J'ai créé les sections de mission sur le canvas. Peux-tu me donner plus de détails sur tes contraintes ? Par exemple, le budget ou les dates ?",
+        role: 'assistant' as const,
+        timestamp: new Date(timestamp - 180000), // 3 minutes ago
+        status: 'sent' as const,
+      };
+
+      addMessage(userMessage);
+      addMessage(agentMessage);
+    }
 
     hasInitialized.current = true;
-  }, [initializeMissionSections, setConnectionStatus, addMessage, messages]);
+  }, [initializeMissionSections, setConnectionStatus, addMessage, messages, skipDemoMessages]);
 }
 
 // useWelcomeMessage is now integrated into useStoreInitialization
