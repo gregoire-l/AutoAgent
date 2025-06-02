@@ -25,12 +25,16 @@ export function MissionSection({
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(section.content || '');
   const [isStatusChanging, setIsStatusChanging] = useState(false);
+  const [selectedButtonId, setSelectedButtonId] = useState<string | null>(null);
 
   const updateSectionContent = useBoundStore(
     state => state.updateSectionContent
   );
   const updateSectionStatus = useBoundStore(state => state.updateSectionStatus);
   const selectOption = useBoundStore(state => state.selectOption);
+  const addUserInteraction = useBoundStore(state =>
+    'addUserInteraction' in state ? state.addUserInteraction : () => {}
+  );
 
   // Get highlighted sections from clarification store for halo effect
   const highlightedSections = useBoundStore(state =>
@@ -64,12 +68,36 @@ export function MissionSection({
   const handleOptionSelect = (optionId: string) => {
     selectOption(section.id, optionId);
     updateSectionStatus(section.id, 'confirmed');
+
+    // Record user interaction for clarification flow
+    const selectedOption = section.options?.find(opt => opt.id === optionId);
+    if (selectedOption) {
+      addUserInteraction({
+        type: 'radio_select',
+        content: `Selected "${selectedOption.label}" for ${section.title}`,
+        sectionId: section.id,
+        optionId: optionId,
+      });
+    }
   };
 
   const handleCardClick = () => {
     if (onSelect) {
       onSelect();
     }
+  };
+
+  const handleButtonSelect = (buttonId: string, buttonLabel: string) => {
+    setSelectedButtonId(buttonId);
+    updateSectionStatus(section.id, 'confirmed');
+
+    // Record user interaction for clarification flow
+    addUserInteraction({
+      type: 'button_click',
+      content: `Selected "${buttonLabel}" for ${section.title}`,
+      sectionId: section.id,
+      optionId: buttonId,
+    });
   };
 
   const selectedOption = section.options?.find(opt => opt.selected);
@@ -158,17 +186,45 @@ export function MissionSection({
                       <RadioGroupItem
                         value={option.id}
                         id={option.id}
-                        className='h-4 w-4'
+                        className='h-4 w-4 transition-all duration-200'
                       />
                       <Label
                         htmlFor={option.id}
-                        className='cursor-pointer text-sm'
+                        className='cursor-pointer text-sm transition-colors duration-200 hover:text-primary'
                       >
                         {option.label}
                       </Label>
                     </div>
                   ))}
                 </RadioGroup>
+              </div>
+            )}
+
+            {/* Interactive Buttons for Livrable Clé section */}
+            {section.title === 'Livrable Clé' && section.status === 'suggestion_pending' && (
+              <div className='mt-3 flex gap-2'>
+                <Button
+                  variant={selectedButtonId === 'table' ? 'default' : 'outline'}
+                  size='sm'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleButtonSelect('table', 'Tableau Comparatif');
+                  }}
+                  className='transition-all duration-200 hover:scale-105'
+                >
+                  Tableau Comparatif
+                </Button>
+                <Button
+                  variant={selectedButtonId === 'list' ? 'default' : 'outline'}
+                  size='sm'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleButtonSelect('list', 'Simple Liste des Options');
+                  }}
+                  className='transition-all duration-200 hover:scale-105'
+                >
+                  Simple Liste des Options
+                </Button>
               </div>
             )}
 

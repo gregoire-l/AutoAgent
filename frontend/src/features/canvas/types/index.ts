@@ -5,7 +5,8 @@ export type MissionStatus =
   | 'pending'
   | 'in_progress'
   | 'confirmed'
-  | 'to_define';
+  | 'to_define'
+  | 'suggestion_pending';
 
 export interface MissionSectionData {
   id: string;
@@ -36,6 +37,7 @@ export const STATUS_INDICATORS = {
   in_progress: '🟡',
   confirmed: '✔️',
   to_define: '❔',
+  suggestion_pending: '🔵',
 } as const;
 
 export const STATUS_COLORS = {
@@ -43,4 +45,5 @@ export const STATUS_COLORS = {
   in_progress: '#FACC15', // yellow
   confirmed: '#10B981', // green
   to_define: '#A1A1AA', // gray
+  suggestion_pending: '#60A5FA', // blue
 } as const;

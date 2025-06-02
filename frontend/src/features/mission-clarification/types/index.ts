@@ -24,7 +24,7 @@ export interface CanvasUpdate {
 
 export interface UserInteraction {
   id: string;
-  type: 'message' | 'canvas_click' | 'option_select' | 'button_click';
+  type: 'message' | 'canvas_click' | 'option_select' | 'button_click' | 'radio_select';
   content: string;
   timestamp: Date;
   sectionId?: string;
