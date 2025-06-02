@@ -16,7 +16,9 @@ export function MessageInput({
   placeholder = 'Précisez vos contraintes, budget, dates...',
   disabled = false,
 }: MessageInputProps) {
-  const [input, setInput] = useState('');
+  // Use global composerInput state instead of local state
+  const input = useBoundStore(state => state.composerInput);
+  const setInput = useBoundStore(state => state.setComposerInput);
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
