@@ -1,4 +1,3 @@
-import React from 'react';
 import { PulsatingButton } from '@/components/ui/pulsating-button';
 import { ShimmerButton } from '@/components/ui/shimmer-button';
 import { TypingAnimation } from '@/components/ui/typing-animation';

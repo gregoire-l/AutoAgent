@@ -6,7 +6,16 @@ import { cn } from '@/lib/utils';
 import { useOptimizedAnimation } from '@/hooks/useOptimizedAnimation';
 import { OPTIMIZED_VARIANTS } from '@/lib/animation-utils';
 
-interface GlowButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+// TODO: Technical debt - Consider migrating to motion.create() pattern with custom prop interfaces for future components
+// This Omit approach is a pragmatic fix to resolve TypeScript conflicts between HTML and Motion event handlers
+interface GlowButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>,
+  // Drag events
+  | 'onDrag' | 'onDragEnd' | 'onDragEnter' | 'onDragExit' | 'onDragLeave' | 'onDragOver' | 'onDragStart' | 'onDrop'
+  // Animation events
+  | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration'
+  // Transition events
+  | 'onTransitionStart' | 'onTransitionEnd'
+> {
   children: React.ReactNode;
   glowColor?: string;
   glowIntensity?: 'low' | 'medium' | 'high';
@@ -15,14 +24,14 @@ interface GlowButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
 }
 
 export const GlowButton = React.forwardRef<HTMLButtonElement, GlowButtonProps>(
-  ({ 
-    children, 
-    className, 
-    glowColor = '#3B82F6', 
+  ({
+    children,
+    className,
+    glowColor = '#3B82F6',
     glowIntensity = 'medium',
     variant = 'default',
     size = 'md',
-    ...props 
+    ...props
   }, ref) => {
     const glowIntensityMap = {
       low: '10px',

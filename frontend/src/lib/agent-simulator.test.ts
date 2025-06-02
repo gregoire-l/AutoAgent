@@ -114,7 +114,7 @@ describe('AgentSimulator', () => {
       expect(result.message.content).toBe('Test clarification response');
       expect(result.canvasUpdates).toBeDefined();
       expect(result.canvasUpdates).toHaveLength(1);
-      expect(result.canvasUpdates?.[0].sectionId).toBe('test-section');
+      expect((result.canvasUpdates?.[0] as any)?.sectionId).toBe('test-section');
     });
 
     it('should find response by trigger condition', async () => {

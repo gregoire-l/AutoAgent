@@ -120,7 +120,7 @@ describe('Demo Data', () => {
         const response = getRandomAgentResponse(type);
         expect(typeof response).toBe('string');
         expect(response.length).toBeGreaterThan(0);
-        expect(AGENT_RESPONSES[type].includes(response)).toBe(true);
+        expect((AGENT_RESPONSES[type] as readonly string[]).includes(response)).toBe(true);
       });
     });
 

@@ -6,7 +6,16 @@ import { cn } from '@/lib/utils';
 import { useOptimizedAnimation } from '@/hooks/useOptimizedAnimation';
 import { OPTIMIZED_VARIANTS } from '@/lib/animation-utils';
 
-interface MicroInteractionCardProps extends React.HTMLAttributes<HTMLDivElement> {
+// TODO: Technical debt - Consider migrating to motion.create() pattern with custom prop interfaces for future components
+// This Omit approach is a pragmatic fix to resolve TypeScript conflicts between HTML and Motion event handlers
+interface MicroInteractionCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>,
+  // Drag events
+  | 'onDrag' | 'onDragEnd' | 'onDragEnter' | 'onDragExit' | 'onDragLeave' | 'onDragOver' | 'onDragStart' | 'onDrop'
+  // Animation events
+  | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration'
+  // Transition events
+  | 'onTransitionStart' | 'onTransitionEnd'
+> {
   children: React.ReactNode;
   glowColor?: string;
   hoverScale?: number;
@@ -17,14 +26,14 @@ interface MicroInteractionCardProps extends React.HTMLAttributes<HTMLDivElement>
 export const MicroInteractionCard = React.forwardRef<
   HTMLDivElement,
   MicroInteractionCardProps
->(({ 
-  children, 
-  className, 
-  glowColor = '#3B82F6', 
+>(({
+  children,
+  className,
+  glowColor = '#3B82F6',
   hoverScale = 1.02,
   tapScale = 0.98,
   enableParallax = false,
-  ...props 
+  ...props
 }, ref) => {
   const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
 
@@ -89,17 +98,17 @@ export const MicroInteractionCard = React.forwardRef<
         }}
         transition={{ duration: 0.6 }}
       />
-      
+
       {/* Glow effect overlay */}
       <motion.div
         className="absolute inset-0 bg-gradient-to-r opacity-0 pointer-events-none"
-        style={{ 
-          background: `linear-gradient(45deg, ${glowColor}15, transparent)` 
+        style={{
+          background: `linear-gradient(45deg, ${glowColor}15, transparent)`
         }}
         whileHover={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       />
-      
+
       {/* Content */}
       <div className="relative z-10">
         {children}

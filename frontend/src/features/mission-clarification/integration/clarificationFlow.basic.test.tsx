@@ -105,7 +105,7 @@ describe('Clarification Flow Basic Integration', () => {
     });
 
     // Add getState method to the mock
-    mockUseBoundStore.getState = vi.fn().mockReturnValue(mockStore);
+    (mockUseBoundStore as any).getState = vi.fn().mockReturnValue(mockStore);
 
     // Reset the clarification flow hook mock
     mockUseClarificationFlow.mockReturnValue({

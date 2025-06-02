@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useBoundStore } from '@/store';
 import { useStoreInitialization } from '@/hooks/useStoreInitialization';
@@ -308,7 +308,7 @@ describe('Clarification Flow Initialization Integration', () => {
   describe('Error Handling', () => {
     it('should handle missing store methods gracefully', () => {
       const incompleteStore = { ...mockStore };
-      delete incompleteStore.clearMessages;
+      delete (incompleteStore as any).clearMessages;
 
       (useBoundStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector: (state: typeof incompleteStore) => unknown) => {
         if (typeof selector === 'function') {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MessageInput } from './MessageInput';
 import { useBoundStore } from '@/store';
@@ -49,7 +49,7 @@ describe('MessageInput', () => {
       
       render(<MessageInput />);
       
-      const textarea = screen.getByRole('textbox');
+      const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
       expect(textarea.value).toBe('Test input from store');
     });
 

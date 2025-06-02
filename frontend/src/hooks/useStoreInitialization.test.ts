@@ -13,7 +13,7 @@ describe('useStoreInitialization', () => {
     initializeMissionSections: vi.fn(),
     setConnectionStatus: vi.fn(),
     addMessage: vi.fn(),
-    messages: [],
+    messages: [] as any[],
   };
 
   beforeEach(() => {
