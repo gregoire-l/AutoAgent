@@ -5,8 +5,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { StatusIndicator } from './StatusIndicator';
+import { ShimmerButton } from '@/components/ui/shimmer-button';
+import { TextAnimate } from '@/components/ui/text-animate';
 import { useBoundStore } from '@/store';
 import { cn } from '@/lib/utils';
+import { ANIMATIONS } from '@/lib/constants';
 import type { MissionSectionData } from '../types';
 
 interface MissionSectionProps {
@@ -116,14 +119,31 @@ export function MissionSection({
     >
       <CardHeader className='pb-3'>
         <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
+          <ShimmerButton
+            className={cn(
+              'flex items-center gap-2 p-2 rounded-lg',
+              'bg-background/50 backdrop-blur-sm border border-border/50',
+              'hover:bg-background/80 transition-all duration-300',
+              'flex-1 justify-start text-left mr-2'
+            )}
+            onClick={handleCardClick}
+            shimmerColor="hsl(var(--primary) / 0.3)"
+            shimmerDuration={`${ANIMATIONS.SHIMMER_DURATION}ms`}
+            background="hsl(var(--background) / 0.8)"
+          >
             <StatusIndicator
               status={section.status}
               sectionId={section.id}
               enableAnimations={true}
+              className="flex-shrink-0"
             />
-            <h3 className='text-sm font-medium'>{section.title}</h3>
-          </div>
+            <TextAnimate
+              animation="slideUp"
+              className="text-sm font-medium flex-1"
+            >
+              {section.title}
+            </TextAnimate>
+          </ShimmerButton>
 
           {section.isEditable && !isEditing && (
             <Button

@@ -6,7 +6,6 @@ import { useBoundStore } from '@/store';
 import { cn } from '@/lib/utils';
 import { useEffect, useState, useRef } from 'react';
 import { AnimatedBeam } from '@/components/ui/animated-beam';
-import { useProgressiveCanvasLoading } from '@/hooks';
 import { ANIMATIONS } from '@/lib/constants';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -21,9 +20,6 @@ export function MissionCanvas({ className }: MissionCanvasProps) {
   const selectSection = useBoundStore(state => state.selectSection);
   const clearSelection = useBoundStore(state => state.clearSelection);
   const [progressAnimating, setProgressAnimating] = useState(false);
-
-  // Progressive loading hook (will be used in future tasks)
-  // const { startProgressiveLoading, isPending } = useProgressiveCanvasLoading();
 
   // Refs for AnimatedBeam connections
   const containerRef = useRef<HTMLDivElement>(null);
@@ -123,62 +119,76 @@ export function MissionCanvas({ className }: MissionCanvasProps) {
               </p>
             </div>
           ) : (
-            <div className='grid gap-3 relative'>
+            <div className='grid gap-4 relative'>
               <AnimatePresence mode="popLayout">
-                {sections.map((section, index) => (
-                  <motion.div
-                    key={section.id}
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                    transition={{
-                      duration: 0.4,
-                      delay: index * (ANIMATIONS.SECTION_STAGGER_DELAY / 1000),
-                      ease: [0.16, 1, 0.3, 1]
-                    }}
-                    ref={(el) => {
-                      if (el) {
-                        sectionRefs.current.set(section.id, el);
-                      }
-                    }}
-                    className={cn(
-                      'transition-all duration-300 ease-in-out',
-                      isActive && 'animate-in fade-in slide-in-from-left-4',
-                    )}
-                  >
-                    <MissionSection
-                      section={section}
-                      isSelected={selectedSectionId === section.id}
-                      onSelect={() => handleSectionSelect(section.id)}
-                    />
-                  </motion.div>
-                ))}
+                {sections.map((section, index) => {
+                  const previousRef = index > 0 ?
+                    { current: sectionRefs.current.get(sections[index - 1].id) || null } :
+                    undefined;
+
+                  return (
+                    <motion.div
+                      key={section.id}
+                      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                      transition={{
+                        duration: 0.6,
+                        delay: index * (ANIMATIONS.SECTION_STAGGER_DELAY / 1000),
+                        ease: [0.16, 1, 0.3, 1]
+                      }}
+                      ref={(el) => {
+                        if (el) {
+                          sectionRefs.current.set(section.id, el);
+                        }
+                      }}
+                      className={cn(
+                        'relative transition-all duration-300 ease-in-out',
+                        isActive && 'animate-in fade-in slide-in-from-left-4',
+                      )}
+                    >
+                      {/* AnimatedBeam connection to previous section */}
+                      {previousRef && containerRef.current && (
+                        <AnimatedBeam
+                          containerRef={containerRef}
+                          fromRef={previousRef}
+                          toRef={{ current: sectionRefs.current.get(section.id) || null }}
+                          duration={ANIMATIONS.BEAM_ANIMATION_DURATION / 1000}
+                          delay={index * (ANIMATIONS.SECTION_STAGGER_DELAY / 1000) + 0.3}
+                          curvature={15}
+                          gradientStartColor="hsl(var(--primary))"
+                          gradientStopColor="hsl(var(--primary) / 0.6)"
+                          pathColor="hsl(var(--muted-foreground))"
+                          pathOpacity={0.2}
+                        />
+                      )}
+
+                      <MissionSection
+                        section={section}
+                        isSelected={selectedSectionId === section.id}
+                        onSelect={() => handleSectionSelect(section.id)}
+                      />
+
+                      {/* Glow effect during progressive loading */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: [0, 0.4, 0] }}
+                        transition={{
+                          delay: index * (ANIMATIONS.SECTION_STAGGER_DELAY / 1000),
+                          duration: 1.5,
+                          ease: "easeInOut",
+                        }}
+                        className={cn(
+                          'absolute inset-0 rounded-lg',
+                          'bg-gradient-to-r from-primary/10 via-primary/20 to-primary/10',
+                          'blur-xl -z-10',
+                          'pointer-events-none'
+                        )}
+                      />
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
-
-              {/* AnimatedBeam connections between sections */}
-              {sections.length > 1 && containerRef.current && sections.map((section, index) => {
-                const nextSection = sections[index + 1];
-                if (!nextSection) return null;
-
-                const fromRef = { current: sectionRefs.current.get(section.id) || null };
-                const toRef = { current: sectionRefs.current.get(nextSection.id) || null };
-
-                return (
-                  <AnimatedBeam
-                    key={`beam-${section.id}-${nextSection.id}`}
-                    containerRef={containerRef}
-                    fromRef={fromRef}
-                    toRef={toRef}
-                    duration={ANIMATIONS.BEAM_ANIMATION_DURATION / 1000}
-                    delay={(index + 1) * (ANIMATIONS.SECTION_STAGGER_DELAY / 1000)}
-                    curvature={20}
-                    pathColor="hsl(var(--muted-foreground))"
-                    pathOpacity={0.3}
-                    gradientStartColor="hsl(var(--primary))"
-                    gradientStopColor="hsl(var(--primary) / 0.5)"
-                  />
-                );
-              })}
             </div>
           )}
         </div>

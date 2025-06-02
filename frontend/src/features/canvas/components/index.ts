@@ -3,4 +3,5 @@
 
 export { MissionCanvas } from './MissionCanvas';
 export { MissionSection } from './MissionSection';
-export { StatusIndicator } from './StatusIndicator';
+export { StatusIndicator } from './StatusIndicator'
+export { ProgressiveCanvasSection } from './ProgressiveCanvasSection';
