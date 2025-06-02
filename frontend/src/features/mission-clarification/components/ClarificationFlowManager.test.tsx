@@ -38,6 +38,7 @@ vi.mock('../hooks/useClarificationFlow', () => ({
 // Mock the scripted content
 vi.mock('../data', () => ({
   LYON_PARIS_SCRIPT: mockLyonParisScript,
+  LYON_PARIS_EXAMPLE: "Hello, j'aurais besoin d'organiser un A/R Lyon-Paris pour 4 potes. On a un budget de 100€ max. Faut qu'on soit à Paris le vendredi 4 avril avant 20h et qu'on reparte le dimanche soir.",
   getNextResponse: mockGetNextResponse,
 }))
 
@@ -73,6 +74,9 @@ describe('ClarificationFlowManager', () => {
     getCurrentResponse: vi.fn(),
     isFlowComplete: vi.fn().mockReturnValue(false),
     setMissionTitle: vi.fn(),
+    clearMessages: vi.fn(),
+    addMessage: vi.fn(),
+    setComposerInput: vi.fn(),
   }
 
   const mockUseClarificationFlowReturn = {
@@ -268,7 +272,6 @@ describe('ClarificationFlowManager', () => {
         phase: 'A2',
         step: 2,
         content: 'Response to user interaction',
-        trigger: 'user_message_sent',
         delay: 1000,
       }
 
@@ -276,10 +279,8 @@ describe('ClarificationFlowManager', () => {
 
       const userInteraction: UserInteraction = {
         id: 'interaction-1',
-        type: 'message_sent',
+        type: 'message',
         content: 'User message',
-        phase: 'A2',
-        step: 1,
         timestamp: new Date(),
       }
 
@@ -314,10 +315,8 @@ describe('ClarificationFlowManager', () => {
 
       const userInteraction: UserInteraction = {
         id: 'interaction-1',
-        type: 'message_sent',
+        type: 'message',
         content: 'User message',
-        phase: 'A2',
-        step: 1,
         timestamp: new Date(),
       }
 
@@ -345,10 +344,8 @@ describe('ClarificationFlowManager', () => {
 
       const userInteraction: UserInteraction = {
         id: 'interaction-1',
-        type: 'message_sent',
+        type: 'message',
         content: 'User message',
-        phase: 'A2',
-        step: 1,
         timestamp: new Date(),
       }
 

@@ -1,7 +1,8 @@
 import { useEffect, useCallback } from 'react'
 import { useBoundStore } from '@/store'
-import { LYON_PARIS_SCRIPT, getNextResponse } from '../data'
+import { LYON_PARIS_SCRIPT, LYON_PARIS_EXAMPLE, getNextResponse } from '../data'
 import { useClarificationFlow } from '../hooks/useClarificationFlow'
+import type { MessageData } from '@/features/chat/types'
 
 interface ClarificationFlowManagerProps {
   isActive: boolean
@@ -40,10 +41,29 @@ export function ClarificationFlowManager({
   const getCurrentResponse = useBoundStore(useCallback((state) => state.getCurrentResponse, []))
   const isFlowComplete = useBoundStore(useCallback((state) => state.isFlowComplete, []))
   const setMissionTitle = useBoundStore(useCallback((state) => state.setMissionTitle, []))
+  const clearMessages = useBoundStore(useCallback((state) => state.clearMessages, []))
+  const addMessage = useBoundStore(useCallback((state) => state.addMessage, []))
+  const setComposerInput = useBoundStore(useCallback((state) => state.setComposerInput, []))
 
   // Initialize clarification flow when activated
   useEffect(() => {
     if (isActive && !clarificationState.isActive) {
+      // Clear existing messages for clean start
+      clearMessages()
+
+      // Add welcome message
+      const welcomeMessage: MessageData = {
+        id: `clarification-welcome-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        content: 'Salut ! Prêt(e) à démarrer une mission ? Dis-moi tout...',
+        role: 'assistant',
+        timestamp: new Date(),
+        status: 'sent'
+      }
+      addMessage(welcomeMessage)
+
+      // Pre-fill input with Lyon-Paris example
+      setComposerInput(LYON_PARIS_EXAMPLE)
+
       // Load scripted responses
       loadScriptedResponses(LYON_PARIS_SCRIPT)
 
@@ -53,7 +73,16 @@ export function ClarificationFlowManager({
       // Start clarification flow
       startClarification('A2')
     }
-  }, [isActive, clarificationState.isActive]) // Removed store actions from dependencies to prevent loops
+  }, [
+    isActive,
+    clarificationState.isActive,
+    clearMessages,
+    addMessage,
+    setComposerInput,
+    loadScriptedResponses,
+    setMissionTitle,
+    startClarification
+  ])
 
   // Monitor for step changes and trigger agent responses
   useEffect(() => {
@@ -76,7 +105,8 @@ export function ClarificationFlowManager({
     agentTyping,
     agentThinking,
     nextResponseDelay,
-    // Removed getCurrentResponse and processAgentResponse to prevent loops
+    getCurrentResponse,
+    processAgentResponse,
   ])
 
   // Handle user interactions and trigger appropriate responses
@@ -94,7 +124,7 @@ export function ClarificationFlowManager({
         advanceToNextStep()
       }, 500) // Brief delay for user action feedback
     }
-  }, [userInteractions, isActive, scriptedResponses, currentPhase, currentStep]) // Removed advanceToNextStep to prevent loops
+  }, [userInteractions, isActive, scriptedResponses, currentPhase, currentStep, advanceToNextStep])
 
   // Handle flow completion
   useEffect(() => {
@@ -102,7 +132,7 @@ export function ClarificationFlowManager({
       completeClarification()
       onComplete()
     }
-  }, [isActive, onComplete]) // Removed isFlowComplete and completeClarification to prevent loops
+  }, [isActive, onComplete, isFlowComplete, completeClarification])
 
   // Handle phase transitions based on progress
   useEffect(() => {
@@ -117,7 +147,7 @@ export function ClarificationFlowManager({
         }, 1000)
       }
     }
-  }, [currentPhase, currentStep, isActive]) // Removed shouldAutoAdvance, getNextPhase, advanceToNextPhase to prevent loops
+  }, [currentPhase, currentStep, isActive, shouldAutoAdvance, getNextPhase, advanceToNextPhase])
 
   // This component doesn't render anything - it's a pure orchestrator
   return null
