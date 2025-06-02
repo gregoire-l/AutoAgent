@@ -1,7 +1,9 @@
 "use client";
 
-import { motion, MotionProps } from 'motion/react';
-import { ElementType, memo, useEffect, useState } from 'react';
+import { motion } from 'motion/react';
+import type { MotionProps } from 'motion/react';
+import { memo, useEffect, useState } from 'react';
+import type { ElementType } from 'react';
 import { cn } from '@/lib/utils';
 import { TextAnimate } from '@/components/magicui/text-animate';
 import { getColorFromConfidence, getMissionClarificationConfidence } from '@/lib/confidence-utils';
