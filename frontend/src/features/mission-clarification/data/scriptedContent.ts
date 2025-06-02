@@ -1,4 +1,4 @@
-import type { ScriptedResponse } from '../types';
+import type { ScriptedResponse, UserInteraction, ClarificationPhase } from '../types';
 import type { MissionSectionData } from '@/features/canvas/types';
 
 // Lyon-Paris example message from user story
@@ -255,7 +255,7 @@ export const TIMING_CONFIG = {
 };
 
 // Helper function to get response by trigger condition
-export function getResponseByTrigger(trigger: string, phase: string): ScriptedResponse | undefined {
+export function getResponseByTrigger(trigger: string, phase: ClarificationPhase): ScriptedResponse | undefined {
   return LYON_PARIS_SCRIPT.find(
     response => response.triggerCondition === trigger && response.phase === phase
   );
@@ -263,9 +263,9 @@ export function getResponseByTrigger(trigger: string, phase: string): ScriptedRe
 
 // Helper function to get next response in sequence
 export function getNextResponse(
-  userInteraction: any,
+  userInteraction: UserInteraction | null,
   scriptedResponses: ScriptedResponse[],
-  currentPhase: string,
+  currentPhase: ClarificationPhase,
   currentStep: number
 ): ScriptedResponse | undefined {
   // First try to find a response that matches the current step + 1
@@ -301,7 +301,7 @@ export function getNextResponse(
 }
 
 // Helper function to get next response by step (legacy compatibility)
-export function getNextResponseByStep(currentPhase: string, currentStep: number): ScriptedResponse | undefined {
+export function getNextResponseByStep(currentPhase: ClarificationPhase, currentStep: number): ScriptedResponse | undefined {
   return LYON_PARIS_SCRIPT.find(
     response => response.phase === currentPhase && response.step === currentStep + 1
   );

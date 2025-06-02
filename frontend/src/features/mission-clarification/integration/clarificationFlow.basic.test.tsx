@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, waitFor } from '@testing-library/react';
 import { ClarificationFlowManager } from '../components/ClarificationFlowManager';
 import { useBoundStore } from '@/store';
+import type { ClarificationPhase } from '../types';
 
 // Use vi.hoisted for shared mock variables
 const { mockUseClarificationFlow, mockGetNextResponse, mockLyonParisScript, mockUseBoundStore } = vi.hoisted(() => ({
@@ -38,7 +38,6 @@ vi.mock('../data', () => ({
 }));
 
 describe('Clarification Flow Basic Integration', () => {
-  const user = userEvent.setup();
 
   const mockClarificationState = {
     currentPhase: 'A1' as const,
@@ -99,7 +98,7 @@ describe('Clarification Flow Basic Integration', () => {
     vi.clearAllMocks();
 
     // Mock the store with getState method
-    mockUseBoundStore.mockImplementation((selector: any) => {
+    mockUseBoundStore.mockImplementation((selector: (state: typeof mockStore) => unknown) => {
       if (typeof selector === 'function') {
         return selector(mockStore);
       }
@@ -237,7 +236,7 @@ describe('Clarification Flow Basic Integration', () => {
       const store = useBoundStore.getState();
       
       // Try to set invalid phase
-      store.setPhase?.('INVALID' as any);
+      store.setPhase?.('INVALID' as ClarificationPhase);
       
       // Should handle gracefully without crashing
       expect(store.currentStep).toBe(0); // Should reset step

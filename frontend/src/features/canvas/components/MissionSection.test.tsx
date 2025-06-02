@@ -13,7 +13,7 @@ const mockStore = {
 };
 
 vi.mock('@/store', () => ({
-  useBoundStore: vi.fn((selector) => {
+  useBoundStore: vi.fn((selector: (state: typeof mockStore) => unknown) => {
     if (typeof selector === 'function') {
       return selector(mockStore);
     }

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createClarificationSlice } from './clarificationSlice';
 import type { ClarificationSlice } from './clarificationSlice';
-import type { ScriptedResponse, UserInteraction, CanvasUpdate } from '../types';
+import type { ScriptedResponse, CanvasUpdate } from '../types';
 
 // Mock the helpers module
 vi.mock('@/lib/helpers', () => ({
@@ -10,8 +10,8 @@ vi.mock('@/lib/helpers', () => ({
 
 describe('ClarificationSlice', () => {
   let slice: ClarificationSlice;
-  let mockSet: any;
-  let mockGet: any;
+  let mockSet: ReturnType<typeof vi.fn>;
+  let mockGet: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     // Create mock functions for Zustand
@@ -98,10 +98,8 @@ describe('ClarificationSlice', () => {
 
     it('should handle user interactions', () => {
       const interaction = {
-        type: 'message_sent' as const,
+        type: 'message' as const,
         content: 'Hello agent',
-        phase: 'A2' as const,
-        step: 1,
       };
 
       // Test that we can call the function (even if mocked)

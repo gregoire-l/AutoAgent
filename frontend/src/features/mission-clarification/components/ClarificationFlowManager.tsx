@@ -1,8 +1,7 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect } from 'react'
 import { useBoundStore } from '@/store'
 import { LYON_PARIS_SCRIPT, getNextResponse } from '../data'
 import { useClarificationFlow } from '../hooks/useClarificationFlow'
-import type { ClarificationPhase } from '../types'
 
 interface ClarificationFlowManagerProps {
   isActive: boolean
@@ -16,7 +15,6 @@ export function ClarificationFlowManager({
   // Use custom hook for flow logic
   const {
     clarificationState,
-    isPending,
     processAgentResponse,
     advanceToNextStep,
     advanceToNextPhase,
@@ -65,7 +63,7 @@ export function ClarificationFlowManager({
     if (currentResponse && !agentTyping && !agentThinking) {
       // Delay before processing response
       const timer = setTimeout(() => {
-        processAgentResponse(currentResponse)
+        void processAgentResponse(currentResponse)
       }, nextResponseDelay)
 
       return () => clearTimeout(timer)

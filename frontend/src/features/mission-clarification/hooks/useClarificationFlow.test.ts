@@ -47,9 +47,9 @@ describe('useClarificationFlow', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Mock the store implementation
-    (useBoundStore as any).mockImplementation((selector: any) => {
+    (useBoundStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector: (state: typeof mockStoreState & typeof mockStoreActions) => unknown) => {
       if (typeof selector === 'function') {
         return selector({ ...mockStoreState, ...mockStoreActions });
       }
@@ -154,7 +154,7 @@ describe('useClarificationFlow', () => {
       const { result } = renderHook(() => useClarificationFlow());
 
       await act(async () => {
-        await result.current.processAgentResponse(undefined as any);
+        await result.current.processAgentResponse(undefined as unknown as ScriptedResponse);
       });
 
       // Should not call any store actions for undefined response
@@ -164,23 +164,23 @@ describe('useClarificationFlow', () => {
   });
 
   describe('advanceToNextStep', () => {
-    it('should advance to next step when possible', async () => {
+    it('should advance to next step when possible', () => {
       mockStoreActions.canAdvanceStep.mockReturnValue(true);
       const { result } = renderHook(() => useClarificationFlow());
 
-      await act(async () => {
-        await result.current.advanceToNextStep();
+      act(() => {
+        result.current.advanceToNextStep();
       });
 
       expect(mockStoreActions.nextStep).toHaveBeenCalled();
     });
 
-    it('should not advance when canAdvanceStep returns false', async () => {
+    it('should not advance when canAdvanceStep returns false', () => {
       mockStoreActions.canAdvanceStep.mockReturnValue(false);
       const { result } = renderHook(() => useClarificationFlow());
 
-      await act(async () => {
-        await result.current.advanceToNextStep();
+      act(() => {
+        result.current.advanceToNextStep();
       });
 
       expect(mockStoreActions.nextStep).not.toHaveBeenCalled();
@@ -188,11 +188,11 @@ describe('useClarificationFlow', () => {
   });
 
   describe('advanceToNextPhase', () => {
-    it('should advance to specified phase', async () => {
+    it('should advance to specified phase', () => {
       const { result } = renderHook(() => useClarificationFlow());
 
-      await act(async () => {
-        await result.current.advanceToNextPhase('A3');
+      act(() => {
+        result.current.advanceToNextPhase('A3');
       });
 
       expect(mockStoreActions.setPhase).toHaveBeenCalledWith('A3');
@@ -261,7 +261,7 @@ describe('useClarificationFlow', () => {
     it('should return null for invalid phase', () => {
       const { result } = renderHook(() => useClarificationFlow());
 
-      const nextPhase = result.current.getNextPhase('INVALID' as any);
+      const nextPhase = result.current.getNextPhase('INVALID' as ClarificationPhase);
 
       expect(nextPhase).toBeNull();
     });
@@ -277,7 +277,7 @@ describe('useClarificationFlow', () => {
         agentTyping: true,
       };
 
-      (useBoundStore as any).mockImplementation((selector: any) => {
+      (useBoundStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector: (state: typeof updatedState & typeof mockStoreActions) => unknown) => {
         if (typeof selector === 'function') {
           return selector({ ...updatedState, ...mockStoreActions });
         }
@@ -308,7 +308,7 @@ describe('useClarificationFlow', () => {
 
       // Start processing (should set isPending to true)
       act(() => {
-        result.current.processAgentResponse(mockResponse);
+        void result.current.processAgentResponse(mockResponse);
       });
 
       // During processing, isPending might be true (depends on React's startTransition)

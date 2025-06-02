@@ -9,6 +9,7 @@ import {
   getNextResponse,
   getRandomUserResponse,
 } from './scriptedContent';
+import type { UserInteraction } from '../types';
 
 describe('Scripted Content System', () => {
   describe('LYON_PARIS_EXAMPLE', () => {
@@ -128,10 +129,8 @@ describe('Scripted Content System', () => {
       it('should find next response in sequence', () => {
         const interaction: UserInteraction = {
           id: 'test-id',
-          type: 'message_sent',
+          type: 'message',
           content: 'Test message',
-          phase: 'A2',
-          step: 1,
           timestamp: new Date(),
         };
 
@@ -145,10 +144,8 @@ describe('Scripted Content System', () => {
       it('should return undefined when no next response exists', () => {
         const interaction: UserInteraction = {
           id: 'test-id',
-          type: 'message_sent',
+          type: 'message',
           content: 'Test message',
-          phase: 'A3',
-          step: 10,
           timestamp: new Date(),
         };
 

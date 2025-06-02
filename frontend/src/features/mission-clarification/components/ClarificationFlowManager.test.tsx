@@ -85,7 +85,7 @@ describe('ClarificationFlowManager', () => {
     vi.clearAllMocks()
 
     // Mock the store
-    ;(useBoundStore as any).mockImplementation((selector: any) => {
+    ;(useBoundStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector: (state: typeof mockStore) => unknown) => {
       if (typeof selector === 'function') {
         return selector(mockStore)
       }

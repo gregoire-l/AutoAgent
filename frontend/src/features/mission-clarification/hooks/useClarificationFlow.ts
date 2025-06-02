@@ -71,7 +71,7 @@ export function useClarificationFlow() {
     // Process canvas updates if any
     if (response.canvasUpdates && response.canvasUpdates.length > 0) {
       startTransition(() => {
-        response.canvasUpdates!.forEach(update => {
+        response.canvasUpdates?.forEach(update => {
           // Update section status
           if (update.status) {
             updateSectionStatus(update.sectionId, update.status)

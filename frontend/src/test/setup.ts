@@ -4,14 +4,14 @@ import '@testing-library/jest-dom';
 global.IntersectionObserver = class IntersectionObserver {
   root = null;
   rootMargin = '';
-  thresholds = [];
+  thresholds: number[] = [];
 
   constructor() {}
   disconnect() {}
   observe() {}
   unobserve() {}
-  takeRecords() { return []; }
-} as any;
+  takeRecords(): IntersectionObserverEntry[] { return []; }
+} as unknown as typeof IntersectionObserver;
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {
