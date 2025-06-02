@@ -48,10 +48,10 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="text-center space-y-2">
             <div className="text-2xl">⚠️</div>
             <h3 className="text-lg font-semibold text-destructive">
-              Une erreur s'est produite
+              Une erreur s&apos;est produite
             </h3>
             <p className="text-sm text-muted-foreground max-w-md">
-              Un problème technique est survenu. L'équipe technique a été notifiée.
+              Un problème technique est survenu. L&apos;équipe technique a été notifiée.
             </p>
             <button
               onClick={() => this.setState({ hasError: false, error: undefined })}

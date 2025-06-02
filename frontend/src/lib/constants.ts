@@ -14,6 +14,14 @@ export const ANIMATIONS = {
   TRANSITION_DURATION: 300, // milliseconds
   TYPING_INDICATOR_DELAY: 1000, // milliseconds
   MESSAGE_FADE_IN: 200, // milliseconds
+  // Magic UI Animation constants
+  PROGRESSIVE_CANVAS_DELAY: 4500, // milliseconds
+  SECTION_STAGGER_DELAY: 800, // milliseconds
+  CONFIDENCE_COLOR_TRANSITION: 1200, // milliseconds
+  TYPING_CHARACTER_DELAY: 50, // milliseconds
+  BEAM_ANIMATION_DURATION: 3000, // milliseconds
+  PULSATING_DURATION: 1500, // milliseconds
+  SHIMMER_DURATION: 3000, // milliseconds
 } as const;
 
 // UI Constants
