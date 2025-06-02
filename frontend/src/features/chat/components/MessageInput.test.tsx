@@ -49,7 +49,7 @@ describe('MessageInput', () => {
       
       render(<MessageInput />);
       
-      const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+      const textarea = screen.getByRole('textbox');
       expect(textarea.value).toBe('Test input from store');
     });
 

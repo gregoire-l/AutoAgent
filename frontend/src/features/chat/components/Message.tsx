@@ -32,11 +32,11 @@ function MessageContent({ message, messageIndex = 0 }: MessageContentProps) {
   }
 
   return (
-    <TextAnimate animation="fadeIn" className="text-sm" startOnView={false}>
-      <p className="whitespace-pre-wrap break-words">
+    <div className="text-sm">
+      <TextAnimate animation="fadeIn" className="whitespace-pre-wrap break-words" startOnView={false}>
         {message.content}
-      </p>
-    </TextAnimate>
+      </TextAnimate>
+    </div>
   );
 }
 

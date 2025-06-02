@@ -130,17 +130,17 @@ export function WelcomePage({ onStartMission, className }: WelcomePageProps) {
               <CardContent className='p-6'>
                 <div className='space-y-4'>
                   <div>
-                    <TextAnimate
-                      animation="fadeIn"
-                      by="word"
-                      as="label"
-                      htmlFor='mission-input'
-                      className='text-muted-foreground text-sm font-medium'
-                      delay={0.5}
-                      startOnView={false}
-                    >
-                      Décrivez votre mission
-                    </TextAnimate>
+                    <label htmlFor='mission-input' className='text-muted-foreground text-sm font-medium block'>
+                      <TextAnimate
+                        animation="fadeIn"
+                        by="word"
+                        as="span"
+                        delay={0.5}
+                        startOnView={false}
+                      >
+                        Décrivez votre mission
+                      </TextAnimate>
+                    </label>
                     <motion.div
                       className="relative mt-2"
                       whileFocus={{ scale: 1.01 }}
