@@ -80,7 +80,6 @@ describe('useClarificationFlow', () => {
         phase: 'A2',
         step: 1,
         content: 'Test agent response content',
-        trigger: 'user_message_sent',
         delay: 1000,
       };
 
@@ -120,20 +119,17 @@ describe('useClarificationFlow', () => {
         phase: 'A2',
         step: 1,
         content: 'Test response',
-        trigger: 'user_message_sent',
         delay: 1000,
         canvasUpdates: [
           {
             sectionId: 'section-1',
-            status: 'completed',
-            content: { title: 'Updated Title' },
+            status: 'confirmed',
+            content: 'Updated Title',
             highlight: true,
-            timestamp: new Date(),
           },
           {
             sectionId: 'section-2',
             status: 'in_progress',
-            timestamp: new Date(),
           },
         ],
       };
@@ -143,8 +139,8 @@ describe('useClarificationFlow', () => {
       });
 
       // Verify canvas updates were processed
-      expect(mockStoreActions.updateSectionStatus).toHaveBeenCalledWith('section-1', 'completed');
-      expect(mockStoreActions.updateSectionContent).toHaveBeenCalledWith('section-1', { title: 'Updated Title' });
+      expect(mockStoreActions.updateSectionStatus).toHaveBeenCalledWith('section-1', 'confirmed');
+      expect(mockStoreActions.updateSectionContent).toHaveBeenCalledWith('section-1', 'Updated Title');
       expect(mockStoreActions.highlightSection).toHaveBeenCalledWith('section-1');
       expect(mockStoreActions.addCanvasUpdate).toHaveBeenCalledTimes(2);
       expect(mockStoreActions.processCanvasUpdates).toHaveBeenCalled();
@@ -302,7 +298,6 @@ describe('useClarificationFlow', () => {
         phase: 'A2',
         step: 1,
         content: 'Test response',
-        trigger: 'user_message_sent',
         delay: 1000,
       };
 

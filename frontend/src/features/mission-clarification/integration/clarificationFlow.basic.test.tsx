@@ -15,7 +15,6 @@ const { mockUseClarificationFlow, mockGetNextResponse, mockLyonParisScript, mock
       phase: 'A2',
       step: 1,
       content: 'Test response content',
-      trigger: 'user_message_sent',
       delay: 1000,
     },
   ],
@@ -189,10 +188,8 @@ describe('Clarification Flow Basic Integration', () => {
       
       // Add user interaction
       store.addUserInteraction?.({
-        type: 'message_sent',
+        type: 'message',
         content: 'Test message',
-        phase: 'A2',
-        step: 1,
       });
       
       expect(store.userInteractions).toHaveLength(1);
@@ -207,8 +204,7 @@ describe('Clarification Flow Basic Integration', () => {
       // Add canvas update
       store.addCanvasUpdate?.({
         sectionId: 'section-1',
-        status: 'completed',
-        timestamp: new Date(),
+        status: 'confirmed',
       });
       
       expect(store.pendingCanvasUpdates).toHaveLength(1);
@@ -253,10 +249,8 @@ describe('Clarification Flow Basic Integration', () => {
         
         // Add some interactions
         store.addUserInteraction?.({
-          type: 'message_sent',
+          type: 'message',
           content: `Message ${cycle}`,
-          phase: 'A2',
-          step: 1,
         });
         
         // Complete and reset

@@ -12,14 +12,26 @@ describe('ClarificationSlice', () => {
   let slice: ClarificationSlice;
   let mockSet: ReturnType<typeof vi.fn>;
   let mockGet: ReturnType<typeof vi.fn>;
+  let mockStore: {
+    setState: ReturnType<typeof vi.fn>;
+    getState: ReturnType<typeof vi.fn>;
+    getInitialState: ReturnType<typeof vi.fn>;
+    subscribe: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     // Create mock functions for Zustand
     mockSet = vi.fn();
     mockGet = vi.fn(() => slice); // Return the slice itself
+    mockStore = {
+      setState: vi.fn(),
+      getState: vi.fn(),
+      getInitialState: vi.fn(),
+      subscribe: vi.fn(),
+    };
 
     // Create a fresh slice for each test
-    slice = createClarificationSlice(mockSet, mockGet);
+    slice = createClarificationSlice(mockSet, mockGet, mockStore);
   });
 
   describe('Initial State', () => {
@@ -87,7 +99,6 @@ describe('ClarificationSlice', () => {
           phase: 'A2',
           step: 1,
           content: 'Test response',
-          trigger: 'user_message_sent',
           delay: 1000,
         },
       ];
@@ -110,7 +121,6 @@ describe('ClarificationSlice', () => {
       const update: CanvasUpdate = {
         sectionId: 'section-1',
         status: 'in_progress',
-        timestamp: new Date(),
       };
 
       // Test that we can call the function (even if mocked)
