@@ -9,5 +9,6 @@ export {
   TIMING_CONFIG,
   getResponseByTrigger,
   getNextResponse,
+  getNextResponseByStep,
   getRandomUserResponse,
 } from './scriptedContent';

@@ -262,7 +262,46 @@ export function getResponseByTrigger(trigger: string, phase: string): ScriptedRe
 }
 
 // Helper function to get next response in sequence
-export function getNextResponse(currentPhase: string, currentStep: number): ScriptedResponse | undefined {
+export function getNextResponse(
+  userInteraction: any,
+  scriptedResponses: ScriptedResponse[],
+  currentPhase: string,
+  currentStep: number
+): ScriptedResponse | undefined {
+  // First try to find a response that matches the current step + 1
+  const nextStepResponse = scriptedResponses.find(
+    response => response.phase === currentPhase && response.step === currentStep + 1
+  );
+
+  if (nextStepResponse) {
+    return nextStepResponse;
+  }
+
+  // If no direct next step, try to find based on trigger conditions
+  if (userInteraction) {
+    const triggerResponse = scriptedResponses.find(
+      response => {
+        // Match based on interaction type and current context
+        if (userInteraction.type === 'message' && response.triggerCondition === 'user_message_sent') {
+          return response.phase === currentPhase;
+        }
+        if (userInteraction.type === 'canvas_click' && response.triggerCondition === 'canvas_interaction') {
+          return response.phase === currentPhase;
+        }
+        return false;
+      }
+    );
+
+    if (triggerResponse) {
+      return triggerResponse;
+    }
+  }
+
+  return undefined;
+}
+
+// Helper function to get next response by step (legacy compatibility)
+export function getNextResponseByStep(currentPhase: string, currentStep: number): ScriptedResponse | undefined {
   return LYON_PARIS_SCRIPT.find(
     response => response.phase === currentPhase && response.step === currentStep + 1
   );

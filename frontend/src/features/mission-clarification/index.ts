@@ -18,6 +18,12 @@ export type {
 export type { ClarificationSlice } from './store';
 export { createClarificationSlice } from './store';
 
+// Components
+export { ClarificationFlowManager } from './components/ClarificationFlowManager';
+
+// Hooks
+export { useClarificationFlow } from './hooks/useClarificationFlow';
+
 // Data
 export {
   LYON_PARIS_EXAMPLE,
@@ -27,5 +33,6 @@ export {
   TIMING_CONFIG,
   getResponseByTrigger,
   getNextResponse,
+  getNextResponseByStep,
   getRandomUserResponse,
 } from './data';
