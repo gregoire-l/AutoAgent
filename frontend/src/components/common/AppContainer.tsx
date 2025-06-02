@@ -5,6 +5,7 @@ import { useBoundStore } from '@/store';
 import { useStoreInitialization, useDemoInitialization } from '@/hooks';
 import { MissionCanvas } from '@/features/canvas';
 import { ChatPanel } from '@/features/chat';
+import { ClarificationFlowManager } from '@/features/mission-clarification';
 
 // ChatPanel is now replaced by the actual ChatPanel component from features/chat
 
@@ -13,6 +14,7 @@ import { ChatPanel } from '@/features/chat';
 export function AppContainer() {
   const [showMainLayout, setShowMainLayout] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [clarificationMode, setClarificationMode] = useState(false);
 
   const sendMessage = useBoundStore(state => state.sendMessage);
 
@@ -20,17 +22,31 @@ export function AppContainer() {
   useStoreInitialization();
   useDemoInitialization();
 
-  const handleStartMission = (initialMessage: string) => {
+  const handleStartMission = (initialMessage: string, isClarificationMode?: boolean) => {
     setIsTransitioning(true);
+
+    // Detect clarification mode
+    if (isClarificationMode) {
+      setClarificationMode(true);
+    }
 
     // Transition animation
     setTimeout(() => {
       setShowMainLayout(true);
       setIsTransitioning(false);
 
-      // Send the initial message
-      void sendMessage(initialMessage);
+      // Send the initial message only if not in clarification mode
+      // Clarification mode will handle its own message flow
+      if (!isClarificationMode) {
+        void sendMessage(initialMessage);
+      }
     }, 500);
+  };
+
+  // Handle clarification flow completion
+  const handleClarificationComplete = () => {
+    setClarificationMode(false);
+    // Clarification flow is complete, continue with normal operation
   };
 
   if (isTransitioning) {
@@ -51,6 +67,16 @@ export function AppContainer() {
   }
 
   return (
-    <MainLayout chatPanel={<ChatPanel />} canvasPanel={<MissionCanvas />} />
+    <>
+      <MainLayout chatPanel={<ChatPanel />} canvasPanel={<MissionCanvas />} />
+
+      {/* Clarification Flow Manager - renders when clarification mode is active */}
+      {clarificationMode && (
+        <ClarificationFlowManager
+          isActive={clarificationMode}
+          onComplete={handleClarificationComplete}
+        />
+      )}
+    </>
   );
 }
