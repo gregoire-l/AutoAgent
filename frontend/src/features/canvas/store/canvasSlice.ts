@@ -21,6 +21,7 @@ export interface CanvasSlice extends CanvasState {
   removeSection: (sectionId: string) => void;
   selectOption: (sectionId: string, optionId: string) => void;
   addOption: (sectionId: string, option: Omit<MissionOption, 'id'>) => void;
+  setCanvasSections: (sections: MissionSectionData[]) => void;
   initializeMissionSections: () => void;
   initializeDemoData: () => void;
 }
@@ -124,6 +125,10 @@ export const createCanvasSlice: StateCreator<
           : section
       ),
     }));
+  },
+
+  setCanvasSections: (sections: MissionSectionData[]) => {
+    set({ sections, selectedSectionId: undefined });
   },
 
   initializeMissionSections: () => {
