@@ -76,6 +76,7 @@ export const LYON_PARIS_SCRIPT: ScriptedResponse[] = [
     ],
     delay: 2000,
     triggerCondition: 'user_message_sent',
+    suggestedUserResponse: "Ah yes, 100€ par personne (donc 400€ total). Et oui, départ après 18h c'est parfait.",
   },
 
   // Phase A2 - Step 2: Budget confirmation
@@ -206,6 +207,7 @@ export const LYON_PARIS_SCRIPT: ScriptedResponse[] = [
     ],
     delay: 2000,
     triggerCondition: 'auto_advance',
+    suggestedUserResponse: "C'est pour un weekend entre potes, rien de spécial, juste se retrouver à Paris.",
   },
 
   // Phase A3 - Step 2: Final confirmation
@@ -224,6 +226,7 @@ export const LYON_PARIS_SCRIPT: ScriptedResponse[] = [
     ],
     delay: 2500,
     triggerCondition: 'user_context_response',
+    suggestedUserResponse: "Oui, ça me semble parfait ! On peut y aller.",
   },
 ];
 
