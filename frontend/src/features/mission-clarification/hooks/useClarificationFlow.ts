@@ -61,6 +61,7 @@ export function useClarificationFlow() {
   const setAgentState = useBoundStore(state => state.setAgentState)
   const receiveMessage = useBoundStore(state => state.receiveMessage)
   const setTyping = useBoundStore(state => state.setTyping)
+  const setComposerInput = useBoundStore(state => state.setComposerInput)
   const updateSectionStatus = useBoundStore(state => state.updateSectionStatus)
   const updateSectionContent = useBoundStore(state => state.updateSectionContent)
   const highlightSection = useBoundStore(state => state.highlightSection)
@@ -114,6 +115,11 @@ export function useClarificationFlow() {
         canvasUpdates: response.canvasUpdates,
       })
 
+      // Pre-fill user input if suggested response is provided
+      if (response.suggestedUserResponse) {
+        setComposerInput(response.suggestedUserResponse)
+      }
+
       setAgentTyping(false)
       setTyping(false)
       setAgentState('idle')
@@ -146,6 +152,7 @@ export function useClarificationFlow() {
     setAgentTyping,
     setTyping,
     receiveMessage,
+    setComposerInput,
     updateSectionStatus,
     updateSectionContent,
     highlightSection,
