@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import { useBoundStore } from '@/store'
-import { LYON_PARIS_SCRIPT, LYON_PARIS_EXAMPLE, getNextResponse } from '../data'
+import { LYON_PARIS_SCRIPT, LYON_PARIS_MISSION_SECTIONS, getNextResponse } from '../data'
 import { useClarificationFlow } from '../hooks/useClarificationFlow'
 import type { MessageData } from '@/features/chat/types'
 
@@ -42,8 +42,7 @@ export function ClarificationFlowManager({
   const isFlowComplete = useBoundStore(useCallback((state) => state.isFlowComplete, []))
   const setMissionTitle = useBoundStore(useCallback((state) => state.setMissionTitle, []))
   const clearMessages = useBoundStore(useCallback((state) => state.clearMessages, []))
-  const addMessage = useBoundStore(useCallback((state) => state.addMessage, []))
-  const setComposerInput = useBoundStore(useCallback((state) => state.setComposerInput, []))
+  const setCanvasSections = useBoundStore(useCallback((state) => state.setCanvasSections, []))
 
   // Initialize clarification flow when activated
   useEffect(() => {
@@ -51,18 +50,8 @@ export function ClarificationFlowManager({
       // Clear existing messages for clean start
       clearMessages()
 
-      // Add welcome message
-      const welcomeMessage: MessageData = {
-        id: `clarification-welcome-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        content: 'Salut ! Prêt(e) à démarrer une mission ? Dis-moi tout...',
-        role: 'assistant',
-        timestamp: new Date(),
-        status: 'sent'
-      }
-      addMessage(welcomeMessage)
-
-      // Pre-fill input with Lyon-Paris example
-      setComposerInput(LYON_PARIS_EXAMPLE)
+      // Initialize canvas with Lyon-Paris sections
+      setCanvasSections(LYON_PARIS_MISSION_SECTIONS)
 
       // Load scripted responses
       loadScriptedResponses(LYON_PARIS_SCRIPT)
@@ -77,8 +66,7 @@ export function ClarificationFlowManager({
     isActive,
     clarificationState.isActive,
     clearMessages,
-    addMessage,
-    setComposerInput,
+    setCanvasSections,
     loadScriptedResponses,
     setMissionTitle,
     startClarification
