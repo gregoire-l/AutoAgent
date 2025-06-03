@@ -6,7 +6,8 @@ export type MissionStatus =
   | 'in_progress'
   | 'confirmed'
   | 'to_define'
-  | 'suggestion_pending';
+  | 'suggestion_pending'
+  | 'modification_in_progress';
 
 export interface MissionSectionData {
   id: string;

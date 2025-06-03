@@ -65,6 +65,13 @@ export function MissionSection({
       editContent.trim() ? 'confirmed' : 'to_define'
     );
     setIsEditing(false);
+
+    // Record canvas direct edit interaction
+    addUserInteraction({
+      type: 'canvas_direct_edit',
+      content: `Edited "${section.title}" content: ${editContent.trim()}`,
+      sectionId: section.id,
+    });
   };
 
   const handleCancel = () => {
@@ -80,7 +87,7 @@ export function MissionSection({
     const selectedOption = section.options?.find(opt => opt.id === optionId);
     if (selectedOption) {
       addUserInteraction({
-        type: 'radio_select',
+        type: 'canvas_radio_select',
         content: `Selected "${selectedOption.label}" for ${section.title}`,
         sectionId: section.id,
         optionId: optionId,
@@ -94,13 +101,21 @@ export function MissionSection({
     }
   };
 
+  const handleContentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (section.isEditable && !isEditing) {
+      setIsEditing(true);
+      updateSectionStatus(section.id, 'modification_in_progress');
+    }
+  };
+
   const handleButtonSelect = (buttonId: string, buttonLabel: string) => {
     setSelectedButtonId(buttonId);
     updateSectionStatus(section.id, 'confirmed');
 
     // Record user interaction for clarification flow
     addUserInteraction({
-      type: 'button_click',
+      type: 'canvas_button_click',
       content: `Selected "${buttonLabel}" for ${section.title}`,
       sectionId: section.id,
       optionId: buttonId,
@@ -189,16 +204,25 @@ export function MissionSection({
           <>
             {/* Text Content */}
             {section.content && (
-              <ProgressiveText
-                confidence={getLyonParisExampleConfidence(section.title, clarificationStep)}
-                animation="blurInUp"
-                by="word"
-                delay={0.3}
-                className='mb-3 text-sm'
-                startOnView={false}
+              <div
+                onClick={handleContentClick}
+                className={cn(
+                  'mb-3 text-sm',
+                  section.isEditable && 'cursor-pointer hover:bg-muted/50 rounded p-1 transition-colors'
+                )}
+                title={section.isEditable ? 'Cliquez pour éditer' : undefined}
               >
-                {section.content}
-              </ProgressiveText>
+                <ProgressiveText
+                  confidence={getLyonParisExampleConfidence(section.title, clarificationStep)}
+                  animation="blurInUp"
+                  by="word"
+                  delay={0.3}
+                  className='text-sm'
+                  startOnView={false}
+                >
+                  {section.content}
+                </ProgressiveText>
+              </div>
             )}
 
             {/* Options */}
