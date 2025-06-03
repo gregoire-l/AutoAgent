@@ -14,6 +14,7 @@ export interface ScriptedResponse {
   delay: number;
   triggerCondition?: string;
   nextStep?: number;
+  suggestedUserResponse?: string; // Pre-filled user response for clarification flow
 }
 
 export interface CanvasUpdate {
