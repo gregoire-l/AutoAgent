@@ -37,16 +37,14 @@ export function AppContainer() {
     }
 
     // Add the initial message immediately with 'sent' status
-    if (!isClarificationMode) {
-      const userMessage: MessageData = {
-        id: generateId(),
-        content: initialMessage,
-        role: 'user',
-        timestamp: new Date(),
-        status: 'sent'
-      };
-      addMessage(userMessage);
-    }
+    const userMessage: MessageData = {
+      id: generateId(),
+      content: initialMessage,
+      role: 'user',
+      timestamp: new Date(),
+      status: 'sent'
+    };
+    addMessage(userMessage);
 
     // Transition animation - increased delay for smoother choreographed transition
     setTimeout(() => {
