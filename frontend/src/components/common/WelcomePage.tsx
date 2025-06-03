@@ -89,6 +89,7 @@ export function WelcomePage({ onStartMission, className }: WelcomePageProps) {
             }}
           >
             <TextAnimate
+              key="welcome-main-title"
               animation="blurInUp"
               by="character"
               as="h1"
@@ -98,6 +99,7 @@ export function WelcomePage({ onStartMission, className }: WelcomePageProps) {
               AutoAgent
             </TextAnimate>
             <TextAnimate
+              key="welcome-subtitle"
               animation="slideUp"
               by="word"
               as="p"
