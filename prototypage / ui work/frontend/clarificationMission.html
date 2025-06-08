@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas - Critères Priorisés v2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body class="font-manrope bg-neutral-900 text-neutral-400 p-12 flex justify-center items-start min-h-screen">
+
+    <!-- SVG Icons -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="hidden">
+        <defs>
+            <symbol id="heroicon-light-bulb" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+            </symbol>
+            <symbol id="heroicon-check" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </symbol>
+            <symbol id="heroicon-users" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M12 8.25a3 3 0 100-6 3 3 0 000 6z" />
+            </symbol>
+            <symbol id="heroicon-currency-euro" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 7.756a4.5 4.5 0 010 8.488M7.5 10.5h5.25m-5.25 3h5.25M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </symbol>
+            <symbol id="heroicon-calendar-days" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+            </symbol>
+            <symbol id="heroicon-arrows-up-down" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25L12 4.5m0 0l4.5 3.75M12 4.5v15m0 0L7.5 15.75m4.5 3.75L16.5 15.75" />
+            </symbol>
+            <symbol id="heroicon-document-text" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.662 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.662m-1.82 0A2.498 2.498 0 0012 3.75a2.498 2.498 0 00-1.82.858M7.5 12.75a3 3 0 000-6M7.5 12.75v-1.5m0 1.5A3 3 0 016 15.75v-1.5m0 0A3 3 0 004.5 18v-1.5m-3-3a3 3 0 000 6m3-6a3 3 0 000-6" />
+            </symbol>
+            <symbol id="heroicon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </symbol>
+        </defs>
+    </svg>
+
+    <!-- Main Canvas Panel -->
+    <div class="canvas-panel">
+        <!-- Mission Header -->
+        <div class="mission-title" id="missionTitle">Organisation Voyage Lyon-Paris</div>
+        <div class="mission-objective">
+            Organiser un voyage aller-retour entre Lyon et Paris pour un groupe de 4 amis.
+        </div>
+
+        <!-- Constraints Section -->
+        <div class="section status-in-discussion">
+            <div class="main-margin-bar">
+                <div class="main-margin-bar-line h-full"></div>
+            </div>
+            <div class="section-title">Contraintes</div>
+            <div class="space-y-0">
+                <!-- Constraint Item: Voyageurs -->
+                <div class="constraint-item item-confirmed">
+                    <div class="constraint-icon-wrapper">
+                        <svg class="heroicon icon-default">
+                            <use xlink:href="#heroicon-users"></use>
+                        </svg>
+                    </div>
+                    <div class="constraint-content">
+                        <div class="constraint-main-line">
+                            <span class="constraint-label">Voyageurs</span>
+                            <div class="constraint-value-wrapper">
+                                <span class="constraint-value">4 personnes</span>
+                            </div>
+                            <div class="status-indicator">
+                                <svg class="heroicon icon-status-confirmed">
+                                    <use xlink:href="#heroicon-check"></use>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Constraint Item: Budget -->
+                <div class="constraint-item item-in-discussion">
+                    <div class="constraint-icon-wrapper">
+                        <svg class="heroicon icon-status-discussion">
+                            <use xlink:href="#heroicon-currency-euro"></use>
+                        </svg>
+                    </div>
+                    <div class="constraint-content">
+                        <div class="constraint-main-line">
+                            <span class="constraint-label">Budget</span>
+                            <div class="constraint-value-wrapper">
+                                <span class="constraint-value">100€</span>
+                                <span class="constraint-tag">Par tête ou total ?</span>
+                            </div>
+                        </div>
+                        <div class="constraint-secondary-details">
+                            Clarification nécessaire pour ce point.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Constraint Item: Période -->
+                <div class="constraint-item item-confirmed">
+                    <div class="constraint-icon-wrapper">
+                        <svg class="heroicon icon-default">
+                            <use xlink:href="#heroicon-calendar-days"></use>
+                        </svg>
+                    </div>
+                    <div class="constraint-content">
+                        <div class="constraint-main-line">
+                            <span class="constraint-label">Période</span>
+                            <div class="constraint-value-wrapper">
+                                <span class="constraint-value">Vendredi 4 Avril → Dimanche 6 Avril</span>
+                            </div>
+                            <div class="status-indicator">
+                                <svg class="heroicon icon-status-confirmed">
+                                    <use xlink:href="#heroicon-check"></use>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="constraint-secondary-details">
+                            <div>Aller : arrivée avant 20h</div>
+                            <div>Retour : départ après 18h</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Constraint Item: Trajet -->
+                <div class="constraint-item item-confirmed">
+                    <div class="constraint-icon-wrapper">
+                        <svg class="heroicon icon-default">
+                            <use xlink:href="#heroicon-arrows-up-down"></use>
+                        </svg>
+                    </div>
+                    <div class="constraint-content">
+                        <div class="constraint-main-line">
+                            <span class="constraint-label">Trajet</span>
+                            <div class="constraint-value-wrapper">
+                                <span class="constraint-value">Lyon → Paris</span>
+                            </div>
+                            <div class="status-indicator">
+                                <svg class="heroicon icon-status-confirmed">
+                                    <use xlink:href="#heroicon-check"></use>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Criteria Section -->
+        <div class="section status-in-discussion">
+            <div class="main-margin-bar">
+                <div class="main-margin-bar-line h-full"></div>
+            </div>
+            <div class="section-title">Critères de Succès</div>
+            <ul class="criteria-list">
+                <!-- Criteria Item: Budget -->
+                <li class="criteria-item item-confirmed priority-imperative">
+                    <div class="criteria-item-prefix">
+                        <div class="priority-badge priority-badge--imperative">I</div>
+                    </div>
+                    <span class="criteria-item-text">Respect du budget total (450€ max)</span>
+                    <div class="criteria-item-status-icon">
+                        <svg class="heroicon icon-status-confirmed">
+                            <use xlink:href="#heroicon-check"></use>
+                        </svg>
+                    </div>
+                </li>
+
+                <!-- Criteria Item: Temps de trajet -->
+                <li class="criteria-item item-confirmed priority-essential">
+                    <div class="criteria-item-prefix">
+                        <div class="priority-badge priority-badge--essential">E</div>
+                    </div>
+                    <span class="criteria-item-text">Temps de trajet optimisé</span>
+                    <div class="criteria-item-status-icon">
+                        <svg class="heroicon icon-status-confirmed">
+                            <use xlink:href="#heroicon-check"></use>
+                        </svg>
+                    </div>
+                </li>
+
+                <!-- Criteria Item: Confort (suggested) -->
+                <li class="criteria-item item-suggested priority-appreciable">
+                    <div class="criteria-item-prefix">
+                        <svg class="suggestion-indicator-icon heroicon icon-status-discussion">
+                            <use xlink:href="#heroicon-light-bulb"></use>
+                        </svg>
+                        <div class="priority-badge priority-badge--appreciable">A</div>
+                    </div>
+                    <span class="criteria-item-text">Confort des transports (suggestion agent)</span>
+                </li>
+
+                <!-- Criteria Item: Flexibilité (suggested) -->
+                <li class="criteria-item item-suggested priority-optional">
+                    <div class="criteria-item-prefix">
+                        <svg class="suggestion-indicator-icon heroicon icon-status-discussion">
+                            <use xlink:href="#heroicon-light-bulb"></use>
+                        </svg>
+                        <div class="priority-badge priority-badge--optional">O</div>
+                    </div>
+                    <span class="criteria-item-text">Flexibilité pour modification de dernière minute (suggestion agent)</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Key Deliverable Section -->
+        <div class="section status-suggestion">
+            <div class="main-margin-bar">
+                <div class="main-margin-bar-line h-full"></div>
+            </div>
+            <div class="section-title">Livrable Clé</div>
+            <div class="suggestion-capsule">
+                <div class="suggestion-capsule-header">
+                    <div class="suggestion-capsule-icon">
+                        <svg class="heroicon">
+                            <use xlink:href="#heroicon-document-text"></use>
+                        </svg>
+                    </div>
+                    <span class="suggestion-capsule-title">Format du Résultat</span>
+                </div>
+                <div class="suggestion-capsule-value">Quel format préférez-vous ?</div>
+                <div class="space-y-2">
+                    <div class="suggestion-option" onclick="selectSuggestion(this, 'livrable')">
+                        Tableau Comparatif Détaillé
+                    </div>
+                    <div class="suggestion-option" onclick="selectSuggestion(this, 'livrable')">
+                        Simple Liste des Options
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Milestones Section -->
+        <div class="section status-unaddressed">
+            <div class="section-title">Jalons de Revue</div>
+
+            <div class="timeline-horizontal">
+                <!-- Timeline Track -->
+                <div class="timeline-track-container">
+                    <span class="timeline-track-label">Début</span>
+                    <div class="timeline-track">
+                        <div class="timeline-node left-[20%]" data-target="milestone-legend-h-1">1</div>
+                        <div class="timeline-node left-[85%]" data-target="milestone-legend-h-2">2</div>
+                    </div>
+                    <span class="timeline-track-label">Fin</span>
+                </div>
+
+                <!-- Milestone Legend -->
+                <div class="space-y-0">
+                    <!-- Milestone 1: Validation du Plan -->
+                    <div class="milestone-legend-item accordion-item item-suggested" id="milestone-legend-h-1">
+                        <div class="milestone-header" onclick="toggleAccordion(this.parentElement)">
+                            <span class="milestone-number">1.</span>
+                            <div class="milestone-state-icon-wrapper">
+                                <span class="status-indicator status-indicator--suggested status-indicator--hidden">
+                                    <svg class="heroicon icon-status-discussion">
+                                        <use xlink:href="#heroicon-light-bulb"></use>
+                                    </svg>
+                                </span>
+                                <span class="status-indicator status-indicator--confirmed status-indicator--hidden">
+                                    <svg class="heroicon icon-status-confirmed-alt">
+                                        <use xlink:href="#heroicon-check"></use>
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="milestone-title-container">
+                                <span class="milestone-title">Validation du Plan de Recherche</span>
+                            </div>
+                            <div class="accordion-icon">
+                                <svg class="heroicon">
+                                    <use xlink:href="#heroicon-chevron-down"></use>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="milestone-when-info">
+                            <svg class="heroicon heroicon--sm icon-text-faded">
+                                <use xlink:href="#heroicon-calendar-days"></use>
+                            </svg>
+                            <span>Quand : Avant lancement des recherches approfondies</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul class="milestone-checkpoints">
+                                <li class="checkpoint-item">Sources de données proposées pertinentes</li>
+                                <li class="checkpoint-item">Méthodologie de comparaison claire</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Milestone 2: Approbation du Livrable -->
+                    <div class="milestone-legend-item accordion-item item-confirmed" id="milestone-legend-h-2">
+                        <div class="milestone-header" onclick="toggleAccordion(this.parentElement)">
+                            <span class="milestone-number">2.</span>
+                            <div class="milestone-state-icon-wrapper">
+                                <span class="status-indicator status-indicator--suggested status-indicator--hidden">
+                                    <svg class="heroicon icon-status-discussion">
+                                        <use xlink:href="#heroicon-light-bulb"></use>
+                                    </svg>
+                                </span>
+                                <span class="status-indicator status-indicator--confirmed status-indicator--inline">
+                                    <svg class="heroicon icon-status-confirmed-alt">
+                                        <use xlink:href="#heroicon-check"></use>
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="milestone-title-container">
+                                <span class="milestone-title">Approbation du Livrable Final</span>
+                            </div>
+                            <div class="accordion-icon">
+                                <svg class="heroicon">
+                                    <use xlink:href="#heroicon-chevron-down"></use>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="milestone-when-info">
+                            <svg class="heroicon heroicon--sm icon-text-faded">
+                                <use xlink:href="#heroicon-calendar-days"></use>
+                            </svg>
+                            <span>Quand : À la réception du tableau comparatif</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul class="milestone-checkpoints">
+                                <li class="checkpoint-item">Conformité aux critères Impératifs</li>
+                                <li class="checkpoint-item">Qualité globale de la réalisation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
