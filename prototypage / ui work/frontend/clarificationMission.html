@@ -8,10 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
 </head>
-<body class="font-manrope bg-neutral-900 text-neutral-400 p-12 flex justify-center items-start min-h-screen">
+<body class="font-manrope"> <!-- Tailwind classes like p-12, flex, justify-center, items-start removed, handled by CSS -->
 
     <!-- SVG Icons -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="hidden">
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
         <defs>
             <symbol id="heroicon-light-bulb" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
@@ -40,10 +40,31 @@
         </defs>
     </svg>
 
-    <!-- Main Canvas Panel -->
-    <div class="canvas-panel">
-        <!-- Mission Header -->
-        <div class="mission-title" id="missionTitle">Organisation Voyage Lyon-Paris</div>
+<div class="main-container">
+    <div class="chat-panel">
+        <div class="chat-header">Dialogue Mission</div>
+        <div class="chat-messages">
+            <div class="chat-message user-message"><div class="message-content-wrapper"><span class="user-prefix">&gt;</span><span class="message-text">Hello, j'aurais besoin d'organiser un A/R Lyon-Paris pour 4 potes. On a un budget de 100€ max. Faut qu'on soit à Paris le vendredi 4 avril avant 20h et qu'on reparte le dimanche soir.</span></div></div>
+            <div class="chat-message agent-message"><span class="message-text">Ok, ça marche pour le trip Lyon-Paris ! Deux petites précisions pour être sûr : le budget de <strong>100€</strong>, c'est par tête ou pour tout le groupe ? Et pour le retour dimanche soir, 'pas avant 18h', ça te va ?</span></div>
+            <div class="chat-message user-message"><div class="message-content-wrapper"><span class="user-prefix">&gt;</span><span class="message-text">Ah yes, 100€ par personne (donc 400€ total). Et oui, départ après 18h c'est parfait.</span></div></div>
+            <div class="chat-message agent-message"><span class="message-text">Super clair ! Budget max <strong>400€</strong> et départ <strong>&gt;18h dimanche</strong>, c'est noté et validé.</span></div>
+            <div class="chat-message agent-message"><span class="message-text">Maintenant, qu'est-ce que tu attends comme résultat concret de ma part ? Souvent, pour ce genre de demande, un <strong>tableau comparatif</strong> des options est le plus utile.</span></div>
+            <div class="chat-message user-message"><div class="message-content-wrapper"><span class="user-prefix">&gt;</span><span class="message-text">Oui, un tableau comparatif détaillé, c'est exactement ça.</span></div></div>
+            <div class="chat-message agent-message"><span class="message-text">Parfait pour le tableau comparatif détaillé !</span></div>
+            <div class="chat-message agent-message"><span class="message-text">Pour être sûr de bien cibler, quel est l'<strong>objectif principal</strong> de ce voyage ? Détente entre amis, événement spécifique à Paris ?</span></div>
+            <div class="chat-message user-message"><div class="message-content-wrapper"><span class="user-prefix">&gt;</span><span class="message-text">C'est surtout pour un week-end détente et revoir un concert d'un groupe qu'on adore.</span></div></div>
+             <div class="chat-message agent-message"><span class="message-text">Excellent ! Et en termes de <strong>critères de succès</strong>, outre le respect du budget, y a-t-il autre chose d'important ? Confort des transports, proximité du lieu du concert pour l'hébergement ?</span></div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" placeholder="Votre réponse..." class="chat-input-field">
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <!-- Main Canvas Panel (existing content) -->
+        <div class="canvas-panel">
+            <!-- Mission Header -->
+            <div class="mission-title" id="missionTitle">Organisation Voyage Lyon-Paris</div>
         <div class="mission-objective">
             Organiser un voyage aller-retour entre Lyon et Paris pour un groupe de 4 amis.
         </div>
@@ -328,8 +349,13 @@
                     </div>
                 </div>
             </div>
+            </div>
         </div>
+        <!-- End of canvas-panel -->
     </div>
+    <!-- End of canvas-container -->
+</div>
+<!-- End of main-container -->
 
     <script src="script.js"></script>
 </body>
