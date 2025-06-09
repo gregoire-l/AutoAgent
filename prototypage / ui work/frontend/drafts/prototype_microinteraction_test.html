@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Animation Validation v10 - @property Gradient</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @property --gradient-color-start {
+          syntax: '<color>';
+          initial-value: #0D9488; /* --validation-green-gradient-start */
+          inherits: false;
+        }
+        @property --gradient-color-mid {
+          syntax: '<color>';
+          initial-value: #4ade80; /* --validation-green-gradient-mid */
+          inherits: false;
+        }
+        @property --gradient-color-end {
+          syntax: '<color>';
+          initial-value: #0E7490; /* --validation-green-gradient-end */
+          inherits: false;
+        }
+
+        :root {
+            --validation-green: #10B981; 
+            /* Les couleurs du gradient sont maintenant dans @property */
+            --text-validated-gray: #737373; 
+            --text-default-white: #E5E5E5;  
+            --icon-color-default: #737373;
+            --icon-color-suggestion: #F59E0B;
+        }
+
+        body { 
+            font-family: 'Manrope', sans-serif; background-color: #171717; color: #A3A3A3; 
+            margin: 0; padding: 0; display: flex; min-height: 100vh; overflow: hidden;
+        }
+
+        .main-container { display: flex; width: 100%; flex-grow: 1; }
+        .chat-panel { flex-basis: 35%; max-width: 480px; min-width: 320px; background-color: #262626; padding: 24px; display: flex; flex-direction: column; border-right: 1px solid #3A3A3A; max-height: 100vh; box-sizing: border-box; }
+        .chat-header { font-size: 16px; font-weight: 600; color: #D4D4D4; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #3A3A3A; text-transform: uppercase; letter-spacing: 0.02em; flex-shrink: 0;}
+        .chat-messages-placeholder { flex-grow: 1; overflow-y: auto; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-style: italic; color: #525252;}
+        .chat-action-controls { padding-top: 10px; border-top: 1px solid #3A3A3A; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px;}
+        .control-button { background-color: #3B82F6; color: white; font-weight: 500; padding: 8px 12px; font-size:13px; border-radius: 6px; border: none; cursor: pointer; transition: background-color 0.2s ease; text-align: center;}
+        .control-button:hover { background-color: #2563EB; }
+        .control-button.reset { background-color: #6B7280; }
+        .control-button.reset:hover { background-color: #4B5563; }
+
+        .canvas-container { flex-basis: 65%; flex-grow: 1; display: flex; justify-content: center; align-items: flex-start; padding: 3rem 2rem; box-sizing: border-box; overflow-y: auto; max-height: 100vh; }
+        .canvas-panel { background-color: #262626; border-radius: 16px; padding: 36px; max-width: 680px; width: 100%; box-shadow: 0 15px 30px rgba(0,0,0,0.15), 0 8px 15px rgba(0,0,0,0.1); }
+        .section-title { font-size: 16px; font-weight: 600; color: #D4D4D4; margin-bottom: 18px; display: flex; align-items: center; letter-spacing: 0.02em; text-transform: uppercase; }
+        
+        .constraint-item { 
+            display: flex; align-items: center; padding: 16px 12px; 
+            border-bottom: 1px solid rgba(255,255,255,0.035); 
+            position: relative; 
+            border-left: 3px solid transparent; 
+            transition: border-left-color 0.4s ease-out; 
+        }
+        .constraint-item:last-child { border-bottom: none; }
+        
+        .constraint-icon-wrapper { margin-right: 16px; margin-left: -3px; flex-shrink: 0; display:flex; align-items:center; justify-content:center; width: 20px; height: 20px; position:relative; z-index:2;}
+        .constraint-icon-wrapper svg.heroicon { width: 20px; height: 20px; color: var(--icon-color-default); transition: color 0.4s ease-out; }
+        .constraint-icon-wrapper svg.suggestion-indicator-icon { color: var(--icon-color-suggestion); opacity: 1; transform: scale(1); transition: opacity 0.3s ease-out, transform 0.3s ease-out; }
+        
+        .constraint-content { flex-grow: 1; display: flex; align-items: center; position:relative; z-index:2;}
+        .constraint-value { 
+            font-size: 15px; font-weight: 400; 
+            color: var(--text-default-white); 
+            position: relative; 
+            /* Transitions pour les @property et la couleur finale */
+            transition: --gradient-color-start 0.6s,
+                        --gradient-color-mid 0.6s ,
+                        --gradient-color-end 0.6s ; 
+        }
+        
+        .constraint-status-indicator { 
+            margin-left: auto; padding-left: 16px; flex-shrink: 0; width: 18px; height: 18px; 
+            opacity: 0; transform: scale(0.7); position:relative; z-index:2;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out; 
+        }
+        .constraint-status-indicator svg.heroicon { width: 18px; height: 18px; color: var(--validation-green); }
+        .animated-check path { 
+            stroke-dasharray: 50; stroke-dashoffset: 50; 
+            transition: stroke-dashoffset 0.4s ease-out;
+        }
+
+        /* --- État Initial Validé (pour Contrainte 1) --- */
+        .constraint-item.initial-validated { border-left-color: var(--validation-green); }
+        .constraint-item.initial-validated .constraint-value { 
+            color: var(--text-validated-gray); background: none; -webkit-background-clip: initial; background-clip: initial; 
+            --gradient-color-start: var(--text-validated-gray); /* Assurer que les @property sont aussi grises */
+            --gradient-color-mid: var(--text-validated-gray);
+            --gradient-color-end: var(--text-validated-gray);
+            /* transition: none; */
+        }
+        .constraint-item.initial-validated .constraint-status-indicator { opacity: 1; transform: scale(1); }
+        .constraint-item.initial-validated .animated-check path { stroke-dashoffset: 0; }
+        .constraint-item.initial-validated .constraint-icon-wrapper svg.heroicon:not(.suggestion-indicator-icon) { color: var(--validation-green); }
+        .constraint-item.initial-validated .suggestion-indicator-icon { opacity: 0; display:none; }
+
+        /* --- Animation Texte Gradient Fondu Gris avec @property --- */
+        @keyframes animateBgGradientProperty { 
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* Phase 1: Texte en Gradient Vert Animé */
+        .constraint-item.anim-phase1-gradient-green .constraint-value {
+            color: transparent !important; 
+            background: linear-gradient(to right, 
+                var(--gradient-color-start), 
+                var(--gradient-color-mid), 
+                var(--gradient-color-end)
+            );
+            background-size: 200% 100%; 
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: animateBgGradientProperty 0.8s linear infinite;
+            /* Les transitions sur les @property sont déjà sur .constraint-value */
+        }
+
+        /* Phase 2: Transition du Gradient Vert vers Fond Gris (via @property) */
+        .constraint-item.anim-phase2-fade-to-gray .constraint-value {
+            animation: none; /* Arrêter l'animation du background-position */
+            color: transparent !important; /* Maintenir la transparence */
+            /* Changer les valeurs des @property déclenchera leur transition */
+            --gradient-color-start: var(--text-validated-gray);
+            --gradient-color-mid: var(--text-validated-gray);
+            --gradient-color-end: var(--text-validated-gray);
+            /* background, background-size, background-clip restent pour voir la transition des couleurs */
+            background: linear-gradient(to right, 
+                var(--gradient-color-start), /* Ces valeurs vont transitionner */
+                var(--gradient-color-mid), 
+                var(--gradient-color-end)
+            );
+            background-size: 100% 100%; /* Peut être ajusté si nécessaire, ou hérité */
+            -webkit-background-clip: text; 
+            background-clip: text;
+        }
+
+        /* Phase 3: Finalisation (Texte Gris Standard) et Coche */
+        .constraint-item.anim-phase3-final-cleanup .constraint-value {
+            color: var(--text-validated-gray) !important; 
+            background: none !important; 
+            -webkit-background-clip: initial !important; 
+            background-clip: initial !important; 
+            animation: none;
+            transition: none !important; 
+        }
+        .constraint-item.anim-phase3-final-cleanup .constraint-status-indicator { 
+            opacity: 1; transform: scale(1); 
+            transition-delay: 0s !important; 
+        }
+        .constraint-item.anim-phase3-final-cleanup .animated-check path { 
+            stroke-dashoffset: 0; 
+            transition-delay: 0.1s !important; 
+        }
+        .constraint-item.anim-phase3-final-cleanup { 
+            border-left-color: var(--validation-green); 
+            transition-delay: 0s !important;
+        }
+        .constraint-item.anim-phase3-final-cleanup .constraint-icon-wrapper svg.heroicon:not(.suggestion-indicator-icon) { 
+            color: var(--validation-green); 
+            transition-delay: 0s !important;
+        }
+        .constraint-item.anim-phase3-final-cleanup .suggestion-indicator-icon { 
+            opacity: 0 !important; transform: scale(0.7) !important; 
+            transition-delay: 0s !important;
+        }
+
+        /* --- Animation de Réinitialisation --- */
+        .constraint-item.is-resetting-anim .animated-check path { stroke-dashoffset: 50; transition: stroke-dashoffset 0.3s ease-out; }
+        .constraint-item.is-resetting-anim .constraint-status-indicator { opacity: 0; transform: scale(0.7); transition: opacity 0.2s ease-out, transform 0.2s ease-out; }
+        .constraint-item.is-resetting-anim { border-left-color: transparent; transition: border-left-color 0.4s ease-out 0.3s !important; }
+        .constraint-item.is-resetting-anim .constraint-icon-wrapper svg.heroicon:not(.suggestion-indicator-icon) { color: var(--icon-color-default); transition: color 0.4s ease-out 0.3s !important; }
+        .constraint-item.is-resetting-anim .constraint-value {
+            animation: none; background: none; -webkit-background-clip: initial; background-clip: initial;
+            color: var(--text-default-white);
+            /* Réinitialiser les @property à leurs valeurs vertes */
+            --gradient-color-start: #0D9488; /* Doit correspondre à initial-value de @property */
+            --gradient-color-mid: #4ade80;
+            --gradient-color-end: #0E7490;
+            transition: color 0.3s ease-out, 
+                        --gradient-color-start 0.3s ease-out,
+                        --gradient-color-mid 0.3s ease-out,
+                        --gradient-color-end 0.3s ease-out,
+                        background 0.1s linear;
+        }
+        .constraint-item.is-resetting-anim.is-suggestion .suggestion-indicator-icon { opacity: 1; transform: scale(1); transition: opacity 0.3s ease-out 0.5s, transform 0.3s ease-out 0.5s; }
+
+        /* État final stable */
+        .constraint-item.final-validated-state { border-left-color: var(--validation-green); }
+        .constraint-item.final-validated-state .constraint-value { 
+            color: var(--text-validated-gray) !important; 
+            animation:none; background:none !important; -webkit-background-clip:initial !important; background-clip:initial !important; 
+            --gradient-color-start: var(--text-validated-gray); /* Assurer que les @property sont aussi grises */
+            --gradient-color-mid: var(--text-validated-gray);
+            --gradient-color-end: var(--text-validated-gray);
+            transition: none !important; 
+        }
+        .constraint-item.final-validated-state .constraint-status-indicator { opacity: 1; transform: scale(1); }
+        .constraint-item.final-validated-state .animated-check path { stroke-dashoffset: 0; }
+        .constraint-item.final-validated-state .constraint-icon-wrapper svg.heroicon:not(.suggestion-indicator-icon) { color: var(--validation-green); }
+        .constraint-item.final-validated-state .suggestion-indicator-icon { opacity: 0; transform: scale(0.7); }
+
+    </style>
+</head>
+<body>
+    <!-- SVG Defs (inchangé) -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;"> <defs> <symbol id="heroicon-check" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /> </symbol> <symbol id="heroicon-users" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M12 8.25a3 3 0 100-6 3 3 0 000 6z" /></symbol> <symbol id="heroicon-currency-euro" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 7.756a4.5 4.5 0 010 8.488M7.5 10.5h5.25m-5.25 3h5.25M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></symbol> <symbol id="heroicon-calendar-days" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></symbol> <symbol id="heroicon-arrows-up-down" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25L12 4.5m0 0l4.5 3.75M12 4.5v15m0 0L7.5 15.75m4.5 3.75L16.5 15.75" /></symbol> <symbol id="heroicon-light-bulb" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" /> </symbol> </defs> </svg>
+
+    <div class="main-container">
+        <div class="chat-panel"> 
+            <div class="chat-header">Actions Mission</div>
+            <div class="chat-messages-placeholder">(Historique du chat ici...)</div>
+            <div class="chat-action-controls">
+                <button class="control-button" onclick="triggerPropertyGradientValidation('constraint-2')">Valider C2 (@property Gradient)</button>
+                <button class="control-button reset" onclick="resetSpecialValidation('constraint-2')">Réinitialiser Contrainte 2</button>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <div class="canvas-panel">
+                <div class="section">
+                    <div class="section-title">Contraintes</div>
+                    <div class="constraints-list">
+                        <div class="constraint-item initial-validated" id="constraint-1">
+                            <div class="constraint-icon-wrapper"><svg class="heroicon"><use xlink:href="#heroicon-users"></use></svg></div>
+                            <div class="constraint-content"> <span class="constraint-value">Voyageurs : 4 personnes</span> </div>
+                            <div class="constraint-status-indicator"> <svg class="heroicon animated-check"><use xlink:href="#heroicon-check"></use></svg> </div>
+                        </div>
+                        <div class="constraint-item" id="constraint-2">
+                            <div class="constraint-icon-wrapper"><svg class="heroicon"><use xlink:href="#heroicon-currency-euro"></use></svg></div>
+                            <div class="constraint-content"> <span class="constraint-value">Budget : 100€ / personne</span> </div>
+                            <div class="constraint-status-indicator"> <svg class="heroicon animated-check"><use xlink:href="#heroicon-check"></use></svg> </div>
+                        </div>
+                        <div class="constraint-item is-suggestion" id="constraint-3">
+                             <div class="constraint-icon-wrapper"> <svg class="heroicon suggestion-indicator-icon"><use xlink:href="#heroicon-light-bulb"></use></svg> </div>
+                            <div class="constraint-content"> <span class="constraint-value">Période : Flexibilité sur dates?</span> </div>
+                            <div class="constraint-status-indicator"> <svg class="heroicon animated-check"><use xlink:href="#heroicon-check"></use></svg> </div>
+                        </div>
+                         <div class="constraint-item" id="constraint-4">
+                            <div class="constraint-icon-wrapper"><svg class="heroicon"><use xlink:href="#heroicon-calendar-days"></use></svg></div>
+                            <div class="constraint-content"> <span class="constraint-value">Dates : Ven. 4 Avr → Dim. 6 Avr</span> </div>
+                            <div class="constraint-status-indicator"> <svg class="heroicon animated-check"><use xlink:href="#heroicon-check"></use></svg> </div>
+                        </div>
+                         <div class="constraint-item" id="constraint-5">
+                            <div class="constraint-icon-wrapper"><svg class="heroicon"><use xlink:href="#heroicon-arrows-up-down"></use></svg></div>
+                            <div class="constraint-content"> <span class="constraint-value">Trajet : Lyon → Paris</span> </div>
+                            <div class="constraint-status-indicator"> <svg class="heroicon animated-check"><use xlink:href="#heroicon-check"></use></svg> </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let validationTimeoutId = null;
+        let resetTimeoutId = null;
+
+        function triggerPropertyGradientValidation(itemId) {
+            const item = document.getElementById(itemId);
+            if (!item || item.classList.contains('anim-phase1-gradient-green') || item.classList.contains('final-validated-state')) {
+                return;
+            }
+
+            resetSpecialValidation(itemId, true); 
+            void item.offsetWidth; 
+
+            item.classList.add('anim-phase1-gradient-green'); 
+            
+            if(item.classList.contains('is-suggestion')) {
+                // Géré par .anim-phase3-final-cleanup .suggestion-indicator-icon
+            }
+
+            const gradientAnimDuration = 800; 
+            const gradientToGrayDelay = gradientAnimDuration; 
+            const gradientToGrayDuration = 600; // Durée de la transition des @property vers gris
+            
+            const finalCleanupDelay = gradientToGrayDelay + gradientToGrayDuration; 
+            
+            // Phase 2: Transition du Gradient Vert vers Fond Gris (via @property)
+            setTimeout(() => {
+                if (!item.classList.contains('anim-phase1-gradient-green')) return;
+                /* item.classList.remove('anim-phase1-gradient-green');  */
+                item.classList.add('anim-phase2-fade-to-gray');    
+            }, gradientToGrayDelay);
+/* 
+            // Phase 3: Nettoyage du texte et apparition des éléments finaux (coche, etc.)
+            setTimeout(() => {
+                if (!item.classList.contains('anim-phase2-fade-to-gray')) return; 
+                item.classList.remove('anim-phase2-fade-to-gray');
+                item.classList.add('anim-phase3-final-cleanup');
+            }, finalCleanupDelay);
+            
+            const cocheContainerAnimDuration = 300;
+            const cochePathAnimDuration = 400; 
+            const totalAnimationTime = finalCleanupDelay + Math.max(cocheContainerAnimDuration + cochePathAnimDuration) + 100;
+
+            clearTimeout(validationTimeoutId);
+            validationTimeoutId = setTimeout(() => {
+                item.classList.remove('anim-phase1-gradient-green', 'anim-phase2-fade-to-gray', 'anim-phase3-final-cleanup');
+                item.classList.add('final-validated-state');
+            }, totalAnimationTime); */
+        }
+
+        function resetSpecialValidation(itemId, silent = false) {
+            clearTimeout(validationTimeoutId); 
+            clearTimeout(resetTimeoutId);    
+
+            const item = document.getElementById(itemId);
+            if (!item) return;
+
+            const wasValidated = item.classList.contains('final-validated-state');
+            item.classList.remove(
+                'anim-phase1-gradient-green', 'anim-phase2-fade-to-gray', 
+                'anim-phase3-final-cleanup', 
+                'final-validated-state', 'is-resetting-anim'
+            );
+            
+            if (wasValidated && !silent) {
+                void item.offsetWidth;
+                item.classList.add('is-resetting-anim');
+            }
+            
+            const valueSpan = item.querySelector('.constraint-value');
+            valueSpan.style.animation = ''; 
+            valueSpan.style.background = '';
+            valueSpan.style.webkitBackgroundClip = '';
+            valueSpan.style.backgroundClip = '';
+            valueSpan.style.color = ''; 
+            valueSpan.style.setProperty('--gradient-color-start', '#0D9488');
+            valueSpan.style.setProperty('--gradient-color-mid', '#4ade80');
+            valueSpan.style.setProperty('--gradient-color-end', '#0E7490');
+            valueSpan.style.transition = '';
+
+
+            const checkPath = item.querySelector('.animated-check path');
+            const statusIndicator = item.querySelector('.constraint-status-indicator');
+            const mainIcon = item.querySelector('.constraint-icon-wrapper svg.heroicon:not(.suggestion-indicator-icon)');
+            const suggestionIcon = item.querySelector('.suggestion-indicator-icon');
+            
+            if(checkPath) { checkPath.style.transition = 'none'; checkPath.style.strokeDashoffset = '50'; }
+            if(statusIndicator) { statusIndicator.style.transition = 'none'; statusIndicator.style.opacity = '0'; statusIndicator.style.transform = 'scale(0.7)';}
+            if(mainIcon) { mainIcon.style.transition = 'none'; mainIcon.style.color = ''; }
+            if (suggestionIcon && item.classList.contains('is-suggestion')) { 
+                suggestionIcon.style.transition = 'none';
+                suggestionIcon.style.opacity = '1';
+                suggestionIcon.style.transform = 'scale(1)';
+            }
+            
+            item.style.borderLeftColor = ''; 
+
+            if (!silent) {
+                const resetAnimationTime = item.classList.contains('is-resetting-anim') ? 800 : 50; 
+                resetTimeoutId = setTimeout(() => {
+                    item.classList.remove('is-resetting-anim');
+                    if(valueSpan) valueSpan.style.transition = '';
+                    if(checkPath) checkPath.style.transition = '';
+                    if(statusIndicator) statusIndicator.style.transition = '';
+                    if(mainIcon) mainIcon.style.transition = '';
+                     if (suggestionIcon && item.classList.contains('is-suggestion')) {
+                        suggestionIcon.style.transition = '';
+                    }
+                }, resetAnimationTime);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const c1 = document.getElementById('constraint-1');
+            if(c1) {
+                c1.classList.add('initial-validated');
+                // Forcer les @property pour l'état initial validé de C1
+                const c1ValueSpan = c1.querySelector('.constraint-value');
+                if (c1ValueSpan) {
+                    c1ValueSpan.style.setProperty('--gradient-color-start', 'var(--text-validated-gray)');
+                    c1ValueSpan.style.setProperty('--gradient-color-mid', 'var(--text-validated-gray)');
+                    c1ValueSpan.style.setProperty('--gradient-color-end', 'var(--text-validated-gray)');
+                }
+            }
+            
+            ['constraint-2', 'constraint-3', 'constraint-4', 'constraint-5'].forEach(id => {
+                 const itemToReset = document.getElementById(id);
+                 if(itemToReset) resetSpecialValidation(id, true);
+            });
+
+            const c3 = document.getElementById('constraint-3');
+            if(c3) c3.classList.add('is-suggestion');
+        });
+    </script>
+</body>
+</html>

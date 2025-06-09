@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas - Critères Priorisés v2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Manrope', sans-serif; background-color: #171717; color: #A3A3A3; padding: 3rem 2rem; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+        .canvas-panel { background-color: #262626; border-radius: 16px; padding: 36px; max-width: 640px; width: 100%; box-shadow: 0 15px 30px rgba(0,0,0,0.15), 0 8px 15px rgba(0,0,0,0.1); }
+        .mission-title-main { font-size: 28px; font-weight: 700; color: #F5F5F5; margin-bottom: 16px; letter-spacing: -0.015em; line-height: 1.3; }
+        .mission-objective-text { font-size: 17px; font-weight: 400; color: #C0C0C0; line-height: 1.7; margin-bottom: 40px; }
+        .section { margin-bottom: 32px; position: relative; transition: opacity 0.4s ease-in-out; }
+        .section:last-child { margin-bottom: 0; }
+        .section-title { font-size: 16px; font-weight: 600; color: #D4D4D4; margin-bottom: 18px; display: flex; align-items: center; letter-spacing: 0.02em; text-transform: uppercase; }
+        .main-margin-bar { position: absolute; left: -36px; top: 2px; }
+        .main-margin-bar-line { width: 2.5px; height: 18px; border-radius: 2.5px; background-color: transparent; transition: background-color 0.3s ease-in-out; }
+        .constraints-list {}
+        .constraint-item { display: flex; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.035); transition: background-color 0.2s ease-out, opacity 0.3s ease-out; }
+        .constraint-item:last-child { border-bottom: none; }
+        .constraint-icon-wrapper { margin-right: 18px; flex-shrink: 0; margin-top: 2px; }
+        .constraint-icon-wrapper svg.heroicon { width: 20px; height: 20px; color: #737373; transition: color 0.3s ease; }
+        .constraint-content { flex-grow: 1; display: flex; flex-direction: column; }
+        .constraint-main-line { display: flex; align-items: center; width: 100%; }
+        .constraint-label { font-size: 15px; font-weight: 500; color: #B0B0B0; width: 90px; flex-shrink: 0; margin-right: 12px; }
+        .constraint-value-wrapper { flex-grow: 1; }
+        .constraint-value { font-size: 15px; font-weight: 400; color: #E5E5E5; }
+        .constraint-tag { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; margin-left: 8px; background-color: rgba(234, 179, 8, 0.15); color: #F59E0B; vertical-align: middle; }
+        .constraint-secondary-details { font-size: 13px; font-weight: 400; color: #737373; line-height: 1.5; padding-left: calc(90px + 12px); margin-top: 6px; }
+        .constraint-secondary-details div { margin-bottom: 2px; }
+        .constraint-status-indicator { margin-left: auto; padding-left: 16px; flex-shrink: 0; margin-top: 1px; }
+        .constraint-status-indicator svg.heroicon { width: 18px; height: 18px; color: #10B981; opacity: 0; transition: opacity 0.3s ease; }
+        .constraint-item.is-confirmed .constraint-status-indicator svg.heroicon { opacity: 1; }
+        .constraint-item.is-in-discussion { background-color: rgba(234, 179, 8, 0.02); border-radius: 8px; }
+        .constraint-item.is-in-discussion .constraint-icon-wrapper svg.heroicon { color: #F59E0B; }
+        .constraint-item.is-in-discussion .constraint-label { color: #D4D4D4; }
+        .constraint-item.is-unaddressed { opacity: 0.45; }
+        .section-content-simple { font-size: 15px; font-weight: 400; color: #A3A3A3; line-height: 1.65; }
+        .suggestion-capsule-in-list { background-color: rgba(255, 255, 255, 0.015); border-radius: 10px; padding: 16px; margin-top: 0; }
+        .suggestion-capsule-in-list .capsule-header { margin-bottom: 4px; display:flex; align-items:center; }
+        .suggestion-capsule-in-list .capsule-icon { margin-right: 12px; color: #737373; }
+        .suggestion-capsule-in-list .capsule-icon svg.heroicon { width:20px; height:20px; }
+        .suggestion-capsule-in-list .capsule-title { font-size: 12px; font-weight: 600; color: #8A8A8A; text-transform: uppercase; letter-spacing: 0.07em; }
+        .suggestion-capsule-in-list .capsule-main-value { font-size: 15px; font-weight: 500; color: #D4D4D4; margin-bottom: 12px; }
+        .suggestion-option-capsule { cursor: pointer; padding: 10px 12px; border-radius: 8px; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out; display: block; margin-top: 8px; font-size: 14px; font-weight: 500; text-align: center; color: #A3A3A3; background-color: rgba(255,255,255,0.02); border: 1px solid transparent; }
+        .suggestion-option-capsule:hover { background-color: rgba(59, 130, 246, 0.1); color: #60A5FA; border-color: rgba(59, 130, 246, 0.2); }
+        .suggestion-option-capsule.selected { background-color: #2563EB; color: #FFFFFF; font-weight: 600; border-color: #2563EB; }
+
+        .criteria-list { list-style-type: none; padding-left: 0; }
+        .criteria-item { display: flex; align-items: center; padding: 12px 0; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.035); transition: opacity 0.3s ease; }
+        .criteria-item:last-child { border-bottom: none; }
+        
+        .criteria-item-prefix { width: 48px; flex-shrink: 0; display: flex; align-items: center; margin-right: 8px; }
+        .suggestion-indicator-icon { width: 20px; height: 20px; color: #F59E0B; margin-right: 8px; }
+        
+        .priority-badge-letter {
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; line-height: 1;
+            width: 22px; height: 22px; border-radius: 50%; color: #FFFFFF;
+            text-align: center;
+        }
+        /* I: Impératif (P0) - Non négociable. Doit être atteint. */
+        .priority-badge-letter.prio-i { background-color: #C53030; } /* Rouge foncé */
+        /* E: Essentiel (P1) - Fortement attendu, crucial pour la qualité. */
+        .priority-badge-letter.prio-e { background-color: #DD6B20; } /* Orange foncé */
+        /* A: Appréciable (P2) - Apporte une valeur ajoutée claire, différenciant. */
+        .priority-badge-letter.prio-a { background-color: #2B6CB0; } /* Bleu foncé */
+        /* O: Optionnel (P3) - À considérer si tout le reste est atteint. */
+        .priority-badge-letter.prio-o { background-color: #4A5568; } /* Gris foncé */
+        
+        .criteria-item-text { flex-grow: 1; transition: color 0.3s ease, font-weight 0.3s ease; }
+        .criteria-item-status-icon { margin-left: auto; padding-left: 12px; flex-shrink: 0; opacity: 0; transition: opacity 0.3s ease; }
+        .criteria-item-status-icon svg.heroicon { width: 18px; height: 18px; color: #10B981; }
+        
+        .criteria-item.is-suggested .criteria-item-text { color: #A3A3A3; font-weight: 300; }
+        .criteria-item.is-suggested .priority-badge-letter { opacity: 0.7; }
+        
+        .criteria-item.is-confirmed .criteria-item-text { color: #E5E5E5; font-weight: 500; }
+        .criteria-item.is-confirmed .criteria-item-status-icon { opacity: 1; }
+        .criteria-item.is-confirmed.priority-i .criteria-item-text { font-weight: 600; }
+
+
+
+        /* Section "Jalons de Revue" */
+                .canvas-panel { background-color: #262626; border-radius: 16px; padding: 36px; max-width: 640px; width: 100%; box-shadow: 0 15px 30px rgba(0,0,0,0.15), 0 8px 15px rgba(0,0,0,0.1); }
+        
+        .section { margin-bottom: 32px; position: relative; }
+        .section:last-child { margin-bottom: 0; }
+        .section-title { font-size: 16px; font-weight: 600; color: #D4D4D4; margin-bottom: 24px; display: flex; align-items: center; letter-spacing: 0.02em; text-transform: uppercase; }
+        
+        .accordion-icon svg.heroicon { width: 16px; height: 16px; color: #737373; transition: transform 0.3s ease; margin-left: auto; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.35s ease-out, opacity 0.3s ease-out, margin-top 0.3s ease-out, padding-top 0.3s ease-out, padding-bottom 0.3s ease-out; opacity: 0; padding-top:0; padding-bottom:0; }
+        .accordion-item.is-open .accordion-content { max-height: 500px; opacity: 1; margin-top: 8px; padding-top: 8px; padding-bottom: 8px; }
+        .accordion-item.is-open .accordion-icon svg.heroicon { transform: rotate(180deg); }
+
+        .status-indicator-icon svg.heroicon { width: 16px; height: 16px; }
+        .status-indicator-icon.suggested-icon { color: #F59E0B; } 
+        .status-indicator-icon.confirmed-icon { color: #2DD4BF; }
+
+
+        /* --- Timeline Horizontale Affinée --- */
+        .review-timeline-horizontal { margin-top: 10px; }
+        .timeline-track-container { display: flex; align-items: center; padding: 0 5px; margin-bottom: 24px; height: 30px; }
+        .timeline-track-label { font-size: 11px; color: #737373; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
+        .timeline-track { flex-grow: 1; height: 1.5px; background-color: rgba(255,255,255,0.1); margin: 0 12px; position: relative; }
+        
+        .timeline-node {
+            width: 28px; height: 28px; border-radius: 50%;
+            background-color: #262626; 
+            border: 1.5px solid #737373; 
+            color: #737373; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700;
+            position: absolute; top: 50%; transform: translateY(-50%); 
+            box-shadow: 0 0 0 3px #262626; 
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .timeline-node:hover { transform: translateY(-50%) scale(1.1); border-color: #A3A3A3; }
+        
+        .milestone-legend {}
+        .milestone-legend-item { padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .milestone-legend-item:last-child { border-bottom: none; }
+
+        .milestone-header { display: flex; align-items: center; cursor: pointer; }
+        .milestone-legend-number { 
+            font-size: 14px; font-weight: 600; color: #737373;
+            width: 28px; text-align: left; margin-right: 10px; flex-shrink:0;
+        }
+        .milestone-title-container { display: flex; align-items: center; flex-grow: 1; }
+        .milestone-state-icon-wrapper { width: 24px; height:20px; display:flex; align-items:center; margin-right: 8px; flex-shrink:0;}
+        .milestone-state-icon-wrapper .status-indicator-icon { display:none; }
+        .milestone-legend-item.is-suggested .status-indicator-icon.suggested-icon { display:inline-block; }
+        .milestone-legend-item.is-confirmed .status-indicator-icon.confirmed-icon { display:inline-block; }
+
+        .milestone-title { font-size: 16px; font-weight: 500; color: #E5E5E5; flex-grow:1; transition: color 0.3s ease, font-weight 0.3s ease;}
+        
+        .milestone-legend-item.is-suggested .milestone-title { color: #A3A3A3; font-weight: 300; }
+        .milestone-legend-item.is-confirmed .milestone-title { font-weight: 600; }
+
+        .milestone-when-info-visible { /* "Quand" visible sous le titre */
+            font-size: 12px; color: #8A8A8A; font-style: italic; 
+            margin-top: 4px; 
+            padding-left: calc(28px + 10px + 24px); /* Align with title, after number and state icon */
+            display: flex; align-items: center;
+        }
+        .milestone-when-info-visible svg.heroicon { width:13px; height:13px; color:#8A8A8A; margin-right:6px;}
+
+
+        .milestone-checkpoints { list-style-type: none; padding-left: calc(28px + 10px + 24px); }
+        .checkpoint-item { font-size: 13px; color: #8A8A8A; padding: 4px 0; display: flex; align-items: center; }
+        .checkpoint-item::before { content: '•'; color: #525252; margin-right: 10px; font-size: 14px; line-height: 1; }
+        
+        .milestone-legend-item.is-confirmed .milestone-when-info-visible,
+        .milestone-legend-item.is-confirmed .checkpoint-item {
+            color: #E0E0E0; /* Blanc plus doux pour les détails confirmés */
+            font-weight: 300; /* Manrope ExtraLight ou Thin si disponible et lisible */
+        }
+         .milestone-legend-item.is-confirmed .milestone-when-info-visible svg.heroicon { color: #E0E0E0;}
+         .milestone-legend-item.is-confirmed .checkpoint-item::before { color: #737373; }
+
+
+    </style>
+</head>
+<body>
+
+
+    
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <defs>
+            <symbol id="heroicon-light-bulb" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+            </symbol>
+            <symbol id="heroicon-check" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </symbol>
+            <symbol id="heroicon-users" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M12 8.25a3 3 0 100-6 3 3 0 000 6z" /></symbol>
+            <symbol id="heroicon-currency-euro" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 7.756a4.5 4.5 0 010 8.488M7.5 10.5h5.25m-5.25 3h5.25M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></symbol>
+            <symbol id="heroicon-calendar-days" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></symbol>
+            <symbol id="heroicon-arrows-up-down" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25L12 4.5m0 0l4.5 3.75M12 4.5v15m0 0L7.5 15.75m4.5 3.75L16.5 15.75" /></symbol>
+            <symbol id="heroicon-document-text" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.662 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.662m-1.82 0A2.498 2.498 0 0012 3.75a2.498 2.498 0 00-1.82.858M7.5 12.75a3 3 0 000-6M7.5 12.75v-1.5m0 1.5A3 3 0 016 15.75v-1.5m0 0A3 3 0 004.5 18v-1.5m-3-3a3 3 0 000 6m3-6a3 3 0 000-6" /></symbol>
+            <symbol id="heroicon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></symbol>
+
+        </defs>
+    </svg>
+
+    <div class="canvas-panel">
+        <div class="mission-title-main" id="missionTitle">Organisation Voyage Lyon-Paris</div>
+        <div class="mission-objective-text">
+            Organiser un voyage aller-retour entre Lyon et Paris pour un groupe de 4 amis.
+        </div>
+
+        <div class="section status-in-discussion">
+            <div class="main-margin-bar"><div class="main-margin-bar-line" style="height: 100%;"></div></div>
+            <div class="section-title">Contraintes</div>
+            <div class="constraints-list">
+                <div class="constraint-item is-confirmed">
+                    <div class="constraint-icon-wrapper"><svg class="heroicon"><use xlink:href="#heroicon-users"></use></svg></div>
+                    <div class="constraint-content"><div class="constraint-main-line"><span class="constraint-label">Voyageurs</span><div class="constraint-value-wrapper"><span class="constraint-value">4 personnes</span></div><div class="constraint-status-indicator"><svg class="heroicon"><use xlink:href="#heroicon-check"></use></svg></div></div></div>
+                </div>
+                <div class="constraint-item is-in-discussion">
+                    <div class="constraint-icon-wrapper"><svg class="heroicon"><use xlink:href="#heroicon-currency-euro"></use></svg></div>
+                    <div class="constraint-content"><div class="constraint-main-line"><span class="constraint-label">Budget</span><div class="constraint-value-wrapper"><span class="constraint-value">100€</span><span class="constraint-tag">Par tête ou total ?</span></div></div><div class="constraint-secondary-details">Clarification nécessaire pour ce point.</div></div>
+                </div>
+                <div class="constraint-item is-confirmed">
+                    <div class="constraint-icon-wrapper"><svg class="heroicon"><use xlink:href="#heroicon-calendar-days"></use></svg></div>
+                    <div class="constraint-content"><div class="constraint-main-line"><span class="constraint-label">Période</span><div class="constraint-value-wrapper"><span class="constraint-value">Vendredi 4 Avril → Dimanche 6 Avril</span></div><div class="constraint-status-indicator"><svg class="heroicon"><use xlink:href="#heroicon-check"></use></svg></div></div><div class="constraint-secondary-details"><div>Aller : arrivée avant 20h</div><div>Retour : départ après 18h</div></div></div>
+                </div>
+                <div class="constraint-item is-confirmed">
+                    <div class="constraint-icon-wrapper"><svg class="heroicon"><use xlink:href="#heroicon-arrows-up-down"></use></svg></div>
+                    <div class="constraint-content"><div class="constraint-main-line"><span class="constraint-label">Trajet</span><div class="constraint-value-wrapper"><span class="constraint-value">Lyon → Paris</span></div><div class="constraint-status-indicator"><svg class="heroicon"><use xlink:href="#heroicon-check"></use></svg></div></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section status-in-discussion">
+            <div class="main-margin-bar"><div class="main-margin-bar-line" style="height: 100%;"></div></div>
+            <div class="section-title">Critères de Succès</div>
+            <ul class="criteria-list">
+                <li class="criteria-item is-confirmed priority-i">
+                    <div class="criteria-item-prefix">
+                        <div class="priority-badge-letter prio-i">I</div>
+                    </div>
+                    <span class="criteria-item-text">Respect du budget total (450€ max)</span>
+                    <div class="criteria-item-status-icon"><svg class="heroicon"><use xlink:href="#heroicon-check"></use></svg></div>
+                </li>
+                <li class="criteria-item is-confirmed priority-e">
+                    <div class="criteria-item-prefix">
+                        <div class="priority-badge-letter prio-e">E</div>
+                    </div>
+                    <span class="criteria-item-text">Temps de trajet optimisé</span>
+                    <div class="criteria-item-status-icon"><svg class="heroicon"><use xlink:href="#heroicon-check"></use></svg></div>
+                </li>
+                <li class="criteria-item is-suggested priority-a">
+                     <div class="criteria-item-prefix">
+                        <svg class="suggestion-indicator-icon heroicon"><use xlink:href="#heroicon-light-bulb"></use></svg>
+                        <div class="priority-badge-letter prio-a">A</div>
+                    </div>
+                    <span class="criteria-item-text">Confort des transports (suggestion agent)</span>
+                </li>
+                <li class="criteria-item is-suggested priority-o">
+                    <div class="criteria-item-prefix">
+                        <svg class="suggestion-indicator-icon heroicon"><use xlink:href="#heroicon-light-bulb"></use></svg>
+                        <div class="priority-badge-letter prio-o">O</div>
+                    </div>
+                    <span class="criteria-item-text">Flexibilité pour modification de dernière minute (suggestion agent)</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section status-suggestion">
+            <div class="main-margin-bar"><div class="main-margin-bar-line" style="height: 100%;"></div></div>
+            <div class="section-title">Livrable Clé</div>
+            <div class="suggestion-capsule-in-list">
+                 <div class="capsule-header">
+                    <div class="capsule-icon"><svg class="heroicon"><use xlink:href="#heroicon-document-text"></use></svg></div>
+                    <span class="capsule-title">Format du Résultat</span>
+                </div>
+                <div class="capsule-main-value">Quel format préférez-vous ?</div>
+                <div>
+                    <div class="suggestion-option-capsule" onclick="selectSuggestion(this, 'livrable')">Tableau Comparatif Détaillé</div>
+                    <div class="suggestion-option-capsule" onclick="selectSuggestion(this, 'livrable')">Simple Liste des Options</div>
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="section status-unaddressed">
+            <div class="section-title">Jalons de Revue</div>
+
+            <div class="review-timeline-horizontal">
+                <div class="timeline-track-container">
+                    <span class="timeline-track-label">Début</span>
+                    <div class="timeline-track">
+                        <div class="timeline-node" data-target="milestone-legend-h-1" style="left: 20%;">1</div>
+                        <div class="timeline-node" data-target="milestone-legend-h-2" style="left: 85%;">2</div>
+                    </div>
+                    <span class="timeline-track-label">Fin</span>
+                </div>
+
+                <div class="milestone-legend">
+                    <div class="milestone-legend-item accordion-item is-suggested" id="milestone-legend-h-1">
+                        <div class="milestone-header" onclick="toggleAccordion(this.parentElement)">
+                            <span class="milestone-legend-number">1.</span>
+                            <div class="milestone-state-icon-wrapper">
+                                <span class="status-indicator-icon suggested-icon"><svg class="heroicon"><use xlink:href="#heroicon-light-bulb"></use></svg></span>
+                                <span class="status-indicator-icon confirmed-icon"><svg class="heroicon"><use xlink:href="#heroicon-check"></use></svg></span>
+                            </div>
+                            <div class="milestone-title-container">
+                                <span class="milestone-title">Validation du Plan de Recherche</span>
+                            </div>
+                            <div class="accordion-icon"><svg class="heroicon"><use xlink:href="#heroicon-chevron-down"></use></svg></div>
+                        </div>
+                        <div class="milestone-when-info-visible">
+                            <svg class="heroicon" style="width:14px; height:14px;"><use xlink:href="#heroicon-calendar-days"></use></svg>
+                            <span>Quand : Avant lancement des recherches approfondies</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul class="milestone-checkpoints"><li class="checkpoint-item">Sources de données proposées pertinentes</li><li class="checkpoint-item">Méthodologie de comparaison claire</li></ul>
+                        </div>
+                    </div>
+                    <div class="milestone-legend-item accordion-item is-confirmed" id="milestone-legend-h-2">
+                        <div class="milestone-header" onclick="toggleAccordion(this.parentElement)">
+                            <span class="milestone-legend-number">2.</span>
+                            <div class="milestone-state-icon-wrapper">
+                                <span class="status-indicator-icon suggested-icon"><svg class="heroicon"><use xlink:href="#heroicon-light-bulb"></use></svg></span>
+                                <span class="status-indicator-icon confirmed-icon"><svg class="heroicon"><use xlink:href="#heroicon-check"></use></svg></span>
+                            </div>
+                             <div class="milestone-title-container">
+                                <span class="milestone-title">Approbation du Livrable Final</span>
+                            </div>
+                            <div class="accordion-icon"><svg class="heroicon"><use xlink:href="#heroicon-chevron-down"></use></svg></div>
+                        </div>
+                         <div class="milestone-when-info-visible">
+                            <svg class="heroicon" style="width:14px; height:14px;"><use xlink:href="#heroicon-calendar-days"></use></svg>
+                            <span>Quand : À la réception du tableau comparatif</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul class="milestone-checkpoints"><li class="checkpoint-item">Conformité aux critères Impératifs</li><li class="checkpoint-item">Qualité globale de la réalisation</li></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleAccordion(accordionItem) {
+            accordionItem.classList.toggle('is-open');
+        }
+
+
+        function selectSuggestion(element, groupName) {
+            const parentContainer = element.closest('.suggestion-capsule-in-list');
+            const options = parentContainer.querySelectorAll('.suggestion-option-capsule');
+            options.forEach(opt => { if (opt !== element) opt.classList.remove('selected'); });
+            element.classList.add('selected');
+            const section = parentContainer.closest('.section');
+            if (section) {
+                section.classList.remove('status-suggestion');
+                section.classList.add('status-confirmed');
+                updateSectionMarginBar(section);
+            }
+            checkAllConfirmed();
+        }
+
+        function confirmCriteria(criteriaItemElement) {
+            if (criteriaItemElement.classList.contains('is-suggested')) {
+                criteriaItemElement.classList.remove('is-suggested');
+                criteriaItemElement.classList.add('is-confirmed');
+                
+                const suggestionIconContainer = criteriaItemElement.querySelector('.criteria-item-prefix .suggestion-indicator-icon');
+                if (suggestionIconContainer) suggestionIconContainer.style.display = 'none';
+                
+                const priorityBadge = criteriaItemElement.querySelector('.criteria-item-prefix .priority-badge-letter');
+                if (priorityBadge) priorityBadge.style.opacity = '1';
+            }
+            checkAllConfirmed();
+        }
+
+        function checkAllConfirmed() {
+            const sections = document.querySelectorAll('.canvas-panel .section');
+            let allConfirmed = true;
+            sections.forEach(s => { if (!s.classList.contains('status-confirmed')) allConfirmed = false; });
+        }
+        
+        function updateSectionMarginBar(sectionElement) {
+            const barLine = sectionElement.querySelector('.main-margin-bar-line');
+            let color = 'transparent';
+            if (sectionElement.classList.contains('status-confirmed')) color = '#10B981';
+            else if (sectionElement.classList.contains('status-in-discussion')) color = '#F59E0B';
+            else if (sectionElement.classList.contains('status-suggestion')) color = '#3B82F6';
+            else if (sectionElement.classList.contains('status-unaddressed')) color = 'rgba(113, 113, 122, 0.2)';
+            if (barLine) barLine.style.backgroundColor = color;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAllConfirmed(); 
+            document.querySelectorAll('.section').forEach(section => {
+                updateSectionMarginBar(section);
+            });
+
+            const timelineNodes = document.querySelectorAll('.timeline-node');
+            const legendItems = document.querySelectorAll('.milestone-legend-item');
+
+            timelineNodes.forEach(node => {
+                const targetId = node.dataset.target;
+                const targetElement = document.getElementById(targetId);
+
+                // Appliquer l'état (pour la démo, normalement géré par la logique métier)
+                if (targetElement) {
+                    // Simuler des états pour la démo
+                    if (node.textContent === "1") { 
+                        targetElement.classList.add('is-suggested');
+                        targetElement.classList.remove('is-confirmed');
+                    } else if (node.textContent === "2") { 
+                         targetElement.classList.add('is-confirmed');
+                         targetElement.classList.remove('is-suggested');
+                    }
+                }
+
+                node.addEventListener('click', () => {
+                    if (targetElement) {
+                        legendItems.forEach(openItem => {
+                            if (openItem !== targetElement) {
+                                openItem.classList.remove('is-open');
+                            }
+                        });
+                        toggleAccordion(targetElement);
+                        // targetElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
