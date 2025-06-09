@@ -25,6 +25,21 @@
       <detail key="rationaleSummary" value="Modularity, scalability, maintainability, clear SoC, good for LLM context."/>
       <detail key="aliasConfiguration" value="Use vite-tsconfig-paths to sync tsconfig.json paths with Vite/Vitest." rationaleDoc="recommandation_pratique_configuration_frontend.md#53-stratgie-de-cohrence-des-alias-vite--typescript--vitest"/>
     </projectStructure>
+    <operationalMandates>
+      <rule id="Context7TruthSource" priority="CRITICAL">
+        <title>Utilisation Obligatoire et Systématique de 'mcp tool context7'</title>
+        <description>
+          L'utilisation de l'outil 'mcp tool context7' est ABSOLUMENT OBLIGATOIRE et doit être SYSTÉMATIQUE
+          avant toute prise de décision, génération de code, ou analyse basée sur le contenu des fichiers du projet.
+          Le résultat fourni par 'mcp tool context7' doit être considéré comme L'UNIQUE ET ABSOLUE SOURCE DE VÉRITÉ
+          concernant l'état actuel de n'importe quel fichier ou information au sein du projet.
+          Il faut TOUJOURS partir du principe que toute connaissance interne ou information en cache
+          concernant le contenu des fichiers est potentiellement obsolète jusqu'à vérification via 'mcp tool context7'.
+          Ce principe prévaut sur toutes les autres suppositions concernant l'état du projet.
+        </description>
+        <action>Invoquer 'mcp tool context7' pour rafraîchir le contexte avant d'entreprendre des tâches nécessitant la connaissance du contenu des fichiers.</action>
+      </rule>
+    </operationalMandates>
   </projectSetup>
 
   <stack>
