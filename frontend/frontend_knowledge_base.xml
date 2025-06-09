@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knowledgeBase>
+  <version>1.0</version>
+  <lastUpdated>2024-07-30</lastUpdated> <!-- Placeholder date, update as needed -->
+  <description>
+    This document outlines the foundational technical stack, architectural decisions,
+    coding conventions, and key configurations for the AutoAgent V1 React frontend.
+    It serves as a reference for both human developers and AI assistants to ensure
+    consistency and adherence to established best practices.
+    The primary source for detailed rationale is 'documentation/recommandation_pratique_configuration_frontend.md'.
+  </description>
+
+  <projectSetup>
+    <tooling>
+      <tool name="Vite" rationaleDoc="recommandation_pratique_configuration_frontend.md#2-outil-de-build-et-scaffolding-vite">
+        <detail key="purpose" value="Build tool and development server."/>
+        <detail key="template" value="react-ts"/>
+        <detail key="rationaleSummary" value="Fast DX via ESM, Rollup for optimized production builds, simpler configuration than CRA."/>
+        <detail key="command" value="pnpm create vite autoagent-frontend --template react-ts"/>
+      </tool>
+    </tooling>
+    <projectStructure rationaleDoc="recommandation_pratique_configuration_frontend.md#4-structure-de-projet-initiale-src">
+      <detail key="type" value="Feature-based"/>
+      <detail key="mainDirectory" value="src/features/"/>
+      <detail key="rationaleSummary" value="Modularity, scalability, maintainability, clear SoC, good for LLM context."/>
+      <detail key="aliasConfiguration" value="Use vite-tsconfig-paths to sync tsconfig.json paths with Vite/Vitest." rationaleDoc="recommandation_pratique_configuration_frontend.md#53-stratgie-de-cohrence-des-alias-vite--typescript--vitest"/>
+    </projectStructure>
+  </projectSetup>
+
+  <stack>
+    <category name="UI Libraries">
+      <library name="React" rationaleDoc="recommandation_pratique_configuration_frontend.md#2-outil-de-build-et-scaffolding-vite">
+        <detail key="version" value="Latest stable (managed by Vite template)"/>
+        <detail key="purpose" value="Core UI rendering library."/>
+      </library>
+      <library name="Shadcn UI" rationaleDoc="recommandation_pratique_configuration_frontend.md#31-ui-gnraliste-shadcn-ui">
+        <detail key="purpose" value="General purpose, composable UI components."/>
+        <detail key="integration" value="Components added via CLI (npx shadcn-ui@latest add...) into 'src/components/ui'."/>
+        <detail key="rationaleSummary" value="Non-library approach (control over code), Radix UI + Tailwind CSS base, good aesthetics, LLM-friendly."/>
+      </library>
+      <library name="assistant-ui" rationaleDoc="recommandation_pratique_configuration_frontend.md#32-chat-ui-assistant-ui">
+        <detail key="purpose" value="Specialized UI components and primitives for AI chat interfaces."/>
+        <detail key="rationaleSummary" value="Designed for AI chat, composable, handles streaming/Markdown, integrates with Shadcn/Tailwind."/>
+      </library>
+      <library name="React Flow" rationaleDoc="recommandation_pratique_configuration_frontend.md#33-visualisation-graphearbre-react-flow">
+        <detail key="purpose" value="Interactive graph and tree visualization."/>
+        <detail key="rationaleSummary" value="Dedicated library for node-based UIs, rich features, customizable. Performance optimizations are key."/>
+        <detail key="note" value="Strictly apply performance best practices (memoization of nodes/edges/props, selective selectors)."/>
+      </library>
+    </category>
+    <category name="State Management">
+      <library name="Zustand" rationaleDoc="recommandation_pratique_configuration_frontend.md#34-gestion-dtat-client-zustand">
+        <detail key="purpose" value="Client-side state management."/>
+        <detail key="rationaleSummary" value="Simple API, minimal boilerplate, performant, flexible. Suited for UI state."/>
+        <detail key="structure" value="Use feature-based slices (e.g., chatSlice, canvasSlice) combined into a bound store."/>
+      </library>
+      <library name="TanStack Query" formerly="React Query" rationaleDoc="recommandation_pratique_configuration_frontend.md#35-gestion-dtat-serveur-tanstack-query-vs-apollo-client">
+        <detail key="purpose" value="Server-side state management (caching, synchronization, updates)."/>
+        <detail key="rationaleSummary" value="Protocol-agnostic (good for REST/gRPC), rich features (caching, refetching, mutations), complements Zustand."/>
+        <detail key="note" value="Source of truth for server data; avoid duplicating server state in Zustand."/>
+      </library>
+    </category>
+    <category name="Testing">
+      <library name="Vitest" rationaleDoc="recommandation_pratique_configuration_frontend.md#36-tests-vitest--react-testing-library">
+        <detail key="purpose" value="Test runner and framework."/>
+        <detail key="rationaleSummary" value="Synergy with Vite (reuses config), fast, Jest-compatible API, native TS/ESM support."/>
+      </library>
+      <library name="React Testing Library (RTL)" rationaleDoc="recommandation_pratique_configuration_frontend.md#36-tests-vitest--react-testing-library">
+        <detail key="purpose" value="Utilities for testing React components by simulating user interactions."/>
+        <detail key="rationaleSummary" value="Encourages testing behavior over implementation, works well with Vitest."/>
+      </library>
+      <library name="jsdom" rationaleDoc="recommandation_pratique_configuration_frontend.md#36-tests-vitest--react-testing-library">
+        <detail key="purpose" value="Simulates a DOM environment for tests run in Node.js."/>
+        <detail key="configuration" value="Set as 'test.environment' in Vite/Vitest config."/>
+      </library>
+    </category>
+    <category name="Code Quality">
+      <tool name="ESLint" rationaleDoc="recommandation_pratique_configuration_frontend.md#6-outils-de-qualit-du-code-eslint--prettier">
+        <detail key="purpose" value="Static code analysis for identifying problematic patterns or code that doesn't adhere to style guidelines."/>
+        <detail key="plugins" value="@typescript-eslint/parser, @typescript-eslint/eslint-plugin, eslint-plugin-react, eslint-plugin-react-hooks, eslint-plugin-jsx-a11y, eslint-config-prettier, eslint-plugin-prettier"/>
+      </tool>
+      <tool name="Prettier" rationaleDoc="recommandation_pratique_configuration_frontend.md#6-outils-de-qualit-du-code-eslint--prettier">
+        <detail key="purpose" value="Opinionated code formatter to ensure consistent code style."/>
+      </tool>
+      <tool name="Husky" rationaleDoc="recommandation_pratique_configuration_frontend.md#63-intgration-dans-le-workflow-hooks-pre-commit">
+        <detail key="purpose" value="Manages Git hooks easily."/>
+      </tool>
+      <tool name="lint-staged" rationaleDoc="recommandation_pratique_configuration_frontend.md#63-intgration-dans-le-workflow-hooks-pre-commit">
+        <detail key="purpose" value="Runs linters/formatters on staged Git files before commit."/>
+        <detail key="workflow" value="Configured with Husky to run ESLint and Prettier on pre-commit."/>
+      </tool>
+    </category>
+    <category name="Styling">
+      <tool name="Tailwind CSS" rationaleDoc="recommandation_pratique_configuration_frontend.md#31-ui-gnraliste-shadcn-ui">
+        <detail key="purpose" value="Utility-first CSS framework."/>
+        <detail key="integration" value="Used by Shadcn UI and for custom styling."/>
+      </tool>
+    </category>
+  </stack>
+
+  <configurations>
+    <configGroup name="TypeScript" rationaleDoc="recommandation_pratique_configuration_frontend.md#5-configuration-typescript-essentielle-tsconfigjson">
+      <setting name="strict" value="true" rationaleDoc="recommandation_pratique_configuration_frontend.md#51-options-cls-du-compilateur-compileroptions">
+        <detail key="rationaleSummary" value="Enables all strict type-checking options. Fundamental for code quality and LLM assistance."/>
+      </setting>
+      <setting name="jsx" value="react-jsx" rationaleDoc="recommandation_pratique_configuration_frontend.md#51-options-cls-du-compilateur-compileroptions">
+        <detail key="rationaleSummary" value="New JSX transform, avoids React import in every .tsx file."/>
+      </setting>
+      <setting name="module" value="ESNext" rationaleDoc="recommandation_pratique_configuration_frontend.md#51-options-cls-du-compilateur-compileroptions"/>
+      <setting name="moduleResolution" value="bundler" rationaleDoc="recommandation_pratique_configuration_frontend.md#51-options-cls-du-compilateur-compileroptions">
+         <detail key="rationaleSummary" value="Recommended by Vite, simulates modern bundler resolution."/>
+      </setting>
+      <setting name="target" value="ESNext" rationaleDoc="recommandation_pratique_configuration_frontend.md#51-options-cls-du-compilateur-compileroptions"/>
+      <setting name="noEmit" value="true" rationaleDoc="recommandation_pratique_configuration_frontend.md#51-options-cls-du-compilateur-compileroptions">
+        <detail key="note" value="In tsconfig.app.json. Vite handles transpilation."/>
+      </setting>
+      <setting name="paths" rationaleDoc="recommandation_pratique_configuration_frontend.md#52-configuration-des-alias-de-chemin-baseurl-paths">
+        <detail key="example" value="{ '@/*': ['./src/*'], '@components/*': ['./src/components/common/*'], ... }"/>
+        <detail key="synchronization" value="Use 'vite-tsconfig-paths' plugin to ensure consistency between TS, Vite, and Vitest."/>
+      </setting>
+       <setting name="types (for testing)" value="['vite/client', 'vitest/globals', '@testing-library/jest-dom']" rationaleDoc="recommandation_pratique_configuration_frontend.md#54-types-pour-lenvironnement-de-test"/>
+    </configGroup>
+  </configurations>
+
+  <conventions>
+    <convention type="Naming">
+      <rule scope="Components" value="PascalCase (e.g., MyComponent.tsx)"/>
+      <rule scope="Hooks" value="camelCase with 'use' prefix (e.g., useMyHook.ts)"/>
+      <rule scope="Zustand Slices" value="camelCase with 'Slice' suffix (e.g., chatSlice.ts)"/>
+      <rule scope="Files/Folders" value="kebab-case for general files/folders, PascalCase for component folders if they contain an index.ts"/>
+    </convention>
+    <convention type="Component Structure">
+      <rule scope="Shadcn UI" value="Components are added to 'src/components/ui/' via CLI and used as is or composed."/>
+      <rule scope="Custom Shared Components" value="Located in 'src/components/common/'. Should be general-purpose."/>
+      <rule scope="Feature-Specific Components" value="Located within their respective 'src/features/featureName/components/' directory."/>
+    </convention>
+    <convention type="Styling">
+        <rule scope="PrimaryMethod" value="Tailwind CSS utility classes."/>
+        <rule scope="GlobalStyles" value="Minimal, defined in 'src/index.css' or equivalent."/>
+    </convention>
+  </conventions>
+
+  <architecturalPrinciples>
+    <principle name="Modularity" rationaleDoc="recommandation_pratique_configuration_frontend.md#42-justification-et-rationale">
+      <detail value="Encapsulate features within 'src/features/*' directories, making them self-contained as much as possible."/>
+    </principle>
+    <principle name="Separation of Concerns (SoC)" rationaleDoc="recommandation_pratique_configuration_frontend.md#42-justification-et-rationale">
+      <detail value="Distinguish between UI components (shared vs. feature-specific), state management (client vs. server), and business logic (hooks, services)."/>
+    </principle>
+    <principle name="State Management" rationaleDoc="recommandation_pratique_configuration_frontend.md#34-gestion-dtat-client-zustand">
+      <detail value="Use Zustand for UI/client-side state. Use TanStack Query for server state, caching, and data synchronization. Avoid duplicating server state in Zustand."/>
+    </principle>
+    <principle name="Test-Driven Development (TDD)" rationaleDoc="recommandation_pratique_configuration_frontend.md#36-tests-vitest--react-testing-library">
+      <detail value="Prioritize writing tests for components and logic, facilitated by Vitest and React Testing Library."/>
+    </principle>
+  </architecturalPrinciples>
+
+</knowledgeBase>
