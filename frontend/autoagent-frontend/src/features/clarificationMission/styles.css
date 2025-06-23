@@ -1,0 +1,381 @@
+/* Mission Clarification Styles - Extracted from prototype */
+
+/* Main Layout */
+.main-container {
+  @apply p-12 flex justify-center items-start;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  gap: 3rem;
+}
+
+.chat-panel {
+  @apply flex flex-col;
+  width: 400px;
+  height: 80vh;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.canvas-container {
+  @apply flex-1;
+  max-width: 800px;
+}
+
+.canvas-panel {
+  @apply bg-white rounded-xl p-8;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Chat Styles */
+.chat-header {
+  @apply px-6 py-4 bg-gray-50 border-b border-gray-200 font-semibold text-gray-800;
+}
+
+.chat-messages {
+  @apply flex-1 p-4 overflow-y-auto;
+  max-height: calc(80vh - 120px);
+}
+
+.chat-message {
+  @apply mb-4;
+}
+
+.user-message {
+  @apply text-gray-700;
+}
+
+.agent-message {
+  @apply text-gray-800 bg-gray-50 p-3 rounded-lg;
+}
+
+.message-content-wrapper {
+  @apply flex items-start gap-2;
+}
+
+.user-prefix {
+  @apply text-blue-600 font-mono font-bold;
+}
+
+.message-text {
+  @apply leading-relaxed;
+}
+
+.chat-input-area {
+  @apply p-4 border-t border-gray-200;
+}
+
+.chat-input-field {
+  @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+/* Mission Header */
+.mission-title {
+  @apply text-2xl font-bold text-gray-900 mb-2;
+}
+
+.mission-objective {
+  @apply text-gray-600 mb-8 leading-relaxed;
+}
+
+/* Section Styles */
+.section {
+  @apply mb-8 relative;
+}
+
+.section-title {
+  @apply text-lg font-semibold text-gray-800 mb-4;
+}
+
+.main-margin-bar {
+  @apply absolute left-0 top-0 bottom-0 w-1;
+}
+
+.main-margin-bar-line {
+  @apply w-full rounded-full;
+  background-color: var(--status-color, #e5e7eb);
+}
+
+/* Status Colors */
+.status-confirmed .main-margin-bar-line {
+  background-color: #10B981;
+}
+
+.status-in-discussion .main-margin-bar-line {
+  background-color: #F59E0B;
+}
+
+.status-suggestion .main-margin-bar-line {
+  background-color: #3B82F6;
+}
+
+.status-unaddressed .main-margin-bar-line {
+  background-color: rgba(113, 113, 122, 0.2);
+}
+
+/* Constraint Styles */
+.constraint-item {
+  @apply flex items-start gap-4 p-4 mb-2 rounded-lg border border-gray-200;
+}
+
+.constraint-icon-wrapper {
+  @apply flex-shrink-0 w-8 h-8 flex items-center justify-center;
+}
+
+.constraint-content {
+  @apply flex-1;
+}
+
+.constraint-main-line {
+  @apply flex items-center justify-between mb-1;
+}
+
+.constraint-label {
+  @apply font-medium text-gray-700;
+}
+
+.constraint-value-wrapper {
+  @apply flex items-center gap-2;
+}
+
+.constraint-value {
+  @apply font-semibold text-gray-900;
+}
+
+.constraint-tag {
+  @apply px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full;
+}
+
+.constraint-secondary-details {
+  @apply text-sm text-gray-600 mt-2;
+}
+
+.status-indicator {
+  @apply flex-shrink-0;
+}
+
+/* Success Criteria Styles */
+.criteria-list {
+  @apply space-y-2 list-none p-0;
+}
+
+.criteria-item {
+  @apply flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer transition-colors;
+}
+
+.criteria-item:hover {
+  @apply bg-gray-50;
+}
+
+.criteria-item-prefix {
+  @apply flex items-center gap-2;
+}
+
+.priority-badge {
+  @apply w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white;
+}
+
+.priority-badge--imperative {
+  @apply bg-red-600;
+}
+
+.priority-badge--essential {
+  @apply bg-orange-600;
+}
+
+.priority-badge--appreciable {
+  @apply bg-blue-600;
+}
+
+.priority-badge--optional {
+  @apply bg-gray-600;
+}
+
+.criteria-item-text {
+  @apply flex-1 text-gray-800;
+}
+
+.criteria-item-status-icon {
+  @apply flex-shrink-0;
+}
+
+.suggestion-indicator-icon {
+  @apply w-4 h-4 text-blue-600;
+}
+
+/* Deliverable Section */
+.suggestion-capsule {
+  @apply bg-gray-50 rounded-lg p-4;
+}
+
+.suggestion-capsule-header {
+  @apply flex items-center gap-2 mb-2;
+}
+
+.suggestion-capsule-icon {
+  @apply w-5 h-5 text-gray-600;
+}
+
+.suggestion-capsule-title {
+  @apply font-medium text-gray-800;
+}
+
+.suggestion-capsule-value {
+  @apply text-gray-600 mb-3;
+}
+
+.suggestion-option {
+  @apply p-3 bg-white rounded-lg border border-gray-200 cursor-pointer transition-colors mb-2;
+}
+
+.suggestion-option:hover {
+  @apply bg-blue-50 border-blue-300;
+}
+
+.suggestion-option--selected {
+  @apply bg-blue-100 border-blue-500 text-blue-900;
+}
+
+/* Timeline Styles */
+.timeline-horizontal {
+  @apply space-y-4;
+}
+
+.timeline-track-container {
+  @apply relative flex items-center;
+}
+
+.timeline-track {
+  @apply flex-1 h-2 bg-gray-200 rounded-full relative mx-4;
+}
+
+.timeline-track-label {
+  @apply text-sm text-gray-500 font-medium;
+}
+
+.timeline-node {
+  @apply absolute w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold cursor-pointer transform -translate-x-1/2 -translate-y-1/2;
+  top: 50%;
+}
+
+.timeline-node:hover {
+  @apply bg-blue-700;
+}
+
+/* Milestone Styles */
+.milestone-legend-item {
+  @apply border border-gray-200 rounded-lg overflow-hidden;
+}
+
+.milestone-header {
+  @apply flex items-center gap-3 p-4 cursor-pointer hover:bg-gray-50;
+}
+
+.milestone-number {
+  @apply font-bold text-gray-700;
+}
+
+.milestone-state-icon-wrapper {
+  @apply flex-shrink-0;
+}
+
+.milestone-title-container {
+  @apply flex-1;
+}
+
+.milestone-title {
+  @apply font-medium text-gray-800;
+}
+
+.accordion-icon {
+  @apply w-5 h-5 text-gray-400 transition-transform;
+}
+
+.accordion-item--open .accordion-icon {
+  @apply transform rotate-180;
+}
+
+.milestone-when-info {
+  @apply flex items-center gap-2 px-4 pb-2 text-sm text-gray-600;
+}
+
+.accordion-content {
+  @apply px-4 pb-4;
+}
+
+.milestone-checkpoints {
+  @apply space-y-1 list-none p-0;
+}
+
+.checkpoint-item {
+  @apply text-sm text-gray-700 pl-4 relative;
+}
+
+.checkpoint-item::before {
+  content: "•";
+  @apply absolute left-0 text-gray-400;
+}
+
+/* Icon Styles */
+.heroicon {
+  @apply w-5 h-5;
+}
+
+.heroicon--sm {
+  @apply w-4 h-4;
+}
+
+.icon-default {
+  @apply text-gray-600;
+}
+
+.icon-status-discussion {
+  @apply text-orange-600;
+}
+
+.icon-status-confirmed {
+  @apply text-green-600;
+}
+
+.icon-status-confirmed-alt {
+  @apply text-green-600;
+}
+
+.icon-text-faded {
+  @apply text-gray-400;
+}
+
+/* Status Indicators */
+.status-indicator--suggested {
+  @apply text-blue-600;
+}
+
+.status-indicator--confirmed {
+  @apply text-green-600;
+}
+
+.status-indicator--inline {
+  @apply inline-flex;
+}
+
+.status-indicator--hidden {
+  @apply hidden;
+}
+
+/* Item Status Classes */
+.item-confirmed {
+  @apply border-green-200 bg-green-50;
+}
+
+.item-in-discussion {
+  @apply border-orange-200 bg-orange-50;
+}
+
+.item-suggested {
+  @apply border-blue-200 bg-blue-50;
+}
+
+.item-unaddressed {
+  @apply border-gray-200 bg-gray-50;
+}
