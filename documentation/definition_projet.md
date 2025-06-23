@@ -100,7 +100,7 @@ L'architecture intègre la robustesse à plusieurs niveaux \[cite: 6.5\] :
 
 ## **8\. Apprentissage et Personnalisation**
 
-* **Amélioration Initiale :** Modification manuelle des prompts systèmes dans le code source.  
+* **V1 :** Systeme de templating basique pour les prompts, modifiables manuellement.  
 * **Vision Future :**  
   * Agent "Double Numérique" pour apprendre les préférences utilisateur et réduire les interactions répétitives.  
   * Système de feedback utilisateur post-mission.  
