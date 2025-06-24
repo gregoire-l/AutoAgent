@@ -1,0 +1,161 @@
+version: '3.8'
+
+services:
+  go-core:
+    build:
+      context: ./go-core
+      dockerfile: Dockerfile
+    container_name: autoagent_go_core
+    ports:
+      - "${GO_CORE_HOST_PORT}:${GO_CORE_INTERNAL_GRPC_PORT}"
+    environment:
+      - GO_CORE_GRPC_PORT=${GO_CORE_INTERNAL_GRPC_PORT}
+      - PYTHON_IA_HOST=${PYTHON_IA_HOST}
+      - PYTHON_IA_GRPC_PORT=${PYTHON_IA_INTERNAL_GRPC_PORT}
+      - NEO4J_BOLT_URL=${NEO4J_BOLT_URL}
+      - NEO4J_USER=${NEO4J_USER}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - TEMPORAL_GRPC_ENDPOINT=${TEMPORAL_GRPC_ENDPOINT}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER} # Or specific access/secret keys for MinIO
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    networks:
+      - autoagent-net
+    depends_on:
+      - neo4j
+      - temporal
+      - minio
+      - python-ia # For startup order convenience; services should handle connection retries.
+    restart: unless-stopped
+    # Add volumes for source code mapping for live reload if desired during development:
+    # volumes:
+    #   - ./go-core:/app
+
+  python-ia:
+    build:
+      context: ./python-ia
+      dockerfile: Dockerfile
+    container_name: autoagent_python_ia
+    ports:
+      - "${PYTHON_IA_HOST_PORT}:${PYTHON_IA_INTERNAL_GRPC_PORT}"
+    environment:
+      - PYTHON_IA_GRPC_PORT=${PYTHON_IA_INTERNAL_GRPC_PORT}
+      - GO_CORE_HOST=${GO_CORE_HOST}
+      - GO_CORE_GRPC_PORT=${GO_CORE_INTERNAL_GRPC_PORT}
+      - E2B_API_KEY=${E2B_API_KEY}
+      - E2B_SANDBOX_URL=${E2B_SANDBOX_URL} # URL to connect to the e2b-sandbox service
+      - LLM_PROVIDER_API_KEY_GENERIC=${LLM_PROVIDER_API_KEY_GENERIC}
+      # Add other specific LLM provider keys as needed by LiteLLM
+      # - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER} # Or specific access/secret keys for MinIO
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    networks:
+      - autoagent-net
+    depends_on:
+      - e2b-sandbox
+      # - go-core # Circular dependency if strictly enforced for startup. Services should retry.
+    restart: unless-stopped
+    # Add volumes for source code mapping for live reload if desired during development:
+    # volumes:
+    #   - ./python-ia:/app
+
+  neo4j:
+    image: neo4j:5.18 # Using a specific version is recommended over :latest
+    container_name: autoagent_neo4j
+    ports:
+      - "${NEO4J_HOST_PORT_HTTP}:7474"  # Neo4j Browser
+      - "${NEO4J_HOST_PORT_BOLT}:7687"   # Bolt connector
+    volumes:
+      - neo4j_data:/data
+      # You can also mount directories for plugins or conf if needed:
+      # - ./neo4j/plugins:/plugins
+      # - ./neo4j/conf:/conf
+    environment:
+      - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
+      - NEO4J_PLUGINS=${NEO4J_PLUGINS}
+      # NEO4J_ACCEPT_LICENSE_AGREEMENT=yes # Uncomment if using Neo4j Enterprise Edition or GDS Enterprise
+      # Adjust memory settings if needed for development, e.g.:
+      # - NEO4J_HEAP_MEMORY=1G
+      # - NEO4J_PAGECACHE_MEMORY=1G
+    networks:
+      - autoagent-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  temporal:
+    image: temporalio/auto-setup:1.22.2 # Using a specific version is recommended
+    container_name: autoagent_temporal
+    ports:
+      - "${TEMPORAL_HOST_PORT_UI}:8088"    # Temporal Web UI
+      - "${TEMPORAL_HOST_PORT_GRPC}:7233" # Temporal Frontend gRPC
+      # Ports 7234 (Membership), 7235 (Internode), 6933 (SDK Metrics) are also used by Temporal internally
+      # but typically don't need to be exposed on the host for auto-setup.
+    environment:
+      - TEMPORAL_BROADCAST_ADDRESS=${TEMPORAL_SERVICE_NAME} # Service name within Docker network
+      # Default DB is in-memory. For persistence with auto-setup, you can set DB=sqlite or DB=postgres
+      # and provide related env vars. For dev, in-memory is often fine.
+      # - DB=sqlite
+      # - SQLITE_FILE_PATH=/data/temporal.db # Requires a volume mount for /data
+    # volumes: # Uncomment if using persistent DB like SQLite
+    #   - temporal_data:/data
+    networks:
+      - autoagent-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "temporal operator cluster health --address ${TEMPORAL_SERVICE_NAME}:7233 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:RELEASE.2024-07-27T00-09-53Z # Using a specific version is recommended
+    container_name: autoagent_minio
+    ports:
+      - "${MINIO_HOST_PORT_API}:9000"    # MinIO API
+      - "${MINIO_HOST_PORT_CONSOLE}:9001" # MinIO Console
+    volumes:
+      - minio_data:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      # - MINIO_SERVER_URL=http://yourdomain.com # If you have a domain for MinIO
+      # - MINIO_BROWSER_REDIRECT_URL=http://yourdomain_console.com # For console access
+    command: server /data --console-address ":9001"
+    networks:
+      - autoagent-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  e2b-sandbox:
+    image: e2bdev/e2b:0.16.0 # Using a specific version is recommended
+    container_name: autoagent_e2b_sandbox
+    privileged: true # Required for E2B to manage Firecracker VMs
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Required to interact with Docker daemon
+    ports:
+      - "${E2B_SANDBOX_HOST_PORT_API}:3000" # E2B API port
+    environment:
+      - E2B_API_KEY=${E2B_API_KEY} # API key for the sandbox service itself
+      # - E2B_DEBUG=true # Optional: for more verbose logging from E2B
+    networks:
+      - autoagent-net
+    restart: unless-stopped
+    # No standard healthcheck for E2B, depends on its API.
+
+networks:
+  autoagent-net:
+    driver: bridge
+
+volumes:
+  neo4j_data: # Persists Neo4j data
+  minio_data: # Persists MinIO data
+  # temporal_data: # Uncomment if Temporal persistence is configured
