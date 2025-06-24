@@ -1,0 +1,94 @@
+// agent_service.proto
+
+syntax = "proto3";
+
+package execution.v1;
+
+import "google/protobuf/duration.proto";
+// Importe les types partagés depuis le fichier common.
+import "common/v1/common.proto";
+
+option go_package = "github.com/auto-agent/protos/gen/go/execution/v1;executionv1";
+
+// =============================================================================
+// Le Service de Session d'Agent (Agent Session Service)
+//
+// Gère des sessions de travail interactives et état-major pour des agents autonomes.
+// =============================================================================
+service AgentSessionService {
+  // Démarre une nouvelle session d'agent, provisionne les ressources (sandbox)
+  // et retourne un ID de session unique.
+  rpc StartSession(StartSessionRequest) returns (StartSessionResponse);
+
+  // Exécute une "étape" de travail au sein d'une session existante.
+  // C'est un RPC avec streaming bi-directionnel pour l'observabilité en temps réel.
+  rpc ExecuteStep(stream ExecuteStepRequest) returns (stream ExecuteStepResponse);
+
+  // Termine une session, finalise le travail et libère les ressources.
+  rpc StopSession(StopSessionRequest) returns (StopSessionResponse);
+}
+
+// --- Messages pour le cycle de vie de la session ---
+
+message StartSessionRequest {
+  string request_id = 1;
+  common.v1.AgentProfile agent_profile = 2;
+  common.v1.WorkspaceReference initial_workspace = 3;
+}
+
+message StartSessionResponse {
+  string session_id = 1; // L'ID à utiliser pour toutes les requêtes suivantes.
+}
+
+message StopSessionRequest {
+  string request_id = 1;
+  string session_id = 2;
+  FinalStatus final_status = 3;
+  string commit_message = 4; // Utilisé uniquement si le statut est SUCCESS.
+}
+
+message StopSessionResponse {
+  common.v1.WorkspaceReference final_workspace = 1; // Retourné uniquement en cas de succès.
+}
+
+enum FinalStatus {
+  FINAL_STATUS_UNSPECIFIED = 0;
+  SUCCESS = 1; // La tâche est considérée comme réussie, le travail doit être commité.
+  FAILURE = 2; // La tâche a échoué, le travail doit être archivé mais pas commité.
+}
+
+// --- Messages pour l'exécution d'une étape ---
+
+message ExecuteStepRequest {
+  string request_id = 1;
+  string session_id = 2;
+  string directive = 3; // Directive de haut niveau pour l'agent.
+  google.protobuf.Duration timeout = 4;
+}
+
+message ExecuteStepResponse {
+  oneof event {
+    LogChunk log_chunk = 1;
+    StepResult result = 2;
+    common.v1.Error error = 3;
+  }
+}
+
+// Le résultat complet d'une étape de travail.
+message StepResult {
+  string summary = 1; // Résumé textuel de ce que l'agent a fait.
+  common.v1.ExecutionStatus status = 2;
+  string last_stdout = 3;
+  string last_stderr = 4;
+}
+
+// Un chunk de log (stdout ou stderr).
+message LogChunk {
+  enum Stream {
+    STREAM_UNSPECIFIED = 0;
+    STDOUT = 1;
+    STDERR = 2;
+  }
+  Stream stream = 1;
+  bytes content = 2;
+}

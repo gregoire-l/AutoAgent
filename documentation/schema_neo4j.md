@@ -1,187 +1,150 @@
-## **AutoAgent \- Schéma Neo4j V1**
+# Schéma Directeur Neo4j
 
-**Objectif :** Définir la structure de données initiale dans Neo4j pour supporter les fonctionnalités "Must-Have" d'AutoAgent V1, en visant clarté, cohérence, robustesse et extensibilité future, conformément aux meilleurs standards.
+_Version : 1.5 - Statut : Finalisé_
 
-**Principes :**
+## **1. Introduction & Principes Architecturaux**
 
-* Utiliser des labels clairs et cohérents (PascalCase).  
-* Définir les propriétés essentielles pour chaque type de nœud V1 (camelCase).  
-* Modéliser les relations clés entre les nœuds (UPPER\_SNAKE\_CASE).  
-* Identifier les index et contraintes nécessaires pour l'intégrité et la performance des requêtes V1.  
-* Assurer une gestion cohérente des timestamps : **utiliser le type datetime de Neo4j et stocker toutes les valeurs en UTC**.  
-* Utiliser des **UUIDs (stockés comme string)** pour tous les identifiants uniques primaires.
+Ce document est la source de vérité pour la structure du Knowledge Graph (KG) qui motorise AutoAgent. Il a été conçu pour être la matérialisation de notre vision architecturale et a été audité contre les meilleures pratiques de l'industrie pour la modélisation de données, la performance et sa capacité à supporter des requêtes sémantiques avancées (GraphRAG).
 
-### **Labels Principaux (Nœuds)**
+### **1.1. Décisions de Conception Clés (Justifications)**
 
-1. **:Mission**  
-   * Représente une mission complète déléguée par l'utilisateur.  
-   * **Propriétés V1 :**  
-     * missionID (string, **UUID**, unique, indexé) \- Identifiant unique global de la mission.  
-     * name (string) \- Nom/Titre donné à la mission.  
-     * description (string) \- Description détaillée fournie par l'utilisateur.  
-     * initialContext (string, optionnel) \- Contexte initial spécifique fourni (peut être JSON ; opaque pour Neo4j).  
-     * status (string, indexé) \- Statut global. **Valeurs V1 Valides (appliquées par Go) :** "DEFINING", "RUNNING", "PAUSED", "COMPLETED", "FAILED", "CANCELED".  
-     * createdAt (datetime) \- Timestamp de création (UTC).  
-     * updatedAt (datetime) \- Timestamp dernière mise à jour (UTC).  
-     * maxDurationSeconds (integer, optionnel) \- Limite de durée.  
-     * maxTokens (integer, optionnel) \- Limite de tokens LLM.  
-     * maxBudget (float, optionnel) \- Limite budgétaire.  
-     * notes (string, optionnel) \- Annotations générales.  
-   * **Relations V1 :**  
-     * \[:HAS\_ROOT\_TASK\] \-\> (:Task) \- Relation vers la ou les tâches racines.  
-     * \[:CREATED\_BY\] \-\> (:User) \- Utilisateur ayant créé la mission.  
-     * \[:HAS\_TAG\] \-\> (:Tag) \- Tags associés à la mission (N-N).  
-2. **:Task**  
-   * Représente une tâche ou sous-tâche au sein d'une mission.  
-   * **Propriétés V1 :**  
-     * taskID (string, **UUID**, unique, indexé) \- Identifiant unique global de la tâche.  
-     * taskName (string, optionnel) \- Nom court pour affichage.  
-     * description (string) \- Description de la tâche.  
-     * status (string, indexé) \- Statut détaillé. **Valeurs V1 Valides (appliquées par Go) :** "QUEUED", "IN\_PROGRESS", "PENDING\_VALIDATION", "VALIDATED", "DONE", "FAILED", "CANCELED".  
-     * priority (integer, optionnel) \- Niveau de priorité (absence signifie priorité par défaut).  
-     * createdAt (datetime) \- Timestamp de création (UTC).  
-     * updatedAt (datetime) \- Timestamp dernière mise à jour (UTC).  
-     * temporalWorkflowID (string, optionnel, indexé) \- ID du workflow Temporal exécutant cette tâche.  
-     * expectedDeliverable (string, optionnel) \- Description du livrable attendu.  
-     * resultData (string, optionnel) \- Stockage de résultats simples non-fichier (peut être JSON ; opaque pour Neo4j).  
-     * notes (string, optionnel) \- Annotations générales.  
-   * **Relations V1 :**  
-     * \[:IS\_CHILD\_OF\] \-\> (:Task) \- Lien vers la tâche parente (hiérarchie).  
-     * \[:DEPENDS\_ON\] \-\> (:Task) \- Dépendance (cette tâche doit attendre que l'autre soit DONE ou VALIDATED).  
-     * \[:ASSIGNED\_TO\] \-\> (:Agent) \- Agent responsable. **Contrainte V1 (logique Go) : Doit être 1-1.**  
-     * \[:PRODUCES\_ARTIFACT\] \-\> (:Artifact) \- Artefact(s) généré(s) par cette tâche.  
-     * \[:CONSUMES\_ARTIFACT\] \-\> (:Artifact) \- Artefact(s) utilisé(s) en entrée.  
-     * \[:REQUIRES\_CAPABILITY\] \-\> (:Capability) \- Compétence(s) abstraite(s) nécessaire(s).  
-     * \[:HAS\_VALIDATION\] \-\> (:ValidationRecord) \- Lien vers l'enregistrement de validation.  
-     * \[:HAS\_FAILURE\] \-\> (:FailureRecord) \- Lien vers l'enregistrement d'erreur.  
-     * \[:PART\_OF\] \-\> (:Mission) \- Lien vers la mission globale.  
-     * \[:USED\_PROMPT\] \-\> (:Artifact {artifactType:"prompt/text"}) \- Lien vers l'artefact contenant le prompt spécifique utilisé.  
-     * \[:HAS\_EXECUTION\_LOG\] \-\> (:Artifact {artifactType:"log/text"}) \- Lien vers l'artefact contenant les logs d'exécution.  
-     * \[:HAS\_TAG\] \-\> (:Tag) \- Tags associés à la tâche (N-N).  
-3. **:Agent**  
-   * Représente une instance d'agent logiciel.  
-   * **Propriétés V1 :**  
-     * agentID (string, **UUID**, unique, indexé) \- Identifiant unique global de l'agent.e me d  
-     * agentType (string, indexé) \- Type/Rôle. **Valeurs V1 Suggérées :** "Orchestrator", "Verifier", "ScriptExecutor", "CodeGenerator".  
-     * status (string, indexé) \- Statut opérationnel. **Valeurs V1 Valides (appliquées par Go) :** "IDLE", "EXECUTING", "ERROR", "DISABLED".  
-     * createdAt (datetime) \- Timestamp de création (UTC).  
-     * updatedAt (datetime) \- Timestamp dernière mise à jour (UTC).  
-   * **Relations V1 :**  
-     * \[:ASSIGNED\_TO\] \<- (:Task) \- Tâches actuellement assignées.  
-     * \[:HAS\_CAPABILITY\] \-\> (:Capability) \- Compétences abstraites possédées.  
-     * \[:HAS\_ACCESS\_TO\] \-\> (:Tool) \- Outils concrets auxquels cet agent a accès dans son environnement.  
-4. **:User**  
-   * Représente un utilisateur humain du système.  
-   * **Propriétés V1 :**  
-     * userID (string, **UUID**, unique, indexé) \- Identifiant unique global (peut être dérivé d'un login).  
-     * name (string, optionnel) \- Nom de l'utilisateur.  
-     * createdAt (datetime) \- Timestamp de création (UTC).  
-     * updatedAt (datetime) \- Timestamp dernière mise à jour (UTC).  
-   * **Relations V1 :**  
-     * \[:CREATED\_BY\] \<- (:Mission) \- Missions créées par cet utilisateur.  
-     * \[:VALIDATED\_BY\] \<- (:ValidationRecord) \- Validations effectuées par cet utilisateur.  
-5. **:Artifact**  
-   * Représente un livrable ou une donnée produite/consommée (fichier, log, prompt...).  
-   * **Propriétés V1 :**  
-     * artifactID (string, **UUID**, unique, indexé) \- Identifiant unique global.  
-     * artifactType (string, indexé) \- Type MIME ou sémantique (ex: "log/text", "code/go", "image/png", "document/markdown", "prompt/text").  
-     * storagePath (string) \- Chemin unique vers le fichier dans le stockage S3/MinIO.  
-     * fileName (string, optionnel) \- Nom original du fichier pour référence.  
-     * createdAt (datetime) \- Timestamp de création (UTC).  
-     * updatedAt (datetime) \- Timestamp dernière mise à jour (UTC).  
-   * **Relations V1 :**  
-     * \[:PRODUCES\_ARTIFACT\] \<- (:Task) \- Tâche ayant produit cet artefact.  
-     * \[:CONSUMES\_ARTIFACT\] \<- (:Task) \- Tâches consommant cet artefact.  
-     * \[:USED\_PROMPT\] \<- (:Task) \- Tâche ayant utilisé ce prompt.  
-     * \[:HAS\_EXECUTION\_LOG\] \<- (:Task) \- Tâche ayant généré ce log.  
-     * \[:HAS\_TAG\] \-\> (:Tag) \- Tags associés à l'artefact (N-N).  
-6. **:Tag**  
-   * Représente un tag ou mot-clé pour classifier des entités.  
-   * **Propriétés V1 :**  
-     * tagName (string, unique, indexé) \- Le tag lui-même (sensible à la casse ? À définir).  
-     * createdAt (datetime) \- Timestamp de création (UTC).  
-   * **Relations V1 :**  
-     * \[:HAS\_TAG\] \<- (:Mission | :Task | :Artifact) \- Entités associées à ce tag.  
-7. **:Capability**  
-   * Représente une compétence ou capacité abstraite requise/possédée.  
-   * **Propriétés V1 :**  
-     * capabilityName (string, unique, indexé) \- Nom unique (ex: "execute\_python\_script", "generate\_react\_component").  
-     * description (string, optionnel).  
-     * createdAt (datetime) \- Timestamp de création (UTC).  
-     * updatedAt (datetime) \- Timestamp dernière mise à jour (UTC).  
-   * **Relations V1 :**  
-     * \[:REQUIRES\_CAPABILITY\] \<- (:Task) \- Tâches nécessitant cette capacité.  
-     * \[:HAS\_CAPABILITY\] \<- (:Agent) \- Agents possédant cette capacité.  
-     * \[:IMPLEMENTED\_BY\] \<- (:Tool) \- Outils implémentant cette capacité.  
-8. **:Tool**  
-   * Représente un outil logiciel ou une fonction spécifique utilisable par un agent.  
-   * **Propriétés V1 :**  
-     * toolName (string, unique, indexé) \- Nom unique de l'outil (ex: "PythonExecutorTool", "S3UploaderTool", "Neo4jTaskCreatorTool").  
-     * description (string, optionnel).  
-     * createdAt (datetime) \- Timestamp de création (UTC).  
-     * updatedAt (datetime) \- Timestamp dernière mise à jour (UTC).  
-   * **Relations V1 :**  
-     * \[:IMPLEMENTS\] \-\> (:Capability) \- Capacité(s) fournie(s) par cet outil.  
-     * \[:HAS\_ACCESS\_TO\] \<- (:Agent) \- Agents ayant accès à cet outil.  
-9. **:ValidationRecord**  
-   * Stocke le résultat d'une validation.  
-   * **Propriétés V1 :**  
-     * validationID (string, **UUID**, unique, indexé).  
-     * result (string) \- **Valeurs V1 Valides :** "VALIDATED", "INVALIDATED".  
-     * feedback (string, optionnel) \- Justification si invalidé.  
-     * validatedAt (datetime) \- Timestamp de validation (UTC).  
-     * createdAt (datetime) \- Timestamp de création (UTC).  
-     * updatedAt (datetime) \- Timestamp dernière mise à jour (UTC).  
-   * **Relations V1 :**  
-     * \[:HAS\_VALIDATION\] \<- (:Task) \- Tâche concernée.  
-     * \[:VALIDATED\_BY\] \-\> (:User | :Agent) \- Entité ayant validé.  
-10. **:FailureRecord**  
-    * Stocke les détails d'un échec de tâche.  
-    * **Propriétés V1 :**  
-      * failureID (string, **UUID**, unique, indexé).  
-      * failureType (string) \- Ex: "ActivityTimeout", "AgentCrash", "ToolError", "ValidationError", "ScriptError".  
-      * errorMessage (string).  
-      * errorDetails (string, optionnel) \- Peut contenir stack trace, logs courts ; opaque pour Neo4j.  
-      * failedAt (datetime) \- Timestamp de l'échec (UTC).  
-      * createdAt (datetime) \- Timestamp de création (UTC).  
-      * updatedAt (datetime) \- Timestamp dernière mise à jour (UTC).  
-    * **Relations V1 :**  
-      * \[:HAS\_FAILURE\] \<- (:Task) \- Tâche concernée.
+*   **Séparation des Graphes Conceptuels :** Le schéma est divisé en trois "espaces" logiques :
+    1.  **`Common KG`** : La connaissance pérenne et les archétypes du système.
+    2.  **`Factual KG`** : La mémoire autobiographique immuable, source de toute vérité et de tout apprentissage.
+    3.  **`Potential KG`** : L'espace de travail éphémère pour la délibération et l'évaluation des futurs possibles.
+    *   **Rationale :** Cette séparation garantit la clarté, la robustesse et la performance en isolant les domaines de requêtes et en protégeant l'intégrité des données factuelles.
 
-### **Index et Contraintes V1 Proposés**
+*   **Distinction `:PotentialTask` vs. `:Task` :** Nous utilisons deux labels distincts pour séparer clairement les "options" des "faits".
+    *   **Rationale :** Cela évite de polluer le graphe factuel avec des données de délibération, ce qui simplifie l'analyse et l'apprentissage. Chaque type de nœud peut avoir des index et des propriétés optimisés pour son rôle.
 
-* **Contraintes d'Unicité (impliquent un index) :**  
-  * CONSTRAINT ON (m:Mission) ASSERT m.missionID IS UNIQUE  
-  * CONSTRAINT ON (t:Task) ASSERT t.taskID IS UNIQUE  
-  * CONSTRAINT ON (a:Agent) ASSERT a.agentID IS UNIQUE  
-  * CONSTRAINT ON (u:User) ASSERT u.userID IS UNIQUE  
-  * CONSTRAINT ON (art:Artifact) ASSERT art.artifactID IS UNIQUE  
-  * CONSTRAINT ON (tag:Tag) ASSERT tag.tagName IS UNIQUE  
-  * CONSTRAINT ON (c:Capability) ASSERT c.capabilityName IS UNIQUE  
-  * CONSTRAINT ON (tool:Tool) ASSERT tool.toolName IS UNIQUE  
-  * CONSTRAINT ON (v:ValidationRecord) ASSERT v.validationID IS UNIQUE  
-  * CONSTRAINT ON (f:FailureRecord) ASSERT f.failureID IS UNIQUE  
-* **Index Secondaires (pour performance des requêtes) :**  
-  * INDEX ON :Mission(status)  
-  * INDEX ON :Task(status)  
-  * INDEX ON :Task(temporalWorkflowID)  
-  * INDEX ON :Agent(status)  
-  * INDEX ON :Agent(agentType)  
-  * INDEX ON :Artifact(artifactType)  
-  * *Note : L'index sur :Artifact(tags) n'est plus nécessaire avec les nœuds :Tag.*
+*   **Distinction `:Mission` vs. `:Task` :** Bien que conceptuellement fractal, nous gardons un label `:Mission` distinct.
+    *   **Rationale :** Il sert de point d'entrée performant et sémantiquement clair pour les requêtes au niveau de la mission et pour la recherche de missions "similaires" (GraphRAG inter-mission).
 
-### **Conventions de Schéma**
+*   **Utilisation de Labels Multiples :** La catégorisation se fait via des labels supplémentaires (ex: `:Task:ValidationTask`) plutôt que des propriétés de type.
+    *   **Rationale :** C'est une meilleure pratique fondamentale dans Neo4j qui améliore massivement les performances des requêtes de filtrage grâce à une indexation plus efficace.
 
-* **Labels :** PascalCase (ex: :Task, :Mission).  
-* **Propriétés :** camelCase (ex: taskID, createdAt).  
-* **Types de Relations :** UPPER\_SNAKE\_CASE (ex: :IS\_CHILD\_OF, :DEPENDS\_ON).  
-* **Timestamps :** Utiliser le type datetime de Neo4j, stocker en **UTC**.  
-* **Identifiants :** Utiliser des **UUIDs** (stockés comme string) pour les IDs primaires.
+*   **Traçabilité avec la Couche d'Exécution :** Chaque nœud `:Task` contiendra une propriété `temporalWorkflowId`.
+    *   **Rationale :** Créer un pont d'observabilité indispensable entre notre graphe de décision (le "Pourquoi") et le moteur de workflow Temporal (le "Comment").
 
-### **Points à Affiner (Post-V1)**
+---
 
-* Gestion des versions d'artefacts.  
-* Historique détaillé des changements de statut métier (potentiellement via propriétés sur relations ou nœuds :StatusEvent).  
-* Modélisation plus fine des dépendances de tâches (types, délais).  
-* Ajout de propriétés sur les relations (ex: timestamp sur :ASSIGNED\_TO).  
-* Index composites basés sur des analyses de requêtes plus poussées.
+## **2. Le Knowledge Graph Commun (Common KG)**
+
+*Contient les connaissances stables, partagées et agnostiques des missions.*
+
+### **2.1. Nœuds du Common KG**
+
+*   **`:AgentProfile`**
+    *   **Description :** L'archétype (template) d'un type d'agent, définissant ses capacités intrinsèques.
+    *   **Propriétés :** `id: string`, `description: string`, `version: string`
+
+*   **`:Capability`**
+    *   **Description :** Une compétence abstraite que le système peut posséder (ex: "python_script_execution").
+    *   **Propriétés :** `name: string`, `description: string`
+
+*   **`:Tool`**
+    *   **Description :** Un outil externe, formel et déterministe, décrit par son contrat d'interface.
+    *   **Propriétés :** `name: string`, `version: string`, `endpoint: string`, `inputSchema: string (JSON Schema)`, `outputSchema: string (JSON Schema)`
+
+*   **`:TaskArchetype`**
+    *   **Description :** Un patron pour un type de tâche récurrent, utilisé pour la planification et l'amorçage du scoring.
+    *   **Propriétés :** `name: string`, `description: string`
+
+*   **`:MLModel`**
+    *   **Description :** Une instance entraînée et versionnée d'un `Proxy Scorer` spécialisé (B1 ou B2).
+    *   **Propriétés :** `id: string` (ex: "b1-lightgbm-v0.2"), `version: string`, `mlflowRunId: string`, `performanceMetrics: map`, `isActive: boolean`
+
+### **2.2. Relations du Common KG**
+
+*   **`(:AgentProfile)-[:HAS_CAPABILITY]->(:Capability)`**
+*   **`(:Capability)-[:IMPLEMENTED_BY]->(:Tool)`**
+*   **`(:TaskArchetype)-[:REQUIRES_CAPABILITY]->(:Capability)`**
+*   **`(:MLModel)-[:PREDICTS_FOR {property: string}]->(:TaskArchetype)`** (La relation est enrichie pour spécifier la cible de la prédiction, ex: `property: "complexity"`)
+
+---
+
+## **3. Le Knowledge Graph Factuel (Factual KG)**
+
+*Contient l'enregistrement immuable des faits avérés, spécifique à une mission (`missionID`). C'est la source de l'apprentissage.*
+
+### **3.1. Nœuds du Factual KG**
+
+*   **`:Mission`**
+    *   **Description :** Le nœud racine pour une exécution complète. Point d'ancrage pour le GraphRAG inter-mission.
+    *   **Propriétés :** `id: string`, `prompt: string`, `status: string`, `createdAt: datetime`, `promptVector: array<float>`
+
+*   **`:Task`**
+    *   **Description :** Une unité de travail concrète qui a été **exécutée**. Utilise des labels multiples pour la classification (ex: `:Task:CodeGeneration`, `:Task:ValidationTask`).
+    *   **Propriétés :** `id: string`, `missionID: string`, `prompt: string`, `status: string ('completed', 'failed')`, `executionTimeMs: int`, `actualCost: float`, `temporalWorkflowId: string`
+
+*   **`:Artefact`**
+    *   **Description :** Un produit tangible et vérifié généré par une tâche. Utilise des labels multiples (ex: `:Artefact:PythonScript`, `:Artefact:MarkdownReport`).
+    *   **Propriétés :** `id: string`, `missionID: string`, `path: string (S3 pointer)`, `hash: string (sha256)`
+
+*   **`:Finding`**
+    *   **Description :** Un résultat atomique et factuel issu d'un processus de validation.
+    *   **Propriétés :** `id: string`, `missionID: string`, `description: string`, `severity: string`, `verdict: string`, `sourceTool: string`
+
+*   **`:KnowledgeChunk`**
+    *   **Description :** Un "morceau de connaissance", une affirmation sur le monde avec un niveau de confiance associé. C'est le cœur du réseau de croyances bayésien du système et un point d'ancrage pour le GraphRAG sémantique.
+    *   **Propriétés :** `id: string` (hash du `statement`), `statement: string`, `confidence: float`, `source: string`, `lastUpdatedAt: datetime`, `statementVector: array<float>`
+
+### **3.2. Relations du Factual KG**
+
+*   **`(:Mission)-[:HAS_ROOT_TASK]->(:Task)`**
+*   **`(:Task)-[:DECOMPOSED_FROM]->(:Task)`** (Trace la hiérarchie des tâches)
+*   **`(:Task)-[:PRODUCED]->(:Artefact)`**
+*   **`(:Task)-[:CONSUMED]->(:Artefact)`** (Dépendance)
+*   **`(:Task)-[:GENERATED]->(:Finding)`** (Lie une tâche à ses résultats de validation)
+*   **`(:Artefact)-[:IS_REVISION_OF]->(:Artefact)`** (Trace l'évolution d'un artefact)
+*   **`(:Task)-[:UPDATED_KNOWLEDGE]->(:KnowledgeChunk)`** (Indique qu'une tâche a mené à une mise à jour de la confiance d'une connaissance)
+
+---
+
+## **4. Le Knowledge Graph de Potentiel (Potential KG)**
+
+*Le "tableau blanc" éphémère pour la délibération, contenant les futurs possibles.*
+
+### **4.1. Nœuds du Potential KG**
+
+*   **`:PotentialTask`**
+    *   **Description :** Une action future proposée, en attente d'évaluation et de décision. Utilise des labels multiples pour la classification (ex: `:PotentialTask:RefactoringOption`).
+    *   **Propriétés :** `id: string`, `missionID: string`, `prompt: string`, `status: string ('proposed', 'evaluated', 'discarded')`
+
+*   **`:Score`**
+    *   **Description :** Contient les prédictions d'un `Proxy Scorer` pour une `:PotentialTask`.
+    *   **Propriétés :** `predictedCost: float`, `predictedComplexity: float`, `predictedSuccessProbability: float`, `scorerModelId: string`
+
+### **4.2. Relations du Potential KG**
+
+*   **`(:PotentialTask)-[:IS_OPTION_FOR]->(:Task)`** (Lie une option à la tâche parente déjà exécutée)
+*   **`(:PotentialTask)-[:AIMS_TO_VALIDATE]->(:KnowledgeChunk)`** (Lie une tâche de vérification potentielle à la connaissance qu'elle cherche à confirmer ou infirmer)
+*   **`(:PotentialTask)-[:HAS_SCORE]->(:Score)`**
+*   **`(:Score)-[:GENERATED_BY]->(:MLModel)`** (Crucial pour la traçabilité des prédictions)
+
+---
+
+## **5. Schéma Cypher d'Initialisation (Exemples de Contraintes)**
+
+*Ce code doit être exécuté pour initialiser la base de données et garantir l'intégrité des données.*
+
+```cypher
+// --- Contraintes d'Unicité (Créent des index performants) ---
+CREATE CONSTRAINT unique_capability_name IF NOT EXISTS FOR (c:Capability) REQUIRE c.name IS UNIQUE;
+CREATE CONSTRAINT unique_tool_name IF NOT EXISTS FOR (t:Tool) REQUIRE t.name IS UNIQUE;
+CREATE CONSTRAINT unique_agent_profile_id IF NOT EXISTS FOR (ap:AgentProfile) REQUIRE ap.id IS UNIQUE;
+CREATE CONSTRAINT unique_task_archetype_name IF NOT EXISTS FOR (ta:TaskArchetype) REQUIRE ta.name IS UNIQUE;
+CREATE CONSTRAINT unique_ml_model_id IF NOT EXISTS FOR (m:MLModel) REQUIRE m.id IS UNIQUE;
+CREATE CONSTRAINT unique_mission_id IF NOT EXISTS FOR (m:Mission) REQUIRE m.id IS UNIQUE;
+CREATE CONSTRAINT unique_task_id IF NOT EXISTS FOR (t:Task) REQUIRE t.id IS UNIQUE;
+CREATE CONSTRAINT unique_artefact_id IF NOT EXISTS FOR (a:Artefact) REQUIRE a.id IS UNIQUE;
+CREATE CONSTRAINT unique_knowledge_chunk_id IF NOT EXISTS FOR (kc:KnowledgeChunk) REQUIRE kc.id IS UNIQUE;
+
+// --- Index pour les recherches fréquentes (Non couverts par l'unicité) ---
+CREATE INDEX task_mission_id_index IF NOT EXISTS FOR (t:Task) ON (t.missionID);
+CREATE INDEX artefact_mission_id_index IF NOT EXISTS FOR (a:Artefact) ON (a.missionID);
+
+// --- Index Vectoriels (Pour la recherche sémantique / GraphRAG) ---
+// Note : Les dimensions (ex: 384) doivent correspondre au modèle d'embedding choisi.
+CREATE VECTOR INDEX mission_prompt_vector IF NOT EXISTS FOR (m:Mission) ON (m.promptVector) OPTIONS {indexConfig: {`vector.dimensions`: 384, `vector.similarity_function`: 'cosine'}};
+CREATE VECTOR INDEX knowledge_chunk_statement_vector IF NOT EXISTS FOR (kc:KnowledgeChunk) ON (kc.statementVector) OPTIONS {indexConfig: {`vector.dimensions`: 384, `vector.similarity_function`: 'cosine'}};

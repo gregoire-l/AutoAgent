@@ -1,0 +1,48 @@
+// common.proto
+
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "github.com/auto-agent/protos/gen/go/common/v1;commonv1";
+
+// Une référence vers un état spécifique d'un espace de travail versionné (ex: LakeFS).
+// C'est un pointeur immuable vers une arborescence de fichiers.
+message WorkspaceReference {
+  string repository = 1; // Ex: "mission-z"
+  string branch = 2;     // Ex: "task-xyz"
+  string commit_id = 3;  // Ex: "abc123def456"
+}
+
+// Un outil spécifique avec sa version, tel que défini dans le Knowledge Graph.
+message Tool {
+  string name = 1;    // ex: "python"
+  string version = 2; // ex: "3.11.5"
+}
+
+// Le profil riche d'un agent, reflétant la structure du Knowledge Graph.
+// Il définit les capacités et les outils requis pour une session d'agent.
+message AgentProfile {
+  string profile_id = 1; // L'ID du :AgentProfile dans le KG.
+  repeated Tool required_tools = 2;
+}
+
+// Une tâche potentielle, définie par son prompt et un ID de suivi.
+message PotentialTask {
+  string id = 1;      // UUID généré côté client (Go) pour le suivi.
+  string prompt = 2;
+}
+
+// Structure standard pour les erreurs granulaires.
+message Error {
+  int32 code = 1;         // Code d'erreur interne.
+  string message = 2;   // Description de l'erreur.
+}
+
+// Énumération pour le statut final d'une exécution.
+enum ExecutionStatus {
+  EXECUTION_STATUS_UNSPECIFIED = 0;
+  SUCCESS = 1; // L'opération a réussi (ex: code de sortie 0).
+  FAILURE = 2; // L'opération a échoué.
+  TIMEOUT = 3; // L'opération a atteint son timeout.
+}
