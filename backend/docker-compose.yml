@@ -85,7 +85,7 @@ services:
       retries: 5
 
   temporal:
-    image: temporalio/auto-setup:${TEMPORAL_VERSION}
+    image: temporalio/auto-setup
     container_name: autoagent_temporal
     ports:
       - "${TEMPORAL_HOST_PORT_UI}:8080"    # Temporal Web UI (auto-setup serves UI on 8080)
@@ -115,7 +115,7 @@ services:
 
   temporal-admin-tools:
     container_name: autoagent_temporal_admin_tools
-    image: temporalio/admin-tools:${TEMPORAL_ADMINTOOLS_VERSION}
+    image: temporalio/admin-tools
     depends_on:
       - temporal
     environment:
