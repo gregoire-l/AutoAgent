@@ -85,20 +85,24 @@ services:
       retries: 5
 
   temporal:
-    image: temporalio/auto-setup # Using a specific version is recommended
+    image: temporalio/auto-setup:${TEMPORAL_VERSION}
     container_name: autoagent_temporal
     ports:
-      - "${TEMPORAL_HOST_PORT_UI}:8088"    # Temporal Web UI
+      - "${TEMPORAL_HOST_PORT_UI}:8080"    # Temporal Web UI (auto-setup serves UI on 8080)
       - "${TEMPORAL_HOST_PORT_GRPC}:7233" # Temporal Frontend gRPC
       # Ports 7234 (Membership), 7235 (Internode), 6933 (SDK Metrics) are also used by Temporal internally
       # but typically don't need to be exposed on the host for auto-setup.
     environment:
       - TEMPORAL_BROADCAST_ADDRESS=${TEMPORAL_SERVICE_NAME} # Service name within Docker network
+      - TEMPORAL_CLI_ADDRESS=${TEMPORAL_SERVICE_NAME}:7233
+      - DYNAMIC_CONFIG_FILE_PATH=/etc/temporal/config/dynamicconfig/development.yaml
       # Default DB is in-memory. For persistence with auto-setup, you can set DB=sqlite or DB=postgres
       # and provide related env vars. For dev, in-memory is often fine.
       # - DB=sqlite
       # - SQLITE_FILE_PATH=/data/temporal.db # Requires a volume mount for /data
-    # volumes: # Uncomment if using persistent DB like SQLite
+    volumes:
+      - ./temporal/config/dynamicconfig:/etc/temporal/config/dynamicconfig
+    # Uncomment below if using persistent DB like SQLite and define temporal_data volume
     #   - temporal_data:/data
     networks:
       - autoagent-net
@@ -108,6 +112,19 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  temporal-admin-tools:
+    container_name: autoagent_temporal_admin_tools
+    image: temporalio/admin-tools:${TEMPORAL_ADMINTOOLS_VERSION}
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=${TEMPORAL_SERVICE_NAME}:7233
+      - TEMPORAL_CLI_ADDRESS=${TEMPORAL_SERVICE_NAME}:7233
+    networks:
+      - autoagent-net
+    stdin_open: true
+    tty: true
 
   minio:
     image: minio/minio # Using a specific version is recommended
