@@ -30,6 +30,8 @@ services:
     # Add volumes for source code mapping for live reload if desired during development:
     # volumes:
     #   - ./go-core:/app
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Allows go-core to manage Docker containers (e.g., for sandboxing)
 
   python-ia:
     build:
@@ -56,7 +58,6 @@ services:
     volumes:
       # Add volumes for source code mapping for live reload if desired during development:
       # - ./python-ia:/app
-      - /var/run/docker.sock:/var/run/docker.sock
 
   neo4j:
     image: neo4j:stable # Using a specific version is recommended over :latest
