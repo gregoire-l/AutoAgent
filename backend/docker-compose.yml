@@ -84,9 +84,58 @@ services:
       timeout: 5s
       retries: 5
 
+  postgresql:
+    image: postgres:${POSTGRESQL_VERSION}
+    container_name: autoagent_postgresql
+    ports:
+      - "${POSTGRESQL_HOST_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${TEMPORAL_DB_USER}
+      - POSTGRES_PASSWORD=${TEMPORAL_DB_PASS}
+      - POSTGRES_DB=${TEMPORAL_DB_NAME}
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    networks:
+      - autoagent-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TEMPORAL_DB_USER} -d ${TEMPORAL_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  elasticsearch:
+    image: elasticsearch:${ELASTICSEARCH_VERSION}
+    container_name: autoagent_elasticsearch
+    environment:
+      - cluster.routing.allocation.disk.threshold_enabled=true
+      - cluster.routing.allocation.disk.watermark.low=512mb
+      - cluster.routing.allocation.disk.watermark.high=256mb
+      - cluster.routing.allocation.disk.watermark.flood_stage=128mb
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m # Adjust as needed
+      - xpack.security.enabled=false # For development; consider security for production
+    ports:
+      - "${ELASTICSEARCH_HOST_PORT}:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - autoagent-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s --fail http://localhost:9200/_cluster/health?wait_for_status=yellow || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
   temporal:
-    image: temporalio/auto-setup
+    image: temporalio/auto-setup:${TEMPORAL_VERSION}
     container_name: autoagent_temporal
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
     ports:
       - "${TEMPORAL_HOST_PORT_UI}:8080"    # Temporal Web UI (auto-setup serves UI on 8080)
       - "${TEMPORAL_HOST_PORT_GRPC}:7233" # Temporal Frontend gRPC
@@ -115,9 +164,14 @@ services:
 
   temporal-admin-tools:
     container_name: autoagent_temporal_admin_tools
-    image: temporalio/admin-tools
+    image: temporalio/admin-tools:${TEMPORAL_ADMINTOOLS_VERSION}
     depends_on:
-      - temporal
+      temporal:
+        condition: service_healthy
+      postgresql: # Ensure DB is up before admin tools might try to query things via temporal
+        condition: service_healthy
+      elasticsearch: # Ensure ES is up
+        condition: service_healthy
     environment:
       - TEMPORAL_ADDRESS=${TEMPORAL_SERVICE_NAME}:7233
       - TEMPORAL_CLI_ADDRESS=${TEMPORAL_SERVICE_NAME}:7233
@@ -156,4 +210,6 @@ networks:
 volumes:
   neo4j_data: # Persists Neo4j data
   minio_data: # Persists MinIO data
-  # temporal_data: # Uncomment if Temporal persistence is configured
+  postgresql_data: # Persists PostgreSQL data for Temporal
+  elasticsearch_data: # Persists Elasticsearch data for Temporal
+  # temporal_data: # This was for SQLite, not needed with PostgreSQL
