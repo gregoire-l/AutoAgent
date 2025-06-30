@@ -5,8 +5,8 @@ syntax = "proto3";
 package execution.v1;
 
 import "google/protobuf/duration.proto";
-// Importe les types partagés depuis le fichier common.
 import "common/v1/common.proto";
+import "validate/validate.proto";
 
 option go_package = "github.com/auto-agent/protos/gen/go/execution/v1;executionv1";
 
@@ -14,6 +14,8 @@ option go_package = "github.com/auto-agent/protos/gen/go/execution/v1;executionv
 // Le Service de Session d'Agent (Agent Session Service)
 //
 // Gère des sessions de travail interactives et état-major pour des agents autonomes.
+// Le client (Go/Temporal) agit comme un superviseur, donnant des objectifs
+// et recevant des résultats d'étape.
 // =============================================================================
 service AgentSessionService {
   // Démarre une nouvelle session d'agent, provisionne les ressources (sandbox)
@@ -31,20 +33,21 @@ service AgentSessionService {
 // --- Messages pour le cycle de vie de la session ---
 
 message StartSessionRequest {
-  string request_id = 1;
-  common.v1.AgentProfile agent_profile = 2;
-  common.v1.WorkspaceReference initial_workspace = 3;
+  string request_id = 1 [(validate.rules).string.uuid = true];
+  common.v1.AgentProfile agent_profile = 2 [(validate.rules).message.required = true];
+  common.v1.WorkspaceReference initial_workspace = 3 [(validate.rules).message.required = true];
 }
 
 message StartSessionResponse {
-  string session_id = 1; // L'ID à utiliser pour toutes les requêtes suivantes.
+  string session_id = 1 [(validate.rules).string.min_len = 1];
 }
 
 message StopSessionRequest {
-  string request_id = 1;
-  string session_id = 2;
-  FinalStatus final_status = 3;
-  string commit_message = 4; // Utilisé uniquement si le statut est SUCCESS.
+  string request_id = 1 [(validate.rules).string.uuid = true];
+  string session_id = 2 [(validate.rules).string.min_len = 1];
+  FinalStatus final_status = 3 [(validate.rules).enum.defined_only = true, (validate.rules).enum.not_in = {0}];
+  // La logique applicative doit s'assurer que ce message n'est fourni que si final_status est SUCCESS.
+  string commit_message = 4 [(validate.rules).string.max_len = 256];
 }
 
 message StopSessionResponse {
@@ -60,14 +63,17 @@ enum FinalStatus {
 // --- Messages pour l'exécution d'une étape ---
 
 message ExecuteStepRequest {
-  string request_id = 1;
-  string session_id = 2;
-  string directive = 3; // Directive de haut niveau pour l'agent.
-  google.protobuf.Duration timeout = 4;
+  string request_id = 1 [(validate.rules).string.uuid = true];
+  string session_id = 2 [(validate.rules).string.min_len = 1];
+  // Ce n'est plus une commande shell, mais une directive de haut niveau pour l'agent.
+  string directive = 3 [(validate.rules).string.min_len = 10];
+  // Un timeout doit toujours être spécifié pour éviter les blocages.
+  google.protobuf.Duration timeout = 4 [(validate.rules).duration.required = true];
 }
 
 message ExecuteStepResponse {
   oneof event {
+    option (validate.required) = true;
     LogChunk log_chunk = 1;
     StepResult result = 2;
     common.v1.Error error = 3;
@@ -76,8 +82,8 @@ message ExecuteStepResponse {
 
 // Le résultat complet d'une étape de travail.
 message StepResult {
-  string summary = 1; // Résumé textuel de ce que l'agent a fait.
-  common.v1.ExecutionStatus status = 2;
+  string summary = 1 [(validate.rules).string.min_len = 5];
+  common.v1.ExecutionStatus status = 2 [(validate.rules).enum.defined_only = true, (validate.rules).enum.not_in = {0}];
   string last_stdout = 3;
   string last_stderr = 4;
 }
@@ -89,6 +95,6 @@ message LogChunk {
     STDOUT = 1;
     STDERR = 2;
   }
-  Stream stream = 1;
-  bytes content = 2;
+  Stream stream = 1 [(validate.rules).enum.defined_only = true, (validate.rules).enum.not_in = {0}];
+  bytes content = 2 [(validate.rules).bytes.min_len = 1];
 }

@@ -4,39 +4,54 @@ syntax = "proto3";
 
 package common.v1;
 
+// Importe les définitions de règles de validation.
+import "validate/validate.proto";
+
 option go_package = "github.com/auto-agent/protos/gen/go/common/v1;commonv1";
 
 // Une référence vers un état spécifique d'un espace de travail versionné (ex: LakeFS).
 // C'est un pointeur immuable vers une arborescence de fichiers.
 message WorkspaceReference {
-  string repository = 1; // Ex: "mission-z"
-  string branch = 2;     // Ex: "task-xyz"
-  string commit_id = 3;  // Ex: "abc123def456"
+  // Le nom du repo doit être un identifiant valide (lettres, chiffres, tirets).
+  string repository = 1 [(validate.rules).string = {min_len: 1, pattern: "^[a-zA-Z0-9_-]+$"}];
+  // Le nom de la branche doit être un identifiant valide.
+  string branch = 2 [(validate.rules).string = {min_len: 1, pattern: "^[a-zA-Z0-9_./-]+$"}];
+  // L'ID de commit est optionnel (pointe sur la tête de la branche si vide).
+  // Doit être un hash hexadécimal s'il est fourni.
+  string commit_id = 3 [(validate.rules).string = {pattern: "^[a-f0-9]*$"}];
 }
 
 // Un outil spécifique avec sa version, tel que défini dans le Knowledge Graph.
 message Tool {
-  string name = 1;    // ex: "python"
-  string version = 2; // ex: "3.11.5"
+  // Le nom de l'outil est obligatoire.
+  string name = 1 [(validate.rules).string.min_len = 1];
+  // La version est obligatoire.
+  string version = 2 [(validate.rules).string.min_len = 1];
 }
 
 // Le profil riche d'un agent, reflétant la structure du Knowledge Graph.
 // Il définit les capacités et les outils requis pour une session d'agent.
 message AgentProfile {
-  string profile_id = 1; // L'ID du :AgentProfile dans le KG.
-  repeated Tool required_tools = 2;
+  // L'ID du profil est obligatoire.
+  string profile_id = 1 [(validate.rules).string.min_len = 1];
+  // La liste des outils ne peut pas être vide si un profil est spécifié.
+  repeated Tool required_tools = 2 [(validate.rules).repeated.min_items = 1];
 }
 
 // Une tâche potentielle, définie par son prompt et un ID de suivi.
 message PotentialTask {
-  string id = 1;      // UUID généré côté client (Go) pour le suivi.
-  string prompt = 2;
+  // L'ID doit être un UUID valide pour garantir l'unicité et la traçabilité.
+  string id = 1 [(validate.rules).string.uuid = true];
+  // Le prompt doit contenir du texte significatif.
+  string prompt = 2 [(validate.rules).string.min_len = 10];
 }
 
 // Structure standard pour les erreurs granulaires.
 message Error {
-  int32 code = 1;         // Code d'erreur interne.
-  string message = 2;   // Description de l'erreur.
+  // Le code d'erreur doit être un code d'erreur gRPC-like valide (> 0).
+  int32 code = 1 [(validate.rules).int32.gt = 0];
+  // Le message d'erreur est obligatoire et doit être descriptif.
+  string message = 2 [(validate.rules).string.min_len = 5];
 }
 
 // Énumération pour le statut final d'une exécution.

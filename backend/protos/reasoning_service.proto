@@ -4,8 +4,8 @@ syntax = "proto3";
 
 package reasoning.v1;
 
-// Importe les types partagés depuis le fichier common.
 import "common/v1/common.proto";
+import "validate/validate.proto";
 
 option go_package = "github.com/auto-agent/protos/gen/go/reasoning/v1;reasoningv1";
 
@@ -26,36 +26,37 @@ service ReasoningService {
 // --- Messages pour le RPC GenerateOptions ---
 
 message GenerateOptionsRequest {
-  string request_id = 1;          // Clé d'idempotence.
-  string mission_id = 2;
-  string current_task_prompt = 3;
-  string factual_context = 4;
-  string generation_directive = 5;
+  string request_id = 1 [(validate.rules).string.uuid = true];
+  string mission_id = 2 [(validate.rules).string.uuid = true];
+  string current_task_prompt = 3 [(validate.rules).string.min_len = 10];
+  string factual_context = 4; // Optionnel, donc pas de règle.
+  string generation_directive = 5 [(validate.rules).string.min_len = 10];
 }
 
 message GenerateOptionsResponse {
-  repeated common.v1.PotentialTask potential_tasks = 1;
+  repeated common.v1.PotentialTask potential_tasks = 1 [(validate.rules).repeated.min_items = 1];
 }
 
 // --- Messages pour le RPC ScoreOptions ---
 
 message ScoreOptionsRequest {
-  string request_id = 1;          // Clé d'idempotence.
-  string mission_id = 2;
-  string shared_context = 3;      // Contexte partagé (ex: code source) pour le lot.
-  repeated common.v1.PotentialTask tasks_to_score = 4;
+  string request_id = 1 [(validate.rules).string.uuid = true];
+  string mission_id = 2 [(validate.rules).string.uuid = true];
+  string shared_context = 3; // Optionnel.
+  repeated common.v1.PotentialTask tasks_to_score = 4 [(validate.rules).repeated.min_items = 1];
 }
 
 message ScoreOptionsResponse {
-  // La réponse est une liste de résultats, permettant les succès partiels.
-  repeated ScoreResult results = 1;
+  // La logique applicative doit vérifier que len(results) == len(request.tasks_to_score).
+  repeated ScoreResult results = 1 [(validate.rules).repeated.min_items = 1];
 }
 
 // Un résultat de scoring pour une seule tâche.
+// Peut contenir soit un succès (ScoredOption), soit une erreur.
 message ScoreResult {
-  string id = 1; // L'ID de la PotentialTask correspondante pour le mapping.
-
+  string id = 1 [(validate.rules).string.uuid = true];
   oneof result {
+    option (validate.required) = true; // On doit avoir soit un succès, soit une erreur.
     ScoredOption success = 2;
     common.v1.Error error = 3;
   }
@@ -63,14 +64,14 @@ message ScoreResult {
 
 // Contient les détails d'un scoring réussi pour une option.
 message ScoredOption {
-  Score score = 1;
-  string rationale = 2;
-  float model_confidence = 3; // Confiance du modèle dans cette prédiction (0.0-1.0).
+  Score score = 1 [(validate.rules).message.required = true];
+  string rationale = 2 [(validate.rules).string.min_len = 10];
+  float model_confidence = 3 [(validate.rules).float = {gte: 0.0, lte: 1.0}];
 }
 
-// Les scores quantitatifs objectifs estimés pour une tâche.
+// Les scores quantitatifs objectifs (1) estimés pour une tâche..
 message Score {
-  float predicted_complexity = 1;       // Échelle 1-10
-  float predicted_success_probability = 2;  // Échelle 0.0-1.0
-  float predicted_cost = 3;               // Échelle 1-10
+  float predicted_complexity = 1 [(validate.rules).float = {gte: 1.0, lte: 10.0}]; // Complexité de la tâche, 1-10.
+  float predicted_success_probability = 2 [(validate.rules).float = {gte: 0.0, lte: 1.0}]; // Probabilité de succès, 0-1.
+  float predicted_cost = 3 [(validate.rules).float = {gte: 1.0, lte: 10.0}]; // Coût estimé, 1-10.
 }
