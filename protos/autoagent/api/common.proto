@@ -2,62 +2,66 @@
 
 syntax = "proto3";
 
-package common.v1;
+package autoagent.api;
 
 // Importe les définitions de règles de validation.
-import "validate/validate.proto";
-
-option go_package = "github.com/auto-agent/protos/gen/go/common/v1;commonv1";
+import "buf/validate/validate.proto";
 
 // Une référence vers un état spécifique d'un espace de travail versionné (ex: LakeFS).
 // C'est un pointeur immuable vers une arborescence de fichiers.
 message WorkspaceReference {
   // Le nom du repo doit être un identifiant valide (lettres, chiffres, tirets).
-  string repository = 1 [(validate.rules).string = {min_len: 1, pattern: "^[a-zA-Z0-9_-]+$"}];
+  string repository = 1 [(buf.validate.field).string = {
+    min_len: 1
+    pattern: "^[a-zA-Z0-9_-]+$"
+  }];
   // Le nom de la branche doit être un identifiant valide.
-  string branch = 2 [(validate.rules).string = {min_len: 1, pattern: "^[a-zA-Z0-9_./-]+$"}];
+  string branch = 2 [(buf.validate.field).string = {
+    min_len: 1
+    pattern: "^[a-zA-Z0-9_./-]+$"
+  }];
   // L'ID de commit est optionnel (pointe sur la tête de la branche si vide).
   // Doit être un hash hexadécimal s'il est fourni.
-  string commit_id = 3 [(validate.rules).string = {pattern: "^[a-f0-9]*$"}];
+  string commit_id = 3 [(buf.validate.field).string = {pattern: "^[a-f0-9]*$"}];
 }
 
 // Un outil spécifique avec sa version, tel que défini dans le Knowledge Graph.
 message Tool {
   // Le nom de l'outil est obligatoire.
-  string name = 1 [(validate.rules).string.min_len = 1];
+  string name = 1 [(buf.validate.field).string.min_len = 1];
   // La version est obligatoire.
-  string version = 2 [(validate.rules).string.min_len = 1];
+  string version = 2 [(buf.validate.field).string.min_len = 1];
 }
 
 // Le profil riche d'un agent, reflétant la structure du Knowledge Graph.
 // Il définit les capacités et les outils requis pour une session d'agent.
 message AgentProfile {
   // L'ID du profil est obligatoire.
-  string profile_id = 1 [(validate.rules).string.min_len = 1];
+  string profile_id = 1 [(buf.validate.field).string.min_len = 1];
   // La liste des outils ne peut pas être vide si un profil est spécifié.
-  repeated Tool required_tools = 2 [(validate.rules).repeated.min_items = 1];
+  repeated Tool required_tools = 2 [(buf.validate.field).repeated.min_items = 1];
 }
 
 // Une tâche potentielle, définie par son prompt et un ID de suivi.
 message PotentialTask {
   // L'ID doit être un UUID valide pour garantir l'unicité et la traçabilité.
-  string id = 1 [(validate.rules).string.uuid = true];
+  string id = 1 [(buf.validate.field).string.uuid = true];
   // Le prompt doit contenir du texte significatif.
-  string prompt = 2 [(validate.rules).string.min_len = 10];
+  string prompt = 2 [(buf.validate.field).string.min_len = 10];
 }
 
 // Structure standard pour les erreurs granulaires.
 message Error {
   // Le code d'erreur doit être un code d'erreur gRPC-like valide (> 0).
-  int32 code = 1 [(validate.rules).int32.gt = 0];
+  int32 code = 1 [(buf.validate.field).int32.gt = 0];
   // Le message d'erreur est obligatoire et doit être descriptif.
-  string message = 2 [(validate.rules).string.min_len = 5];
+  string message = 2 [(buf.validate.field).string.min_len = 5];
 }
 
 // Énumération pour le statut final d'une exécution.
 enum ExecutionStatus {
   EXECUTION_STATUS_UNSPECIFIED = 0;
-  SUCCESS = 1; // L'opération a réussi (ex: code de sortie 0).
-  FAILURE = 2; // L'opération a échoué.
-  TIMEOUT = 3; // L'opération a atteint son timeout.
+  EXECUTION_STATUS_SUCCESS = 1; // L'opération a réussi (ex: code de sortie 0).
+  EXECUTION_STATUS_FAILURE = 2; // L'opération a échoué.
+  EXECUTION_STATUS_TIMEOUT = 3; // L'opération a atteint son timeout.
 }

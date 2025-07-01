@@ -1,14 +1,11 @@
 // agent_service.proto
 
 syntax = "proto3";
+package autoagent.api;
 
-package execution.v1;
-
+import "autoagent/api/common.proto";
+import "buf/validate/validate.proto";
 import "google/protobuf/duration.proto";
-import "common/v1/common.proto";
-import "validate/validate.proto";
-
-option go_package = "github.com/auto-agent/protos/gen/go/execution/v1;executionv1";
 
 // =============================================================================
 // Le Service de Session d'Agent (Agent Session Service)
@@ -33,57 +30,57 @@ service AgentSessionService {
 // --- Messages pour le cycle de vie de la session ---
 
 message StartSessionRequest {
-  string request_id = 1 [(validate.rules).string.uuid = true];
-  common.v1.AgentProfile agent_profile = 2 [(validate.rules).message.required = true];
-  common.v1.WorkspaceReference initial_workspace = 3 [(validate.rules).message.required = true];
+  string request_id = 1 [(buf.validate.field).string.uuid = true];
+  AgentProfile agent_profile = 2 [(buf.validate.field).required = true];
+  WorkspaceReference initial_workspace = 3 [(buf.validate.field).required = true];
 }
 
 message StartSessionResponse {
-  string session_id = 1 [(validate.rules).string.min_len = 1];
+  string session_id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
 message StopSessionRequest {
-  string request_id = 1 [(validate.rules).string.uuid = true];
-  string session_id = 2 [(validate.rules).string.min_len = 1];
-  FinalStatus final_status = 3 [(validate.rules).enum.defined_only = true, (validate.rules).enum.not_in = {0}];
+  string request_id = 1 [(buf.validate.field).string.uuid = true];
+  string session_id = 2 [(buf.validate.field).string.min_len = 1];
+  FinalStatus final_status = 3 [(buf.validate.field).enum.defined_only = true];
   // La logique applicative doit s'assurer que ce message n'est fourni que si final_status est SUCCESS.
-  string commit_message = 4 [(validate.rules).string.max_len = 256];
+  string commit_message = 4 [(buf.validate.field).string.max_len = 256];
 }
 
 message StopSessionResponse {
-  common.v1.WorkspaceReference final_workspace = 1; // Retourné uniquement en cas de succès.
+  WorkspaceReference final_workspace = 1; // Retourné uniquement en cas de succès.
 }
 
 enum FinalStatus {
   FINAL_STATUS_UNSPECIFIED = 0;
-  SUCCESS = 1; // La tâche est considérée comme réussie, le travail doit être commité.
-  FAILURE = 2; // La tâche a échoué, le travail doit être archivé mais pas commité.
+  FINAL_STATUS_SUCCESS = 1; // La tâche est considérée comme réussie, le travail doit être commité.
+  FINAL_STATUS_FAILURE = 2; // La tâche a échoué, le travail doit être archivé mais pas commité.
 }
 
 // --- Messages pour l'exécution d'une étape ---
 
 message ExecuteStepRequest {
-  string request_id = 1 [(validate.rules).string.uuid = true];
-  string session_id = 2 [(validate.rules).string.min_len = 1];
+  string request_id = 1 [(buf.validate.field).string.uuid = true];
+  string session_id = 2 [(buf.validate.field).string.min_len = 1];
   // Ce n'est plus une commande shell, mais une directive de haut niveau pour l'agent.
-  string directive = 3 [(validate.rules).string.min_len = 10];
+  string directive = 3 [(buf.validate.field).string.min_len = 10];
   // Un timeout doit toujours être spécifié pour éviter les blocages.
-  google.protobuf.Duration timeout = 4 [(validate.rules).duration.required = true];
+  google.protobuf.Duration timeout = 4 [(buf.validate.field).required = true];
 }
 
 message ExecuteStepResponse {
   oneof event {
-    option (validate.required) = true;
+    option (buf.validate.oneof).required = true;
     LogChunk log_chunk = 1;
     StepResult result = 2;
-    common.v1.Error error = 3;
+    Error error = 3;
   }
 }
 
 // Le résultat complet d'une étape de travail.
 message StepResult {
-  string summary = 1 [(validate.rules).string.min_len = 5];
-  common.v1.ExecutionStatus status = 2 [(validate.rules).enum.defined_only = true, (validate.rules).enum.not_in = {0}];
+  string summary = 1 [(buf.validate.field).string.min_len = 5];
+  ExecutionStatus status = 2 [(buf.validate.field).enum.defined_only = true];
   string last_stdout = 3;
   string last_stderr = 4;
 }
@@ -92,9 +89,9 @@ message StepResult {
 message LogChunk {
   enum Stream {
     STREAM_UNSPECIFIED = 0;
-    STDOUT = 1;
-    STDERR = 2;
+    STREAM_STDOUT = 1;
+    STREAM_STDERR = 2;
   }
-  Stream stream = 1 [(validate.rules).enum.defined_only = true, (validate.rules).enum.not_in = {0}];
-  bytes content = 2 [(validate.rules).bytes.min_len = 1];
+  Stream stream = 1 [(buf.validate.field).enum.defined_only = true];
+  bytes content = 2 [(buf.validate.field).bytes.min_len = 1];
 }

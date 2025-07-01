@@ -1,0 +1,21 @@
+version: v2
+clean: false
+managed:
+  enabled: true
+  override:
+    - file_option: go_package
+      value: "autoagent/api"
+  disable:
+    - file_option: go_package
+      module: buf.build/bufbuild/protovalidate
+plugins:
+  - remote: buf.build/protocolbuffers/go:v1.36.6
+    out: gen/go
+  - remote: buf.build/connectrpc/go:v1.18.1
+    out: gen/go
+  - remote: buf.build/grpc-ecosystem/gateway:v2.27.1
+    out: gen/go
+  - remote: buf.build/protocolbuffers/python:v31.1
+    out: gen/python
+  - remote: buf.build/grpc/python:v1.73.1
+    out: gen/python

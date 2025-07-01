@@ -40,17 +40,9 @@ clean: down
 # =============================================================================
 
 # Génère les stubs gRPC pour tous les langages
-proto-gen: proto-gen-go proto-gen-python
-
-# Génère les stubs Go
-proto-gen-go:
-    @echo "Generating Go gRPC stubs..."
-    # Commande protoc pour Go ici
-
-# Génère les stubs Python
-proto-gen-python:
-    @echo "Generating Python gRPC stubs..."
-    # Commande protoc pour Python ici
+proto-gen:
+    @echo "Generating gRPC stubs for all languages..."
+    buf generate
 
 # =============================================================================
 # Tâches de Test
