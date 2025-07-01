@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from autoagent.api import agent_service_pb2 as autoagent_dot_api_dot_agent__service__pb2
+from autoagent_api import agent_service_pb2 as autoagent__api_dot_agent__service__pb2
 
 
 class AgentSessionServiceStub(object):
@@ -22,19 +22,19 @@ class AgentSessionServiceStub(object):
             channel: A grpc.Channel.
         """
         self.StartSession = channel.unary_unary(
-                '/autoagent.api.AgentSessionService/StartSession',
-                request_serializer=autoagent_dot_api_dot_agent__service__pb2.StartSessionRequest.SerializeToString,
-                response_deserializer=autoagent_dot_api_dot_agent__service__pb2.StartSessionResponse.FromString,
+                '/autoagent_api.AgentSessionService/StartSession',
+                request_serializer=autoagent__api_dot_agent__service__pb2.StartSessionRequest.SerializeToString,
+                response_deserializer=autoagent__api_dot_agent__service__pb2.StartSessionResponse.FromString,
                 _registered_method=True)
         self.ExecuteStep = channel.stream_stream(
-                '/autoagent.api.AgentSessionService/ExecuteStep',
-                request_serializer=autoagent_dot_api_dot_agent__service__pb2.ExecuteStepRequest.SerializeToString,
-                response_deserializer=autoagent_dot_api_dot_agent__service__pb2.ExecuteStepResponse.FromString,
+                '/autoagent_api.AgentSessionService/ExecuteStep',
+                request_serializer=autoagent__api_dot_agent__service__pb2.ExecuteStepRequest.SerializeToString,
+                response_deserializer=autoagent__api_dot_agent__service__pb2.ExecuteStepResponse.FromString,
                 _registered_method=True)
         self.StopSession = channel.unary_unary(
-                '/autoagent.api.AgentSessionService/StopSession',
-                request_serializer=autoagent_dot_api_dot_agent__service__pb2.StopSessionRequest.SerializeToString,
-                response_deserializer=autoagent_dot_api_dot_agent__service__pb2.StopSessionResponse.FromString,
+                '/autoagent_api.AgentSessionService/StopSession',
+                request_serializer=autoagent__api_dot_agent__service__pb2.StopSessionRequest.SerializeToString,
+                response_deserializer=autoagent__api_dot_agent__service__pb2.StopSessionResponse.FromString,
                 _registered_method=True)
 
 
@@ -76,24 +76,24 @@ def add_AgentSessionServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'StartSession': grpc.unary_unary_rpc_method_handler(
                     servicer.StartSession,
-                    request_deserializer=autoagent_dot_api_dot_agent__service__pb2.StartSessionRequest.FromString,
-                    response_serializer=autoagent_dot_api_dot_agent__service__pb2.StartSessionResponse.SerializeToString,
+                    request_deserializer=autoagent__api_dot_agent__service__pb2.StartSessionRequest.FromString,
+                    response_serializer=autoagent__api_dot_agent__service__pb2.StartSessionResponse.SerializeToString,
             ),
             'ExecuteStep': grpc.stream_stream_rpc_method_handler(
                     servicer.ExecuteStep,
-                    request_deserializer=autoagent_dot_api_dot_agent__service__pb2.ExecuteStepRequest.FromString,
-                    response_serializer=autoagent_dot_api_dot_agent__service__pb2.ExecuteStepResponse.SerializeToString,
+                    request_deserializer=autoagent__api_dot_agent__service__pb2.ExecuteStepRequest.FromString,
+                    response_serializer=autoagent__api_dot_agent__service__pb2.ExecuteStepResponse.SerializeToString,
             ),
             'StopSession': grpc.unary_unary_rpc_method_handler(
                     servicer.StopSession,
-                    request_deserializer=autoagent_dot_api_dot_agent__service__pb2.StopSessionRequest.FromString,
-                    response_serializer=autoagent_dot_api_dot_agent__service__pb2.StopSessionResponse.SerializeToString,
+                    request_deserializer=autoagent__api_dot_agent__service__pb2.StopSessionRequest.FromString,
+                    response_serializer=autoagent__api_dot_agent__service__pb2.StopSessionResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'autoagent.api.AgentSessionService', rpc_method_handlers)
+            'autoagent_api.AgentSessionService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('autoagent.api.AgentSessionService', rpc_method_handlers)
+    server.add_registered_method_handlers('autoagent_api.AgentSessionService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -121,9 +121,9 @@ class AgentSessionService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/autoagent.api.AgentSessionService/StartSession',
-            autoagent_dot_api_dot_agent__service__pb2.StartSessionRequest.SerializeToString,
-            autoagent_dot_api_dot_agent__service__pb2.StartSessionResponse.FromString,
+            '/autoagent_api.AgentSessionService/StartSession',
+            autoagent__api_dot_agent__service__pb2.StartSessionRequest.SerializeToString,
+            autoagent__api_dot_agent__service__pb2.StartSessionResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -148,9 +148,9 @@ class AgentSessionService(object):
         return grpc.experimental.stream_stream(
             request_iterator,
             target,
-            '/autoagent.api.AgentSessionService/ExecuteStep',
-            autoagent_dot_api_dot_agent__service__pb2.ExecuteStepRequest.SerializeToString,
-            autoagent_dot_api_dot_agent__service__pb2.ExecuteStepResponse.FromString,
+            '/autoagent_api.AgentSessionService/ExecuteStep',
+            autoagent__api_dot_agent__service__pb2.ExecuteStepRequest.SerializeToString,
+            autoagent__api_dot_agent__service__pb2.ExecuteStepResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -175,9 +175,9 @@ class AgentSessionService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/autoagent.api.AgentSessionService/StopSession',
-            autoagent_dot_api_dot_agent__service__pb2.StopSessionRequest.SerializeToString,
-            autoagent_dot_api_dot_agent__service__pb2.StopSessionResponse.FromString,
+            '/autoagent_api.AgentSessionService/StopSession',
+            autoagent__api_dot_agent__service__pb2.StopSessionRequest.SerializeToString,
+            autoagent__api_dot_agent__service__pb2.StopSessionResponse.FromString,
             options,
             channel_credentials,
             insecure,

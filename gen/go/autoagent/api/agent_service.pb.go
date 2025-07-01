@@ -4,7 +4,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        (unknown)
-// source: autoagent/api/agent_service.proto
+// source: autoagent_api/agent_service.proto
 
 package api
 
@@ -231,7 +231,7 @@ type StopSessionRequest struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	RequestId   string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	SessionId   string                 `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	FinalStatus FinalStatus            `protobuf:"varint,3,opt,name=final_status,json=finalStatus,proto3,enum=autoagent.api.FinalStatus" json:"final_status,omitempty"`
+	FinalStatus FinalStatus            `protobuf:"varint,3,opt,name=final_status,json=finalStatus,proto3,enum=autoagent_api.FinalStatus" json:"final_status,omitempty"`
 	// La logique applicative doit s'assurer que ce message n'est fourni que si final_status est SUCCESS.
 	CommitMessage string `protobuf:"bytes,4,opt,name=commit_message,json=commitMessage,proto3" json:"commit_message,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -512,7 +512,7 @@ func (*ExecuteStepResponse_Error) isExecuteStepResponse_Event() {}
 type StepResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Summary       string                 `protobuf:"bytes,1,opt,name=summary,proto3" json:"summary,omitempty"`
-	Status        ExecutionStatus        `protobuf:"varint,2,opt,name=status,proto3,enum=autoagent.api.ExecutionStatus" json:"status,omitempty"`
+	Status        ExecutionStatus        `protobuf:"varint,2,opt,name=status,proto3,enum=autoagent_api.ExecutionStatus" json:"status,omitempty"`
 	LastStdout    string                 `protobuf:"bytes,3,opt,name=last_stdout,json=lastStdout,proto3" json:"last_stdout,omitempty"`
 	LastStderr    string                 `protobuf:"bytes,4,opt,name=last_stderr,json=lastStderr,proto3" json:"last_stderr,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -580,7 +580,7 @@ func (x *StepResult) GetLastStderr() string {
 // Un chunk de log (stdout ou stderr).
 type LogChunk struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Stream        LogChunk_Stream        `protobuf:"varint,1,opt,name=stream,proto3,enum=autoagent.api.LogChunk_Stream" json:"stream,omitempty"`
+	Stream        LogChunk_Stream        `protobuf:"varint,1,opt,name=stream,proto3,enum=autoagent_api.LogChunk_Stream" json:"stream,omitempty"`
 	Content       []byte                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -634,12 +634,12 @@ var File_autoagent_api_agent_service_proto protoreflect.FileDescriptor
 
 const file_autoagent_api_agent_service_proto_rawDesc = "" +
 	"\n" +
-	"!autoagent/api/agent_service.proto\x12\rautoagent.api\x1a\x1aautoagent/api/common.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1egoogle/protobuf/duration.proto\"\xe0\x01\n" +
+	"!autoagent_api/agent_service.proto\x12\rautoagent_api\x1a\x1aautoagent_api/common.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1egoogle/protobuf/duration.proto\"\xe0\x01\n" +
 	"\x13StartSessionRequest\x12'\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\trequestId\x12H\n" +
-	"\ragent_profile\x18\x02 \x01(\v2\x1b.autoagent.api.AgentProfileB\x06\xbaH\x03\xc8\x01\x01R\fagentProfile\x12V\n" +
-	"\x11initial_workspace\x18\x03 \x01(\v2!.autoagent.api.WorkspaceReferenceB\x06\xbaH\x03\xc8\x01\x01R\x10initialWorkspace\">\n" +
+	"\ragent_profile\x18\x02 \x01(\v2\x1b.autoagent_api.AgentProfileB\x06\xbaH\x03\xc8\x01\x01R\fagentProfile\x12V\n" +
+	"\x11initial_workspace\x18\x03 \x01(\v2!.autoagent_api.WorkspaceReferenceB\x06\xbaH\x03\xc8\x01\x01R\x10initialWorkspace\">\n" +
 	"\x14StartSessionResponse\x12&\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\tsessionId\"\xdf\x01\n" +
@@ -648,10 +648,10 @@ const file_autoagent_api_agent_service_proto_rawDesc = "" +
 	"request_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\trequestId\x12&\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\tsessionId\x12G\n" +
-	"\ffinal_status\x18\x03 \x01(\x0e2\x1a.autoagent.api.FinalStatusB\b\xbaH\x05\x82\x01\x02\x10\x01R\vfinalStatus\x12/\n" +
+	"\ffinal_status\x18\x03 \x01(\x0e2\x1a.autoagent_api.FinalStatusB\b\xbaH\x05\x82\x01\x02\x10\x01R\vfinalStatus\x12/\n" +
 	"\x0ecommit_message\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x02R\rcommitMessage\"a\n" +
 	"\x13StopSessionResponse\x12J\n" +
-	"\x0ffinal_workspace\x18\x01 \x01(\v2!.autoagent.api.WorkspaceReferenceR\x0efinalWorkspace\"\xc9\x01\n" +
+	"\x0ffinal_workspace\x18\x01 \x01(\v2!.autoagent_api.WorkspaceReferenceR\x0efinalWorkspace\"\xc9\x01\n" +
 	"\x12ExecuteStepRequest\x12'\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\trequestId\x12&\n" +
@@ -661,20 +661,20 @@ const file_autoagent_api_agent_service_proto_rawDesc = "" +
 	"R\tdirective\x12;\n" +
 	"\atimeout\x18\x04 \x01(\v2\x19.google.protobuf.DurationB\x06\xbaH\x03\xc8\x01\x01R\atimeout\"\xc0\x01\n" +
 	"\x13ExecuteStepResponse\x126\n" +
-	"\tlog_chunk\x18\x01 \x01(\v2\x17.autoagent.api.LogChunkH\x00R\blogChunk\x123\n" +
-	"\x06result\x18\x02 \x01(\v2\x19.autoagent.api.StepResultH\x00R\x06result\x12,\n" +
-	"\x05error\x18\x03 \x01(\v2\x14.autoagent.api.ErrorH\x00R\x05errorB\x0e\n" +
+	"\tlog_chunk\x18\x01 \x01(\v2\x17.autoagent_api.LogChunkH\x00R\blogChunk\x123\n" +
+	"\x06result\x18\x02 \x01(\v2\x19.autoagent_api.StepResultH\x00R\x06result\x12,\n" +
+	"\x05error\x18\x03 \x01(\v2\x14.autoagent_api.ErrorH\x00R\x05errorB\x0e\n" +
 	"\x05event\x12\x05\xbaH\x02\b\x01\"\xb3\x01\n" +
 	"\n" +
 	"StepResult\x12!\n" +
 	"\asummary\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x05R\asummary\x12@\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x1e.autoagent.api.ExecutionStatusB\b\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x1f\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x1e.autoagent_api.ExecutionStatusB\b\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x1f\n" +
 	"\vlast_stdout\x18\x03 \x01(\tR\n" +
 	"lastStdout\x12\x1f\n" +
 	"\vlast_stderr\x18\x04 \x01(\tR\n" +
 	"lastStderr\"\xb7\x01\n" +
 	"\bLogChunk\x12@\n" +
-	"\x06stream\x18\x01 \x01(\x0e2\x1e.autoagent.api.LogChunk.StreamB\b\xbaH\x05\x82\x01\x02\x10\x01R\x06stream\x12!\n" +
+	"\x06stream\x18\x01 \x01(\x0e2\x1e.autoagent_api.LogChunk.StreamB\b\xbaH\x05\x82\x01\x02\x10\x01R\x06stream\x12!\n" +
 	"\acontent\x18\x02 \x01(\fB\a\xbaH\x04z\x02\x10\x01R\acontent\"F\n" +
 	"\x06Stream\x12\x16\n" +
 	"\x12STREAM_UNSPECIFIED\x10\x00\x12\x11\n" +
@@ -685,10 +685,10 @@ const file_autoagent_api_agent_service_proto_rawDesc = "" +
 	"\x14FINAL_STATUS_SUCCESS\x10\x01\x12\x18\n" +
 	"\x14FINAL_STATUS_FAILURE\x10\x022\x9e\x02\n" +
 	"\x13AgentSessionService\x12W\n" +
-	"\fStartSession\x12\".autoagent.api.StartSessionRequest\x1a#.autoagent.api.StartSessionResponse\x12X\n" +
-	"\vExecuteStep\x12!.autoagent.api.ExecuteStepRequest\x1a\".autoagent.api.ExecuteStepResponse(\x010\x01\x12T\n" +
-	"\vStopSession\x12!.autoagent.api.StopSessionRequest\x1a\".autoagent.api.StopSessionResponseB\x8a\x01\n" +
-	"\x11com.autoagent.apiB\x11AgentServiceProtoP\x01Z\rautoagent/api\xa2\x02\x03AAX\xaa\x02\rAutoagent.Api\xca\x02\rAutoagent\\Api\xe2\x02\x19Autoagent\\Api\\GPBMetadata\xea\x02\x0eAutoagent::Apib\x06proto3"
+	"\fStartSession\x12\".autoagent_api.StartSessionRequest\x1a#.autoagent_api.StartSessionResponse\x12X\n" +
+	"\vExecuteStep\x12!.autoagent_api.ExecuteStepRequest\x1a\".autoagent_api.ExecuteStepResponse(\x010\x01\x12T\n" +
+	"\vStopSession\x12!.autoagent_api.StopSessionRequest\x1a\".autoagent_api.StopSessionResponseB\x85\x01\n" +
+	"\x11com.autoagent_apiB\x11AgentServiceProtoP\x01Z\rautoagent/api\xa2\x02\x03AXX\xaa\x02\fAutoagentApi\xca\x02\fAutoagentApi\xe2\x02\x18AutoagentApi\\GPBMetadata\xea\x02\fAutoagentApib\x06proto3"
 
 var (
 	file_autoagent_api_agent_service_proto_rawDescOnce sync.Once
@@ -705,39 +705,39 @@ func file_autoagent_api_agent_service_proto_rawDescGZIP() []byte {
 var file_autoagent_api_agent_service_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_autoagent_api_agent_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_autoagent_api_agent_service_proto_goTypes = []any{
-	(FinalStatus)(0),             // 0: autoagent.api.FinalStatus
-	(LogChunk_Stream)(0),         // 1: autoagent.api.LogChunk.Stream
-	(*StartSessionRequest)(nil),  // 2: autoagent.api.StartSessionRequest
-	(*StartSessionResponse)(nil), // 3: autoagent.api.StartSessionResponse
-	(*StopSessionRequest)(nil),   // 4: autoagent.api.StopSessionRequest
-	(*StopSessionResponse)(nil),  // 5: autoagent.api.StopSessionResponse
-	(*ExecuteStepRequest)(nil),   // 6: autoagent.api.ExecuteStepRequest
-	(*ExecuteStepResponse)(nil),  // 7: autoagent.api.ExecuteStepResponse
-	(*StepResult)(nil),           // 8: autoagent.api.StepResult
-	(*LogChunk)(nil),             // 9: autoagent.api.LogChunk
-	(*AgentProfile)(nil),         // 10: autoagent.api.AgentProfile
-	(*WorkspaceReference)(nil),   // 11: autoagent.api.WorkspaceReference
+	(FinalStatus)(0),             // 0: autoagent_api.FinalStatus
+	(LogChunk_Stream)(0),         // 1: autoagent_api.LogChunk.Stream
+	(*StartSessionRequest)(nil),  // 2: autoagent_api.StartSessionRequest
+	(*StartSessionResponse)(nil), // 3: autoagent_api.StartSessionResponse
+	(*StopSessionRequest)(nil),   // 4: autoagent_api.StopSessionRequest
+	(*StopSessionResponse)(nil),  // 5: autoagent_api.StopSessionResponse
+	(*ExecuteStepRequest)(nil),   // 6: autoagent_api.ExecuteStepRequest
+	(*ExecuteStepResponse)(nil),  // 7: autoagent_api.ExecuteStepResponse
+	(*StepResult)(nil),           // 8: autoagent_api.StepResult
+	(*LogChunk)(nil),             // 9: autoagent_api.LogChunk
+	(*AgentProfile)(nil),         // 10: autoagent_api.AgentProfile
+	(*WorkspaceReference)(nil),   // 11: autoagent_api.WorkspaceReference
 	(*durationpb.Duration)(nil),  // 12: google.protobuf.Duration
-	(*Error)(nil),                // 13: autoagent.api.Error
-	(ExecutionStatus)(0),         // 14: autoagent.api.ExecutionStatus
+	(*Error)(nil),                // 13: autoagent_api.Error
+	(ExecutionStatus)(0),         // 14: autoagent_api.ExecutionStatus
 }
 var file_autoagent_api_agent_service_proto_depIdxs = []int32{
-	10, // 0: autoagent.api.StartSessionRequest.agent_profile:type_name -> autoagent.api.AgentProfile
-	11, // 1: autoagent.api.StartSessionRequest.initial_workspace:type_name -> autoagent.api.WorkspaceReference
-	0,  // 2: autoagent.api.StopSessionRequest.final_status:type_name -> autoagent.api.FinalStatus
-	11, // 3: autoagent.api.StopSessionResponse.final_workspace:type_name -> autoagent.api.WorkspaceReference
-	12, // 4: autoagent.api.ExecuteStepRequest.timeout:type_name -> google.protobuf.Duration
-	9,  // 5: autoagent.api.ExecuteStepResponse.log_chunk:type_name -> autoagent.api.LogChunk
-	8,  // 6: autoagent.api.ExecuteStepResponse.result:type_name -> autoagent.api.StepResult
-	13, // 7: autoagent.api.ExecuteStepResponse.error:type_name -> autoagent.api.Error
-	14, // 8: autoagent.api.StepResult.status:type_name -> autoagent.api.ExecutionStatus
-	1,  // 9: autoagent.api.LogChunk.stream:type_name -> autoagent.api.LogChunk.Stream
-	2,  // 10: autoagent.api.AgentSessionService.StartSession:input_type -> autoagent.api.StartSessionRequest
-	6,  // 11: autoagent.api.AgentSessionService.ExecuteStep:input_type -> autoagent.api.ExecuteStepRequest
-	4,  // 12: autoagent.api.AgentSessionService.StopSession:input_type -> autoagent.api.StopSessionRequest
-	3,  // 13: autoagent.api.AgentSessionService.StartSession:output_type -> autoagent.api.StartSessionResponse
-	7,  // 14: autoagent.api.AgentSessionService.ExecuteStep:output_type -> autoagent.api.ExecuteStepResponse
-	5,  // 15: autoagent.api.AgentSessionService.StopSession:output_type -> autoagent.api.StopSessionResponse
+	10, // 0: autoagent_api.StartSessionRequest.agent_profile:type_name -> autoagent_api.AgentProfile
+	11, // 1: autoagent_api.StartSessionRequest.initial_workspace:type_name -> autoagent_api.WorkspaceReference
+	0,  // 2: autoagent_api.StopSessionRequest.final_status:type_name -> autoagent_api.FinalStatus
+	11, // 3: autoagent_api.StopSessionResponse.final_workspace:type_name -> autoagent_api.WorkspaceReference
+	12, // 4: autoagent_api.ExecuteStepRequest.timeout:type_name -> google.protobuf.Duration
+	9,  // 5: autoagent_api.ExecuteStepResponse.log_chunk:type_name -> autoagent_api.LogChunk
+	8,  // 6: autoagent_api.ExecuteStepResponse.result:type_name -> autoagent_api.StepResult
+	13, // 7: autoagent_api.ExecuteStepResponse.error:type_name -> autoagent_api.Error
+	14, // 8: autoagent_api.StepResult.status:type_name -> autoagent_api.ExecutionStatus
+	1,  // 9: autoagent_api.LogChunk.stream:type_name -> autoagent_api.LogChunk.Stream
+	2,  // 10: autoagent_api.AgentSessionService.StartSession:input_type -> autoagent_api.StartSessionRequest
+	6,  // 11: autoagent_api.AgentSessionService.ExecuteStep:input_type -> autoagent_api.ExecuteStepRequest
+	4,  // 12: autoagent_api.AgentSessionService.StopSession:input_type -> autoagent_api.StopSessionRequest
+	3,  // 13: autoagent_api.AgentSessionService.StartSession:output_type -> autoagent_api.StartSessionResponse
+	7,  // 14: autoagent_api.AgentSessionService.ExecuteStep:output_type -> autoagent_api.ExecuteStepResponse
+	5,  // 15: autoagent_api.AgentSessionService.StopSession:output_type -> autoagent_api.StopSessionResponse
 	13, // [13:16] is the sub-list for method output_type
 	10, // [10:13] is the sub-list for method input_type
 	10, // [10:10] is the sub-list for extension type_name

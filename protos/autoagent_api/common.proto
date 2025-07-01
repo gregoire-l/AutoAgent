@@ -2,7 +2,7 @@
 
 syntax = "proto3";
 
-package autoagent.api;
+package autoagent_api;
 
 // Importe les définitions de règles de validation.
 import "buf/validate/validate.proto";

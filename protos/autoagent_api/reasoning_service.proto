@@ -2,9 +2,9 @@
 
 syntax = "proto3";
 
-package autoagent.api;
+package autoagent_api;
 
-import "autoagent/api/common.proto";
+import "autoagent_api/common.proto";
 import "buf/validate/validate.proto";
 
 // =============================================================================

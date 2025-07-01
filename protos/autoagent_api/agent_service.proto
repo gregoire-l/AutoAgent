@@ -1,9 +1,10 @@
 // agent_service.proto
 
 syntax = "proto3";
-package autoagent.api;
 
-import "autoagent/api/common.proto";
+package autoagent_api;
+
+import "autoagent_api/common.proto";
 import "buf/validate/validate.proto";
 import "google/protobuf/duration.proto";
 

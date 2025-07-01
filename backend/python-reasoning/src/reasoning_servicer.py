@@ -2,7 +2,7 @@ import logging
 import random
 import uuid
 
-from autoagent.api import common_pb2, reasoning_service_pb2, reasoning_service_pb2_grpc
+from autoagent_api import common_pb2, reasoning_service_pb2, reasoning_service_pb2_grpc
 
 
 class ReasoningServiceServicer(reasoning_service_pb2_grpc.ReasoningServiceServicer):

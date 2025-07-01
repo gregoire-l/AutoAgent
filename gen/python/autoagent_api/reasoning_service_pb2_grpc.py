@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from autoagent.api import reasoning_service_pb2 as autoagent_dot_api_dot_reasoning__service__pb2
+from autoagent_api import reasoning_service_pb2 as autoagent__api_dot_reasoning__service__pb2
 
 
 class ReasoningServiceStub(object):
@@ -21,14 +21,14 @@ class ReasoningServiceStub(object):
             channel: A grpc.Channel.
         """
         self.GenerateOptions = channel.unary_unary(
-                '/autoagent.api.ReasoningService/GenerateOptions',
-                request_serializer=autoagent_dot_api_dot_reasoning__service__pb2.GenerateOptionsRequest.SerializeToString,
-                response_deserializer=autoagent_dot_api_dot_reasoning__service__pb2.GenerateOptionsResponse.FromString,
+                '/autoagent_api.ReasoningService/GenerateOptions',
+                request_serializer=autoagent__api_dot_reasoning__service__pb2.GenerateOptionsRequest.SerializeToString,
+                response_deserializer=autoagent__api_dot_reasoning__service__pb2.GenerateOptionsResponse.FromString,
                 _registered_method=True)
         self.ScoreOptions = channel.unary_unary(
-                '/autoagent.api.ReasoningService/ScoreOptions',
-                request_serializer=autoagent_dot_api_dot_reasoning__service__pb2.ScoreOptionsRequest.SerializeToString,
-                response_deserializer=autoagent_dot_api_dot_reasoning__service__pb2.ScoreOptionsResponse.FromString,
+                '/autoagent_api.ReasoningService/ScoreOptions',
+                request_serializer=autoagent__api_dot_reasoning__service__pb2.ScoreOptionsRequest.SerializeToString,
+                response_deserializer=autoagent__api_dot_reasoning__service__pb2.ScoreOptionsResponse.FromString,
                 _registered_method=True)
 
 
@@ -60,19 +60,19 @@ def add_ReasoningServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GenerateOptions': grpc.unary_unary_rpc_method_handler(
                     servicer.GenerateOptions,
-                    request_deserializer=autoagent_dot_api_dot_reasoning__service__pb2.GenerateOptionsRequest.FromString,
-                    response_serializer=autoagent_dot_api_dot_reasoning__service__pb2.GenerateOptionsResponse.SerializeToString,
+                    request_deserializer=autoagent__api_dot_reasoning__service__pb2.GenerateOptionsRequest.FromString,
+                    response_serializer=autoagent__api_dot_reasoning__service__pb2.GenerateOptionsResponse.SerializeToString,
             ),
             'ScoreOptions': grpc.unary_unary_rpc_method_handler(
                     servicer.ScoreOptions,
-                    request_deserializer=autoagent_dot_api_dot_reasoning__service__pb2.ScoreOptionsRequest.FromString,
-                    response_serializer=autoagent_dot_api_dot_reasoning__service__pb2.ScoreOptionsResponse.SerializeToString,
+                    request_deserializer=autoagent__api_dot_reasoning__service__pb2.ScoreOptionsRequest.FromString,
+                    response_serializer=autoagent__api_dot_reasoning__service__pb2.ScoreOptionsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'autoagent.api.ReasoningService', rpc_method_handlers)
+            'autoagent_api.ReasoningService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('autoagent.api.ReasoningService', rpc_method_handlers)
+    server.add_registered_method_handlers('autoagent_api.ReasoningService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -99,9 +99,9 @@ class ReasoningService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/autoagent.api.ReasoningService/GenerateOptions',
-            autoagent_dot_api_dot_reasoning__service__pb2.GenerateOptionsRequest.SerializeToString,
-            autoagent_dot_api_dot_reasoning__service__pb2.GenerateOptionsResponse.FromString,
+            '/autoagent_api.ReasoningService/GenerateOptions',
+            autoagent__api_dot_reasoning__service__pb2.GenerateOptionsRequest.SerializeToString,
+            autoagent__api_dot_reasoning__service__pb2.GenerateOptionsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -126,9 +126,9 @@ class ReasoningService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/autoagent.api.ReasoningService/ScoreOptions',
-            autoagent_dot_api_dot_reasoning__service__pb2.ScoreOptionsRequest.SerializeToString,
-            autoagent_dot_api_dot_reasoning__service__pb2.ScoreOptionsResponse.FromString,
+            '/autoagent_api.ReasoningService/ScoreOptions',
+            autoagent__api_dot_reasoning__service__pb2.ScoreOptionsRequest.SerializeToString,
+            autoagent__api_dot_reasoning__service__pb2.ScoreOptionsResponse.FromString,
             options,
             channel_credentials,
             insecure,

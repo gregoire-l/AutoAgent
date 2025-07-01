@@ -3,8 +3,9 @@ import os
 import time
 from concurrent import futures
 
+from autoagent_api import reasoning_service_pb2_grpc
 import grpc
-from autoagent.api import reasoning_service_pb2_grpc
+
 from dotenv import load_dotenv
 from reasoning_servicer import ReasoningServiceServicer
 
@@ -37,3 +38,4 @@ def serve():
 
 if __name__ == "__main__":
     serve()
+

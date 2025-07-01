@@ -10,11 +10,10 @@ authors = [{ name = "AutoAgent Core Team", email = "dev@autoagent.is" }]
 license = { text = "Proprietary" }
 requires-python = ">=3.11"
 dependencies = [
-    "grpcio>=1.60.0,<2.0.0",
-    "protobuf>=5.26.0,<6.0.0",
-    "buf-validate-python>=1.4.0,<2.0.0",
-    "google-api-python-client>=2.122.0,<3.0.0",
+    "grpcio>=1.60.0",
+    "protobuf>=5.26.0",
+    "google-api-python-client>=2.122.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
+[tool.setuptools]
+packages = ["autoagent_api"]

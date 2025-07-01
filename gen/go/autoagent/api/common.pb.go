@@ -4,7 +4,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        (unknown)
-// source: autoagent/api/common.proto
+// source: autoagent_api/common.proto
 
 package api
 
@@ -368,7 +368,7 @@ var File_autoagent_api_common_proto protoreflect.FileDescriptor
 
 const file_autoagent_api_common_proto_rawDesc = "" +
 	"\n" +
-	"\x1aautoagent/api/common.proto\x12\rautoagent.api\x1a\x1bbuf/validate/validate.proto\"\xb5\x01\n" +
+	"\x1aautoagent_api/common.proto\x12\rautoagent_api\x1a\x1bbuf/validate/validate.proto\"\xb5\x01\n" +
 	"\x12WorkspaceReference\x129\n" +
 	"\n" +
 	"repository\x18\x01 \x01(\tB\x19\xbaH\x16r\x14\x10\x012\x10^[a-zA-Z0-9_-]+$R\n" +
@@ -381,7 +381,7 @@ const file_autoagent_api_common_proto_rawDesc = "" +
 	"\fAgentProfile\x12&\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\tprofileId\x12D\n" +
-	"\x0erequired_tools\x18\x02 \x03(\v2\x13.autoagent.api.ToolB\b\xbaH\x05\x92\x01\x02\b\x01R\rrequiredTools\"J\n" +
+	"\x0erequired_tools\x18\x02 \x03(\v2\x13.autoagent_api.ToolB\b\xbaH\x05\x92\x01\x02\b\x01R\rrequiredTools\"J\n" +
 	"\rPotentialTask\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1f\n" +
 	"\x06prompt\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\n" +
@@ -393,8 +393,8 @@ const file_autoagent_api_common_proto_rawDesc = "" +
 	"\x1cEXECUTION_STATUS_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18EXECUTION_STATUS_SUCCESS\x10\x01\x12\x1c\n" +
 	"\x18EXECUTION_STATUS_FAILURE\x10\x02\x12\x1c\n" +
-	"\x18EXECUTION_STATUS_TIMEOUT\x10\x03B\x84\x01\n" +
-	"\x11com.autoagent.apiB\vCommonProtoP\x01Z\rautoagent/api\xa2\x02\x03AAX\xaa\x02\rAutoagent.Api\xca\x02\rAutoagent\\Api\xe2\x02\x19Autoagent\\Api\\GPBMetadata\xea\x02\x0eAutoagent::Apib\x06proto3"
+	"\x18EXECUTION_STATUS_TIMEOUT\x10\x03B\x7f\n" +
+	"\x11com.autoagent_apiB\vCommonProtoP\x01Z\rautoagent/api\xa2\x02\x03AXX\xaa\x02\fAutoagentApi\xca\x02\fAutoagentApi\xe2\x02\x18AutoagentApi\\GPBMetadata\xea\x02\fAutoagentApib\x06proto3"
 
 var (
 	file_autoagent_api_common_proto_rawDescOnce sync.Once
@@ -411,15 +411,15 @@ func file_autoagent_api_common_proto_rawDescGZIP() []byte {
 var file_autoagent_api_common_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_autoagent_api_common_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_autoagent_api_common_proto_goTypes = []any{
-	(ExecutionStatus)(0),       // 0: autoagent.api.ExecutionStatus
-	(*WorkspaceReference)(nil), // 1: autoagent.api.WorkspaceReference
-	(*Tool)(nil),               // 2: autoagent.api.Tool
-	(*AgentProfile)(nil),       // 3: autoagent.api.AgentProfile
-	(*PotentialTask)(nil),      // 4: autoagent.api.PotentialTask
-	(*Error)(nil),              // 5: autoagent.api.Error
+	(ExecutionStatus)(0),       // 0: autoagent_api.ExecutionStatus
+	(*WorkspaceReference)(nil), // 1: autoagent_api.WorkspaceReference
+	(*Tool)(nil),               // 2: autoagent_api.Tool
+	(*AgentProfile)(nil),       // 3: autoagent_api.AgentProfile
+	(*PotentialTask)(nil),      // 4: autoagent_api.PotentialTask
+	(*Error)(nil),              // 5: autoagent_api.Error
 }
 var file_autoagent_api_common_proto_depIdxs = []int32{
-	2, // 0: autoagent.api.AgentProfile.required_tools:type_name -> autoagent.api.Tool
+	2, // 0: autoagent_api.AgentProfile.required_tools:type_name -> autoagent_api.Tool
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

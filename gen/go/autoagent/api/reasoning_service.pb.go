@@ -4,7 +4,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        (unknown)
-// source: autoagent/api/reasoning_service.proto
+// source: autoagent_api/reasoning_service.proto
 
 package api
 
@@ -475,7 +475,7 @@ var File_autoagent_api_reasoning_service_proto protoreflect.FileDescriptor
 
 const file_autoagent_api_reasoning_service_proto_rawDesc = "" +
 	"\n" +
-	"%autoagent/api/reasoning_service.proto\x12\rautoagent.api\x1a\x1aautoagent/api/common.proto\x1a\x1bbuf/validate/validate.proto\"\x88\x02\n" +
+	"%autoagent_api/reasoning_service.proto\x12\rautoagent_api\x1a\x1aautoagent_api/common.proto\x1a\x1bbuf/validate/validate.proto\"\x88\x02\n" +
 	"\x16GenerateOptionsRequest\x12'\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\trequestId\x12'\n" +
@@ -487,23 +487,23 @@ const file_autoagent_api_reasoning_service_proto_rawDesc = "" +
 	"\x14generation_directive\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\n" +
 	"R\x13generationDirective\"j\n" +
 	"\x17GenerateOptionsResponse\x12O\n" +
-	"\x0fpotential_tasks\x18\x01 \x03(\v2\x1c.autoagent.api.PotentialTaskB\b\xbaH\x05\x92\x01\x02\b\x01R\x0epotentialTasks\"\xdc\x01\n" +
+	"\x0fpotential_tasks\x18\x01 \x03(\v2\x1c.autoagent_api.PotentialTaskB\b\xbaH\x05\x92\x01\x02\b\x01R\x0epotentialTasks\"\xdc\x01\n" +
 	"\x13ScoreOptionsRequest\x12'\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\trequestId\x12'\n" +
 	"\n" +
 	"mission_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\tmissionId\x12%\n" +
 	"\x0eshared_context\x18\x03 \x01(\tR\rsharedContext\x12L\n" +
-	"\x0etasks_to_score\x18\x04 \x03(\v2\x1c.autoagent.api.PotentialTaskB\b\xbaH\x05\x92\x01\x02\b\x01R\ftasksToScore\"V\n" +
+	"\x0etasks_to_score\x18\x04 \x03(\v2\x1c.autoagent_api.PotentialTaskB\b\xbaH\x05\x92\x01\x02\b\x01R\ftasksToScore\"V\n" +
 	"\x14ScoreOptionsResponse\x12>\n" +
-	"\aresults\x18\x01 \x03(\v2\x1a.autoagent.api.ScoreResultB\b\xbaH\x05\x92\x01\x02\b\x01R\aresults\"\x9f\x01\n" +
+	"\aresults\x18\x01 \x03(\v2\x1a.autoagent_api.ScoreResultB\b\xbaH\x05\x92\x01\x02\b\x01R\aresults\"\x9f\x01\n" +
 	"\vScoreResult\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x127\n" +
-	"\asuccess\x18\x02 \x01(\v2\x1b.autoagent.api.ScoredOptionH\x00R\asuccess\x12,\n" +
-	"\x05error\x18\x03 \x01(\v2\x14.autoagent.api.ErrorH\x00R\x05errorB\x0f\n" +
+	"\asuccess\x18\x02 \x01(\v2\x1b.autoagent_api.ScoredOptionH\x00R\asuccess\x12,\n" +
+	"\x05error\x18\x03 \x01(\v2\x14.autoagent_api.ErrorH\x00R\x05errorB\x0f\n" +
 	"\x06result\x12\x05\xbaH\x02\b\x01\"\xa5\x01\n" +
 	"\fScoredOption\x122\n" +
-	"\x05score\x18\x01 \x01(\v2\x14.autoagent.api.ScoreB\x06\xbaH\x03\xc8\x01\x01R\x05score\x12%\n" +
+	"\x05score\x18\x01 \x01(\v2\x14.autoagent_api.ScoreB\x06\xbaH\x03\xc8\x01\x01R\x05score\x12%\n" +
 	"\trationale\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\n" +
 	"R\trationale\x12:\n" +
 	"\x10model_confidence\x18\x03 \x01(\x02B\x0f\xbaH\f\n" +
@@ -520,9 +520,9 @@ const file_autoagent_api_reasoning_service_proto_rawDesc = "" +
 	"\n" +
 	"\x1d\x00\x00 A-\x00\x00\x80?R\rpredictedCost2\xcd\x01\n" +
 	"\x10ReasoningService\x12`\n" +
-	"\x0fGenerateOptions\x12%.autoagent.api.GenerateOptionsRequest\x1a&.autoagent.api.GenerateOptionsResponse\x12W\n" +
-	"\fScoreOptions\x12\".autoagent.api.ScoreOptionsRequest\x1a#.autoagent.api.ScoreOptionsResponseB\x8e\x01\n" +
-	"\x11com.autoagent.apiB\x15ReasoningServiceProtoP\x01Z\rautoagent/api\xa2\x02\x03AAX\xaa\x02\rAutoagent.Api\xca\x02\rAutoagent\\Api\xe2\x02\x19Autoagent\\Api\\GPBMetadata\xea\x02\x0eAutoagent::Apib\x06proto3"
+	"\x0fGenerateOptions\x12%.autoagent_api.GenerateOptionsRequest\x1a&.autoagent_api.GenerateOptionsResponse\x12W\n" +
+	"\fScoreOptions\x12\".autoagent_api.ScoreOptionsRequest\x1a#.autoagent_api.ScoreOptionsResponseB\x89\x01\n" +
+	"\x11com.autoagent_apiB\x15ReasoningServiceProtoP\x01Z\rautoagent/api\xa2\x02\x03AXX\xaa\x02\fAutoagentApi\xca\x02\fAutoagentApi\xe2\x02\x18AutoagentApi\\GPBMetadata\xea\x02\fAutoagentApib\x06proto3"
 
 var (
 	file_autoagent_api_reasoning_service_proto_rawDescOnce sync.Once
@@ -538,27 +538,27 @@ func file_autoagent_api_reasoning_service_proto_rawDescGZIP() []byte {
 
 var file_autoagent_api_reasoning_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_autoagent_api_reasoning_service_proto_goTypes = []any{
-	(*GenerateOptionsRequest)(nil),  // 0: autoagent.api.GenerateOptionsRequest
-	(*GenerateOptionsResponse)(nil), // 1: autoagent.api.GenerateOptionsResponse
-	(*ScoreOptionsRequest)(nil),     // 2: autoagent.api.ScoreOptionsRequest
-	(*ScoreOptionsResponse)(nil),    // 3: autoagent.api.ScoreOptionsResponse
-	(*ScoreResult)(nil),             // 4: autoagent.api.ScoreResult
-	(*ScoredOption)(nil),            // 5: autoagent.api.ScoredOption
-	(*Score)(nil),                   // 6: autoagent.api.Score
-	(*PotentialTask)(nil),           // 7: autoagent.api.PotentialTask
-	(*Error)(nil),                   // 8: autoagent.api.Error
+	(*GenerateOptionsRequest)(nil),  // 0: autoagent_api.GenerateOptionsRequest
+	(*GenerateOptionsResponse)(nil), // 1: autoagent_api.GenerateOptionsResponse
+	(*ScoreOptionsRequest)(nil),     // 2: autoagent_api.ScoreOptionsRequest
+	(*ScoreOptionsResponse)(nil),    // 3: autoagent_api.ScoreOptionsResponse
+	(*ScoreResult)(nil),             // 4: autoagent_api.ScoreResult
+	(*ScoredOption)(nil),            // 5: autoagent_api.ScoredOption
+	(*Score)(nil),                   // 6: autoagent_api.Score
+	(*PotentialTask)(nil),           // 7: autoagent_api.PotentialTask
+	(*Error)(nil),                   // 8: autoagent_api.Error
 }
 var file_autoagent_api_reasoning_service_proto_depIdxs = []int32{
-	7, // 0: autoagent.api.GenerateOptionsResponse.potential_tasks:type_name -> autoagent.api.PotentialTask
-	7, // 1: autoagent.api.ScoreOptionsRequest.tasks_to_score:type_name -> autoagent.api.PotentialTask
-	4, // 2: autoagent.api.ScoreOptionsResponse.results:type_name -> autoagent.api.ScoreResult
-	5, // 3: autoagent.api.ScoreResult.success:type_name -> autoagent.api.ScoredOption
-	8, // 4: autoagent.api.ScoreResult.error:type_name -> autoagent.api.Error
-	6, // 5: autoagent.api.ScoredOption.score:type_name -> autoagent.api.Score
-	0, // 6: autoagent.api.ReasoningService.GenerateOptions:input_type -> autoagent.api.GenerateOptionsRequest
-	2, // 7: autoagent.api.ReasoningService.ScoreOptions:input_type -> autoagent.api.ScoreOptionsRequest
-	1, // 8: autoagent.api.ReasoningService.GenerateOptions:output_type -> autoagent.api.GenerateOptionsResponse
-	3, // 9: autoagent.api.ReasoningService.ScoreOptions:output_type -> autoagent.api.ScoreOptionsResponse
+	7, // 0: autoagent_api.GenerateOptionsResponse.potential_tasks:type_name -> autoagent_api.PotentialTask
+	7, // 1: autoagent_api.ScoreOptionsRequest.tasks_to_score:type_name -> autoagent_api.PotentialTask
+	4, // 2: autoagent_api.ScoreOptionsResponse.results:type_name -> autoagent_api.ScoreResult
+	5, // 3: autoagent_api.ScoreResult.success:type_name -> autoagent_api.ScoredOption
+	8, // 4: autoagent_api.ScoreResult.error:type_name -> autoagent_api.Error
+	6, // 5: autoagent_api.ScoredOption.score:type_name -> autoagent_api.Score
+	0, // 6: autoagent_api.ReasoningService.GenerateOptions:input_type -> autoagent_api.GenerateOptionsRequest
+	2, // 7: autoagent_api.ReasoningService.ScoreOptions:input_type -> autoagent_api.ScoreOptionsRequest
+	1, // 8: autoagent_api.ReasoningService.GenerateOptions:output_type -> autoagent_api.GenerateOptionsResponse
+	3, // 9: autoagent_api.ReasoningService.ScoreOptions:output_type -> autoagent_api.ScoreOptionsResponse
 	8, // [8:10] is the sub-list for method output_type
 	6, // [6:8] is the sub-list for method input_type
 	6, // [6:6] is the sub-list for extension type_name
