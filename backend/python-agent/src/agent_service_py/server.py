@@ -3,6 +3,8 @@ import signal
 import sys
 import time
 from concurrent import futures
+from types import FrameType
+from typing import Optional
 
 import grpc
 from dotenv import load_dotenv
@@ -17,7 +19,7 @@ def serve():
     """Starts the gRPC server and waits for termination."""
     load_dotenv()
 
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server: grpc.Server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
     # Register servicers
     agent_service_pb2_grpc.add_AgentSessionServiceServicer_to_server( # type: ignore
@@ -36,7 +38,7 @@ def serve():
     server.start()
 
     # Graceful shutdown handling
-    def handle_shutdown(signum, frame):
+    def handle_shutdown(signum: int, frame: Optional[FrameType]) -> None:
         print("SIGTERM received, shutting down gracefully...")
         server.stop(10).wait()  # 10-second grace period
         print("Server shut down.")

@@ -1,7 +1,8 @@
 import subprocess
 import uuid
-from typing import Iterable
+from typing import Iterator
 
+import grpc
 import autoagent_api.agent_service_pb2 as agent_pb2
 import autoagent_api.agent_service_pb2_grpc as agent_grpc
 import autoagent_api.common_pb2 as common_pb2
@@ -15,7 +16,7 @@ class AgentSessionServiceServicer(agent_grpc.AgentSessionServiceServicer):
     def StartSession(
         self,
         request: agent_pb2.StartSessionRequest,
-        context,
+        context: grpc.ServicerContext,
     ) -> agent_pb2.StartSessionResponse:
         """
         Doesn't start a sandbox yet. Returns a random UUID as session_id.
@@ -26,14 +27,14 @@ class AgentSessionServiceServicer(agent_grpc.AgentSessionServiceServicer):
 
     def ExecuteStep(
         self,
-        request_iterator: Iterable[agent_pb2.ExecuteStepRequest],
-        context,
+        request_iterator: Iterator[agent_pb2.ExecuteStepRequest],
+        context: grpc.ServicerContext,
     ) -> agent_pb2.ExecuteStepResponse:
-        """ 
+        """
         Ignores the directive. Executes a hardcoded 'echo' command.
         This is a client-streaming RPC, but for Phase 0, we only read the first message.
         """
-        request = next(request_iterator)
+        request: agent_pb2.ExecuteStepRequest = next(request_iterator)
         print(f"Executing step for session: {request.session_id}")
         
         # Phase 0: Execute a simple, hardcoded command.
@@ -90,7 +91,7 @@ class AgentSessionServiceServicer(agent_grpc.AgentSessionServiceServicer):
     def StopSession(
         self,
         request: agent_pb2.StopSessionRequest,
-        context,
+        context: grpc.ServicerContext,
     ) -> agent_pb2.StopSessionResponse:
         """
         Does nothing for now. Returns an empty response.
