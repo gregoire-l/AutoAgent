@@ -4,7 +4,7 @@ import time
 from concurrent import futures
 
 import grpc
-import autoagent_api
+from autoagent.api import reasoning_service_pb2_grpc
 from dotenv import load_dotenv
 from reasoning_servicer import ReasoningServiceServicer
 
