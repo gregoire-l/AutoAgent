@@ -3,13 +3,15 @@ services:
   #   build:
   #     context: ./go-core
   #     dockerfile: Dockerfile
-  #   container_name: autoagent_go_core
+  #   container_name: autoagent-go-core
   #   ports:
   #     - "${GO_CORE_HOST_PORT}:${GO_CORE_INTERNAL_GRPC_PORT}"
   #   environment:
   #     - GO_CORE_GRPC_PORT=${GO_CORE_INTERNAL_GRPC_PORT}
-  #     - PYTHON_IA_HOST=${PYTHON_IA_HOST}
-  #     - PYTHON_IA_GRPC_PORT=${PYTHON_IA_INTERNAL_GRPC_PORT}
+  #     - PYTHON_REASONING_HOST=${PYTHON_REASONING_HOST}
+  #     - PYTHON_REASONING_GRPC_PORT=${PYTHON_REASONING_INTERNAL_GRPC_PORT}
+  #     - PYTHON_AGENT_HOST=${PYTHON_AGENT_HOST}
+  #     - PYTHON_AGENT_GRPC_PORT=${PYTHON_AGENT_INTERNAL_GRPC_PORT}
   #     - NEO4J_BOLT_URL=${NEO4J_BOLT_URL}
   #     - NEO4J_USER=${NEO4J_USER}
   #     - NEO4J_PASSWORD=${NEO4J_PASSWORD}
@@ -23,39 +25,54 @@ services:
   #     - neo4j
   #     - temporal
   #     - minio
-  #     - python-ia # For startup order convenience; services should handle connection retries.
+  #     - python-reasoning # For startup order convenience; services should handle connection retries.
+  #     - python-agent
   #   restart: unless-stopped
   #   # Add volumes for source code mapping for live reload if desired during development:
   #   # volumes:
   #   #   - ./go-core:/app
   #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock # Allows go-core to manage Docker containers (e.g., for sandboxing)
+  #     - /var/run/docker.sock:/var/run/docker.sock
 
-  # python-ia:
-  #   build:
-  #     context: ./python-ia
-  #     dockerfile: Dockerfile
-  #   container_name: autoagent_python_ia
-  #   ports:
-  #     - "${PYTHON_IA_HOST_PORT}:${PYTHON_IA_INTERNAL_GRPC_PORT}"
-  #   environment:
-  #     - PYTHON_IA_GRPC_PORT=${PYTHON_IA_INTERNAL_GRPC_PORT}
-  #     - GO_CORE_HOST=${GO_CORE_HOST}
-  #     - GO_CORE_GRPC_PORT=${GO_CORE_INTERNAL_GRPC_PORT}
-  #     - LLM_PROVIDER_API_KEY_GENERIC=${LLM_PROVIDER_API_KEY_GENERIC}
-  #     # Add other specific LLM provider keys as needed by LiteLLM
-  #     # - OPENAI_API_KEY=${OPENAI_API_KEY}
-  #     - MINIO_ENDPOINT=${MINIO_ENDPOINT}
-  #     - MINIO_ROOT_USER=${MINIO_ROOT_USER} # Or specific access/secret keys for MinIO
-  #     - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-  #   networks:
-  #     - autoagent-net
-    # depends_on:
-      # - go-core # Circular dependency if strictly enforced for startup. Services should retry.
-    # restart: unless-stopped
-    # volumes:
-      # Add volumes for source code mapping for live reload if desired during development:
-      # - ./python-ia:/app
+  python-reasoning:
+    build:
+      context: ./python-reasoning
+      dockerfile: Dockerfile
+    container_name: autoagent-python-reasoning
+    ports:
+      - "${PYTHON_REASONING_HOST_PORT}:${PYTHON_REASONING_INTERNAL_GRPC_PORT}"
+    environment:
+      - PYTHON_IA_INTERNAL_GRPC_PORT=${PYTHON_REASONING_INTERNAL_GRPC_PORT}
+      - LLM_PROVIDER_API_KEY_GENERIC=${LLM_PROVIDER_API_KEY_GENERIC}
+      # Add other LLM provider keys as needed by LiteLLM
+      # - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - autoagent-net
+    restart: unless-stopped
+    volumes:
+      # Live-reload for development
+      - ./python-reasoning/src:/app/src
+      - ../gen/python:/app/gen/python
+
+  python-agent:
+    build:
+      context: ./python-agent
+      dockerfile: Dockerfile
+    container_name: autoagent-python-agent
+    ports:
+      - "${PYTHON_AGENT_HOST_PORT}:${PYTHON_AGENT_INTERNAL_GRPC_PORT}"
+    environment:
+      - PYTHON_IA_INTERNAL_GRPC_PORT=${PYTHON_AGENT_INTERNAL_GRPC_PORT}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    networks:
+      - autoagent-net
+    restart: unless-stopped
+    volumes:
+      # Live-reload for development
+      - ./python-agent/src:/app/src
+      - ../gen/python:/app/gen/python
 
   neo4j:
     image: neo4j # Using a specific version is recommended over :latest
