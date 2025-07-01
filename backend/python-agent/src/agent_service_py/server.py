@@ -7,7 +7,7 @@ from concurrent import futures
 import grpc
 from dotenv import load_dotenv
 
-from autoagent.api import agent_service_pb2_grpc
+from autoagent_api import agent_service_pb2_grpc
 from agent_service_py.services.agent_service import AgentSessionServiceServicer
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
@@ -20,7 +20,7 @@ def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
     # Register servicers
-    agent_service_pb2_grpc.add_AgentSessionServiceServicer_to_server(
+    agent_service_pb2_grpc.add_AgentSessionServiceServicer_to_server( # type: ignore
         AgentSessionServiceServicer(), server
     )
 

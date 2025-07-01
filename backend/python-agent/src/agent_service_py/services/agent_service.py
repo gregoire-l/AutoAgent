@@ -2,9 +2,9 @@ import subprocess
 import uuid
 from typing import Iterable
 
-import autoagent.api.agent_service_pb2 as agent_pb2
-import autoagent.api.agent_service_pb2_grpc as agent_grpc
-import autoagent.api.common_pb2 as common_pb2
+import autoagent_api.agent_service_pb2 as agent_pb2
+import autoagent_api.agent_service_pb2_grpc as agent_grpc
+import autoagent_api.common_pb2 as common_pb2
 
 
 class AgentSessionServiceServicer(agent_grpc.AgentSessionServiceServicer):
@@ -29,7 +29,7 @@ class AgentSessionServiceServicer(agent_grpc.AgentSessionServiceServicer):
         request_iterator: Iterable[agent_pb2.ExecuteStepRequest],
         context,
     ) -> agent_pb2.ExecuteStepResponse:
-        """
+        """ 
         Ignores the directive. Executes a hardcoded 'echo' command.
         This is a client-streaming RPC, but for Phase 0, we only read the first message.
         """
@@ -52,30 +52,37 @@ class AgentSessionServiceServicer(agent_grpc.AgentSessionServiceServicer):
 
             # Create a successful step result
             step_result = agent_pb2.StepResult(
-                final_status=agent_pb2.FinalStatus.FINAL_STATUS_SUCCESS,
+                status=common_pb2.EXECUTION_STATUS_SUCCESS,
                 summary=f"Command executed successfully: {command}",
-                stdout=result.stdout,
-                stderr=result.stderr,
-                exit_code=result.returncode,
+                last_stdout=result.stdout,
+                last_stderr=result.stderr,
             )
 
         except subprocess.CalledProcessError as e:
             # Create a failed step result
             step_result = agent_pb2.StepResult(
-                final_status=agent_pb2.FinalStatus.FINAL_STATUS_ERROR,
+                status=common_pb2.EXECUTION_STATUS_FAILURE,
                 summary=f"Command failed: {command}",
-                stdout=e.stdout,
-                stderr=e.stderr,
-                exit_code=e.returncode,
+                last_stdout=e.stdout,
+                last_stderr=e.stderr,
             )
         except subprocess.TimeoutExpired as e:
             # Handle timeout
+
+            if e.stdout:
+                last_stdout = e.stdout.decode('utf-8')
+            else:
+                last_stdout = "Timeout expired."
+            if e.stderr:
+                last_stderr = e.stderr.decode('utf-8')
+            else:
+                last_stderr = "Timeout expired."
+
             step_result = agent_pb2.StepResult(
-                final_status=agent_pb2.FinalStatus.FINAL_STATUS_ERROR,
+                status=common_pb2.EXECUTION_STATUS_TIMEOUT,
                 summary=f"Command timed out: {command}",
-                stdout=e.stdout or "",
-                stderr=e.stderr or "Timeout expired.",
-                exit_code=-1, # Convention for timeout
+                last_stdout=last_stdout,
+                last_stderr=last_stderr,
             )
 
         return agent_pb2.ExecuteStepResponse(result=step_result)
