@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-service"
+version = "0.1.0"
+description = "AutoAgent Agent Session Service for executing tasks."
+authors = [{ name = "AutoAgent Core Team", email = "dev@autoagent.is" }]
+license = { text = "Proprietary" }
+requires-python = ">=3.11"
+dependencies = [
+    # Install our generated gRPC code as a dependency
+    "autoagent-api @ file@../../gen/python",
+    # Core libraries
+    "grpcio>=1.60.0,<2.0.0",
+    "python-dotenv>=1.0.0,<2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "grpcio-tools>=1.60.0,<2.0.0",
+    "mypy>=1.9.0,<2.0.0",
+    "types-protobuf",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
