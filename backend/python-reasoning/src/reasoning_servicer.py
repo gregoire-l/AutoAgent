@@ -1,7 +1,9 @@
 import logging
 import random
 import uuid
+from typing import List
 
+import grpc
 from autoagent_api import common_pb2, reasoning_service_pb2, reasoning_service_pb2_grpc
 
 
@@ -12,7 +14,9 @@ class ReasoningServiceServicer(reasoning_service_pb2_grpc.ReasoningServiceServic
     """
 
     def GenerateOptions(
-        self, request: reasoning_service_pb2.GenerateOptionsRequest, context
+        self,
+        request: reasoning_service_pb2.GenerateOptionsRequest,
+        context: grpc.ServicerContext,
     ) -> reasoning_service_pb2.GenerateOptionsResponse:
         """
         Generates a hardcoded list of potential tasks as a placeholder.
@@ -34,14 +38,16 @@ class ReasoningServiceServicer(reasoning_service_pb2_grpc.ReasoningServiceServic
         )
 
     def ScoreOptions(
-        self, request: reasoning_service_pb2.ScoreOptionsRequest, context
+        self,
+        request: reasoning_service_pb2.ScoreOptionsRequest,
+        context: grpc.ServicerContext,
     ) -> reasoning_service_pb2.ScoreOptionsResponse:
         """
         Scores a list of potential tasks with random scores as a placeholder.
         """
         logging.info(f"Received ScoreOptions request: {request.request_id}")
 
-        results = []
+        results: List[reasoning_service_pb2.ScoreResult] = []
         for task in request.tasks_to_score:
             # Phase 0: Return random scores
             score = reasoning_service_pb2.Score(
