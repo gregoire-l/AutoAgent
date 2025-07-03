@@ -5,6 +5,9 @@ WORKDIR /app
 # Add generated protobuf code to PYTHONPATH for imports to work correctly.
 ENV PYTHONPATH "${PYTHONPATH}:/app/gen/python"
 
+# Copy generated Python code
+COPY gen/python ./gen/python
+
 # Copy and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -16,3 +19,4 @@ COPY src/ ./src
 # The gRPC server will be started by main.py
 # The port is configured via environment variables in docker-compose.yml
 CMD ["python", "src/main.py"]
+
