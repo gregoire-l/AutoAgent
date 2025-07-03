@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reasoning-service"
+version = "0.1.0"
+description = "AutoAgent Reasoning Service for generating and scoring options."
+authors = [{ name = "AutoAgent Core Team", email = "dev@autoagent.is" }]
+license = { text = "Proprietary" }
+requires-python = ">=3.11"
+dependencies = [
+    # Install our generated gRPC code as a dependency
+    "autoagent-api @ file@../../gen/python",
+    # Core libraries
+    "grpcio",
+    "protobuf",
+    "buf-validate-python",
+    "litellm",
+    "python-dotenv",
+]
+
+[project.optional-dependencies]
+dev = ["grpcio-tools", "types-protobuf"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
