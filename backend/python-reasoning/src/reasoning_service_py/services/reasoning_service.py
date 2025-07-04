@@ -43,7 +43,7 @@ class ReasoningServiceServicer(reasoning_service_pb2_grpc.ReasoningServiceServic
         context: grpc.ServicerContext,
     ) -> reasoning_service_pb2.ScoreOptionsResponse:
         """
-        Scores a list of potential tasks with random scores as a placeholder.
+        Scores a list of potential tasks with random values as a placeholder.
         """
         logging.info(f"Received ScoreOptions request: {request.request_id}")
 

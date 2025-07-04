@@ -8,7 +8,7 @@ from autoagent_api import reasoning_service_pb2_grpc
 import grpc
 
 from dotenv import load_dotenv
-from reasoning_servicer import ReasoningServiceServicer
+from reasoning_service_py.services.reasoning_service import ReasoningServiceServicer
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -40,4 +40,3 @@ def serve():
 
 if __name__ == "__main__":
     serve()
-

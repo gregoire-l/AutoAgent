@@ -1,3 +1,4 @@
+import logging
 import subprocess
 import uuid
 from typing import Iterator
@@ -22,7 +23,7 @@ class AgentSessionServiceServicer(agent_grpc.AgentSessionServiceServicer):
         Doesn't start a sandbox yet. Returns a random UUID as session_id.
         """
         session_id = str(uuid.uuid4())
-        print(f"Started session: {session_id}")
+        logging.info(f"Started session: {session_id}")
         return agent_pb2.StartSessionResponse(session_id=session_id)
 
     def ExecuteStep(
@@ -35,7 +36,7 @@ class AgentSessionServiceServicer(agent_grpc.AgentSessionServiceServicer):
         This is a client-streaming RPC, but for Phase 0, we only read the first message.
         """
         request: agent_pb2.ExecuteStepRequest = next(request_iterator)
-        print(f"Executing step for session: {request.session_id}")
+        logging.info(f"Executing step for session: {request.session_id}")
         
         # Phase 0: Execute a simple, hardcoded command.
         command = 'echo "Hello World from Phase 0 Agent"'
@@ -96,5 +97,5 @@ class AgentSessionServiceServicer(agent_grpc.AgentSessionServiceServicer):
         """
         Does nothing for now. Returns an empty response.
         """
-        print(f"Stopping session: {request.session_id}")
+        logging.info(f"Stopping session: {request.session_id}")
         return agent_pb2.StopSessionResponse()
