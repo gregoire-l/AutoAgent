@@ -1,38 +1,40 @@
 services:
-  # go-core:
-  #   build:
-  #     context: ./go-core
-  #     dockerfile: Dockerfile
-  #   container_name: autoagent-go-core
-  #   ports:
-  #     - "${GO_CORE_HOST_PORT}:${GO_CORE_INTERNAL_GRPC_PORT}"
-  #   environment:
-  #     - GO_CORE_GRPC_PORT=${GO_CORE_INTERNAL_GRPC_PORT}
-  #     - PYTHON_REASONING_HOST=${PYTHON_REASONING_HOST}
-  #     - PYTHON_REASONING_GRPC_PORT=${PYTHON_REASONING_INTERNAL_GRPC_PORT}
-  #     - PYTHON_AGENT_HOST=${PYTHON_AGENT_HOST}
-  #     - PYTHON_AGENT_GRPC_PORT=${PYTHON_AGENT_INTERNAL_GRPC_PORT}
-  #     - NEO4J_BOLT_URL=${NEO4J_BOLT_URL}
-  #     - NEO4J_USER=${NEO4J_USER}
-  #     - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-  #     - TEMPORAL_GRPC_ENDPOINT=${TEMPORAL_GRPC_ENDPOINT}
-  #     - MINIO_ENDPOINT=${MINIO_ENDPOINT}
-  #     - MINIO_ROOT_USER=${MINIO_ROOT_USER} # Or specific access/secret keys for MinIO
-  #     - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-  #   networks:
-  #     - autoagent-net
-  #   depends_on:
-  #     - neo4j
-  #     - temporal
-  #     - minio
-  #     - python-reasoning # For startup order convenience; services should handle connection retries.
-  #     - python-agent
-  #   restart: unless-stopped
-  #   # Add volumes for source code mapping for live reload if desired during development:
-  #   # volumes:
-  #   #   - ./go-core:/app
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
+  go-core:
+    build:
+      context: ./go-core
+      dockerfile: Dockerfile
+    container_name: autoagent-go-core
+    ports:
+      - "${GO_CORE_HOST_PORT}:${GO_CORE_INTERNAL_GRPC_PORT}"
+    environment:
+      - GO_CORE_GRPC_PORT=${GO_CORE_INTERNAL_GRPC_PORT}
+      - PYTHON_REASONING_HOST=${PYTHON_REASONING_HOST}
+      - PYTHON_REASONING_GRPC_PORT=${PYTHON_REASONING_INTERNAL_GRPC_PORT}
+      - PYTHON_AGENT_HOST=${PYTHON_AGENT_HOST}
+      - PYTHON_AGENT_GRPC_PORT=${PYTHON_AGENT_INTERNAL_GRPC_PORT}
+      - NEO4J_BOLT_URL=${NEO4J_BOLT_URL}
+      - NEO4J_USER=${NEO4J_USER}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - TEMPORAL_GRPC_ENDPOINT=${TEMPORAL_GRPC_ENDPOINT}
+      - TEMPORAL_NAMESPACE=${TEMPORAL_NAMESPACE}
+      - TEMPORAL_TASK_QUEUE=${TEMPORAL_TASK_QUEUE}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER} # Or specific access/secret keys for MinIO
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    networks:
+      - autoagent-net
+    depends_on:
+      - neo4j
+      - temporal
+      - minio
+      - python-reasoning # For startup order convenience; services should handle connection retries.
+      - python-agent
+    restart: unless-stopped
+    # Add volumes for source code mapping for live reload if desired during development:
+    # volumes:
+    #   - ./go-core:/app
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   python-reasoning:
     build:
