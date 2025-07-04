@@ -97,12 +97,37 @@ poetry-add-test service dependency:
 #=============================================================================
 
 # Lance tous les tests (toutes catégories)
-test: test-python
+test: test-go test-python
 
-# Tests Go
-test-go:
-    @echo "🧪 Running Go tests..."
-    cd backend/go-core && go test ./...
+# Tests Go - Tous les tests
+test-go: test-go-unit test-go-functional
+
+# Tests Go unitaires (rapides, sans dépendances externes)
+test-go-unit:
+    @echo "🧪 Running Go unit tests..."
+    cd backend/go-core && go test ./tests/unit/... -v
+
+# Tests Go fonctionnels (avec testcontainers)
+test-go-functional:
+    @echo "🧪 Running Go functional tests..."
+    cd backend/go-core && go test ./tests/functional/... -v
+
+# Tests Go avec couverture
+test-go-coverage:
+    @echo "📊 Running Go tests with coverage..."
+    cd backend/go-core && go test ./... -coverprofile=coverage.out
+    cd backend/go-core && go tool cover -html=coverage.out -o coverage.html
+    @echo "📊 Coverage report generated: backend/go-core/coverage.html"
+
+# Tests Go en mode watch (développement)
+test-go-watch:
+    @echo "👀 Running Go tests in watch mode (Ctrl+C to stop)..."
+    cd backend/go-core && find . -name "*.go" | entr -r go test ./tests/unit/... -v
+
+# Tests Go - Vérification rapide (unitaires seulement)
+test-go-quick:
+    @echo "⚡ Running quick Go unit tests..."
+    cd backend/go-core && go test ./tests/unit/... -short
 
 # Tests Python (tous niveaux)
 test-python: test-python-unit test-python-integration
