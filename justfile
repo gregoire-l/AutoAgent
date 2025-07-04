@@ -188,6 +188,32 @@ test-e2e:
     cd backend/python-agent && poetry run pytest tests/e2e/ -v
     cd backend/python-reasoning && poetry run pytest tests/e2e/ -v
 
+# Test d'intégration backend complet (Phase 4)
+test-e2e-backend:
+    @echo "🚀 Running full backend E2E integration test..."
+    @echo "📋 This test validates the complete Phase 0 skeleton functionality:"
+    @echo "   • All services start and are healthy"
+    @echo "   • Mission workflow executes successfully"
+    @echo "   • Neo4j contains expected Mission and Task nodes"
+    @echo "   • Temporal workflow completes successfully"
+    @echo ""
+    cd backend/tests && go mod tidy
+    cd backend/tests && go test -v ./integration/... -timeout=10m
+
+# Démarre l'environnement de test (pour debug)
+test-e2e-backend-start:
+    @echo "🚀 Starting test environment..."
+    cd backend && docker-compose --profile test up -d
+    @echo "✅ Test environment started"
+    @echo "🌐 Access URLs will be displayed by docker-compose"
+    @echo "💡 Use 'just test-e2e-backend-clean' to stop and clean up"
+
+# Nettoie l'environnement de test
+test-e2e-backend-clean:
+    @echo "🧹 Cleaning up test environment..."
+    cd backend && docker-compose --profile test down -v --remove-orphans
+    @echo "✅ Test environment cleaned up"
+
 #=============================================================================
 # Développement et Débogage
 #=============================================================================

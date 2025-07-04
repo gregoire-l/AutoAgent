@@ -1,5 +1,9 @@
 services:
+  # =============================================================================
+  # Development Services (Profile: dev)
+  # =============================================================================
   go-core:
+    profiles: ["dev"]
     build:
       context: ./go-core
       dockerfile: Dockerfile
@@ -37,6 +41,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   python-reasoning:
+    profiles: ["dev"]
     build:
       context: ..
       dockerfile: backend/python-reasoning/Dockerfile
@@ -57,6 +62,7 @@ services:
       - ../gen/python:/app/gen/python
 
   python-agent:
+    profiles: ["dev"]
     build:
       context: ..
       dockerfile: backend/python-agent/Dockerfile
@@ -77,6 +83,7 @@ services:
       - ../gen/python:/app/gen/python
 
   neo4j:
+    profiles: ["dev"]
     image: neo4j # Using a specific version is recommended over :latest
     container_name: autoagent_neo4j
     ports:
@@ -108,6 +115,7 @@ services:
       retries: 5
 
   temporal-postgresql:
+    profiles: ["dev"]
     container_name: temporal-postgresql
     environment:
       POSTGRES_PASSWORD: ${TEMPORAL_POSTGRES_PASSWORD}
@@ -127,6 +135,7 @@ services:
       - temporal-postgresql_data:/var/lib/postgresql/data
 
   temporal:
+    profiles: ["dev"]
     image: temporalio/auto-setup
     container_name: autoagent_temporal
     ports:
@@ -168,6 +177,7 @@ services:
       retries: 5
 
   temporal-admin-tools:
+    profiles: ["dev"]
     container_name: autoagent_temporal_admin_tools
     image: temporalio/admin-tools
     depends_on:
@@ -182,6 +192,7 @@ services:
     tty: true
 
   temporal-ui:
+    profiles: ["dev"]
     container_name: autoagent_temporal_ui
     depends_on:
       temporal:
@@ -207,6 +218,7 @@ services:
       retries: 5
 
   minio:
+    profiles: ["dev"]
     image: minio/minio # Using a specific version is recommended
     container_name: autoagent_minio
     ports:
@@ -233,13 +245,186 @@ services:
       timeout: 5s
       retries: 5
 
+  # =============================================================================
+  # Test Services (Profile: test)
+  # =============================================================================
+  go-core-test:
+    profiles: ["test"]
+    build:
+      context: ./go-core
+      dockerfile: Dockerfile
+    container_name: autoagent-go-core-test
+    environment:
+      - GO_CORE_GRPC_PORT=${GO_CORE_INTERNAL_GRPC_PORT}
+      - PYTHON_REASONING_HOST=python-reasoning-test
+      - PYTHON_REASONING_GRPC_PORT=${PYTHON_REASONING_INTERNAL_GRPC_PORT}
+      - PYTHON_AGENT_HOST=python-agent-test
+      - PYTHON_AGENT_GRPC_PORT=${PYTHON_AGENT_INTERNAL_GRPC_PORT}
+      - NEO4J_BOLT_URL=bolt://neo4j-test:7687
+      - NEO4J_USER=${NEO4J_USER}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - TEMPORAL_GRPC_ENDPOINT=temporal-test:7233
+      - TEMPORAL_NAMESPACE=${TEMPORAL_NAMESPACE}
+      - TEMPORAL_TASK_QUEUE=${TEMPORAL_TASK_QUEUE}
+      - MINIO_ENDPOINT=http://minio-test:9000
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    networks:
+      - test-network
+    depends_on:
+      - neo4j-test
+      - temporal-test
+      - minio-test
+      - python-reasoning-test
+      - python-agent-test
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  python-reasoning-test:
+    profiles: ["test"]
+    build:
+      context: ..
+      dockerfile: backend/python-reasoning/Dockerfile
+    container_name: autoagent-python-reasoning-test
+    environment:
+      - PYTHON_IA_INTERNAL_GRPC_PORT=${PYTHON_REASONING_INTERNAL_GRPC_PORT}
+      - LLM_PROVIDER_API_KEY_GENERIC=${LLM_PROVIDER_API_KEY_GENERIC}
+    networks:
+      - test-network
+    volumes:
+      - ./python-reasoning/src:/app/src
+      - ../gen/python:/app/gen/python
+
+  python-agent-test:
+    profiles: ["test"]
+    build:
+      context: ..
+      dockerfile: backend/python-agent/Dockerfile
+    container_name: autoagent-python-agent-test
+    environment:
+      - PYTHON_AGENT_INTERNAL_GRPC_PORT=${PYTHON_AGENT_INTERNAL_GRPC_PORT}
+      - MINIO_ENDPOINT=http://minio-test:9000
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    networks:
+      - test-network
+    volumes:
+      - ./python-agent/src:/app/src
+      - ../gen/python:/app/gen/python
+
+  neo4j-test:
+    profiles: ["test"]
+    image: neo4j
+    container_name: autoagent_neo4j_test
+    ports:
+      - "0:7474" # Dynamic port for Neo4j Browser
+      - "0:7687" # Dynamic port for Bolt connector
+    volumes:
+      - neo4j_test_data:/data
+    environment:
+      - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
+      - NEO4J_PLUGINS=${NEO4J_PLUGINS}
+    networks:
+      - test-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --quiet --tries=1 --spider http://localhost:7474 || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  temporal-postgresql-test:
+    profiles: ["test"]
+    container_name: temporal-postgresql-test
+    environment:
+      POSTGRES_PASSWORD: ${TEMPORAL_POSTGRES_PASSWORD}
+      POSTGRES_USER: ${TEMPORAL_POSTGRES_USER}
+    image: postgres
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TEMPORAL_POSTGRES_USER} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - temporal_postgresql_test_data:/var/lib/postgresql/data
+
+  temporal-test:
+    profiles: ["test"]
+    image: temporalio/auto-setup
+    container_name: autoagent_temporal_test
+    ports:
+      - "0:8080" # Dynamic port for Temporal Web UI
+      - "0:7233" # Dynamic port for Temporal Frontend gRPC
+    depends_on:
+      temporal-postgresql-test:
+        condition: service_healthy
+    environment:
+      - TEMPORAL_ADDRESS=temporal-test:7233
+      - TEMPORAL_CLI_ADDRESS=temporal-test:7233
+      - DB=postgres12
+      - POSTGRES_SEEDS=temporal-postgresql-test
+      - DB_PORT=5432
+      - POSTGRES_USER=${TEMPORAL_POSTGRES_USER}
+      - POSTGRES_PWD=${TEMPORAL_POSTGRES_PASSWORD}
+    networks:
+      - test-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "temporal operator cluster health --address temporal-test:7233 || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio-test:
+    profiles: ["test"]
+    image: minio/minio
+    container_name: autoagent_minio_test
+    ports:
+      - "0:9000" # Dynamic port for MinIO API
+      - "0:9001" # Dynamic port for MinIO Console
+    volumes:
+      - minio_test_data:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    networks:
+      - test-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:9000/minio/health/live || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 networks:
   autoagent-net:
+    profiles: ["dev"]
+    driver: bridge
+  test-network:
+    profiles: ["test"]
     driver: bridge
 
 volumes:
+  # Development volumes
   neo4j_data: # Persists Neo4j data
   minio_data: # Persists MinIO data
   temporal-postgresql_data: # Persists PostgreSQL data for Temporal
   elasticsearch_data: # Persists Elasticsearch data for Temporal
   # temporal_data: # This was for SQLite, not needed with PostgreSQL
+
+  # Test volumes (isolated from dev)
+  neo4j_test_data: # Persists Neo4j test data
+  minio_test_data: # Persists MinIO test data
+  temporal_postgresql_test_data: # Persists PostgreSQL test data for Temporal
