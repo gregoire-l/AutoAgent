@@ -21,33 +21,33 @@ help:
 # Démarre tous les services en mode détaché
 up:
     @echo "🔄 Starting all services..."
-    cd {{ BACKEND_DIR }} && docker compose up --build -d
+    cd {{ BACKEND_DIR }} && sudo docker compose up --build -d
 
 # Démarre un service spécifique
 up-service service:
     @echo "🔄 Starting {{ service }}..."
-    cd {{ BACKEND_DIR }} && docker compose up --build -d {{ service }}
+    cd {{ BACKEND_DIR }} && sudo docker compose up --build -d {{ service }}
 
 # Arrête tous les services
 down:
     @echo "🛑 Stopping all services..."
-    cd {{ BACKEND_DIR }} && docker compose down
+    cd {{ BACKEND_DIR }} && sudo docker compose down
 
 # Affiche les logs de tous les services
 logs:
     @echo "📋 Showing logs for all services..."
-    cd {{ BACKEND_DIR }} && docker compose logs -f
+    cd {{ BACKEND_DIR }} && sudo docker compose logs -f
 
 # Logs d'un service spécifique
 logs-service service:
     @echo "📋 Showing logs for {{ service }}..."
-    cd {{ BACKEND_DIR }} && docker compose logs -f {{ service }}
+    cd {{ BACKEND_DIR }} && sudo docker compose logs -f {{ service }}
 
 # Nettoie complètement l'environnement (volumes, réseaux...)
 clean: down
     @echo "🧹 Cleaning up Docker environment..."
-    cd {{ BACKEND_DIR }} && docker compose down -v --remove-orphans
-    docker system prune -f
+    cd {{ BACKEND_DIR }} && sudo docker compose down -v --remove-orphans
+    sudo docker system prune -f
 
 #=============================================================================
 # Génération de Code
@@ -116,17 +116,17 @@ rebuild service:
 # Ouvre un shell dans un container en cours d'exécution
 shell service:
     @echo "🐚 Opening shell in {{ service }} container..."
-    cd {{ BACKEND_DIR }} && docker compose exec {{ service }} /bin/bash
+    cd {{ BACKEND_DIR }} && sudo docker compose exec {{ service }} /bin/bash
 
 # Affiche le statut de tous les services
 status:
     @echo "📊 Service status:"
-    cd {{ BACKEND_DIR }} && docker compose ps
+    cd {{ BACKEND_DIR }} && sudo docker compose ps
 
 # Affiche les ressources utilisées par les containers
 stats:
     @echo "📈 Container resource usage:"
-    docker stats --no-stream
+    sudo docker stats --no-stream
 
 #=============================================================================
 # Maintenance et Nettoyage
@@ -135,13 +135,13 @@ stats:
 # Nettoie les images Docker inutilisées
 clean-images:
     @echo "🗑️  Cleaning unused Docker images..."
-    docker image prune -f
+    sudo docker image prune -f
 
 # Nettoie tout (containers, images, volumes, networks)
 clean-all: down
     @echo "🧹 Deep cleaning Docker environment..."
     cd {{ BACKEND_DIR }} && docker compose down -v --remove-orphans
-    docker system prune -a -f --volumes
+    sudo docker system prune -a -f --volumes
 
 # Redémarre complètement l'environnement
 restart: down up
@@ -154,12 +154,12 @@ restart: down up
 # Vérifie la syntaxe des fichiers Docker Compose
 validate:
     @echo "✅ Validating Docker Compose configuration..."
-    cd {{ BACKEND_DIR }} && docker compose config
+    cd {{ BACKEND_DIR }} && sudo docker compose config
 
 # Affiche les variables d'environnement utilisées
 env:
     @echo "🔍 Environment variables:"
-    cd {{ BACKEND_DIR }} && docker compose config --services
+    cd {{ BACKEND_DIR }} && sudo docker compose config --services
 
 # Lance un linter sur le code Python
 lint-python:

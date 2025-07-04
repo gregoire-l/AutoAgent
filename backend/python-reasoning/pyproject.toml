@@ -5,10 +5,7 @@ description = "AutoAgent Reasoning Service for generating and scoring options."
 authors = ["AutoAgent Core Team <dev@autoagent.is>"]
 license = "Proprietary"
 
-packages = [
-    { include = "reasoning_servicer", from = "src" },
-    { include = "main", from = "src" },
-]
+packages = [{ include = "reasoning_servicer", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"

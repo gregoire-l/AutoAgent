@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import time
 from concurrent import futures
 
@@ -34,6 +35,7 @@ def serve():
     except KeyboardInterrupt:
         server.stop(0)
         logging.info("Server stopped")
+        sys.exit(0)
 
 
 if __name__ == "__main__":
