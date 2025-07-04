@@ -55,7 +55,7 @@ def serve():
             time.sleep(_ONE_DAY_IN_SECONDS)
     except KeyboardInterrupt:
         print("KeyboardInterrupt received, shutting down...")
-        server.stop(0)
+        server.stop(3)
         print("Server shut down.")
         sys.exit(0)
 

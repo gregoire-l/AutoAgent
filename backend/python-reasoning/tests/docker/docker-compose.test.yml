@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  python-reasoning-test:
+    build:
+      context: ../../../
+      dockerfile: backend/python-reasoning/Dockerfile
+    environment:
+      - PYTHON_IA_INTERNAL_GRPC_PORT=50052
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "50052:50052"
+    volumes:
+      - ../../src:/app/src
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import grpc; grpc.insecure_channel('localhost:50052').get_state()"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  python-agent-test:
+    build:
+      context: ../../../
+      dockerfile: backend/python-agent/Dockerfile
+    environment:
+      - PYTHON_AGENT_INTERNAL_GRPC_PORT=50051
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "50051:50051"
+    volumes:
+      - ../../../python-agent/src:/app/src
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import grpc; grpc.insecure_channel('localhost:50051').get_state()"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+networks:
+  test-network:
+    driver: bridge

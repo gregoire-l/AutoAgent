@@ -76,16 +76,27 @@ poetry-install:
     cd backend/python-agent && poetry install
     cd backend/python-reasoning && poetry install
 
+# Installe les dépendances de test
+poetry-install-test:
+    @echo "📦 Installing test dependencies..."
+    cd backend/python-agent && poetry install --with test
+    cd backend/python-reasoning && poetry install --with test
+
 # Ajoute une dépendance à un service spécifique
 poetry-add service dependency:
     @echo "➕ Adding {{ dependency }} to {{ service }}..."
     cd backend/{{ service }} && poetry add {{ dependency }}
 
+# Ajoute une dépendance de test à un service spécifique
+poetry-add-test service dependency:
+    @echo "➕ Adding test dependency {{ dependency }} to {{ service }}..."
+    cd backend/{{ service }} && poetry add --group test {{ dependency }}
+
 #=============================================================================
 # Tests
 #=============================================================================
 
-# Lance tous les tests
+# Lance tous les tests (toutes catégories)
 test: test-go test-python
 
 # Tests Go
@@ -93,16 +104,64 @@ test-go:
     @echo "🧪 Running Go tests..."
     cd backend/go-core && go test ./...
 
-# Tests Python
-test-python:
-    @echo "🧪 Running Python tests..."
-    cd backend/python-agent && poetry run pytest
-    cd backend/python-reasoning && poetry run pytest
+# Tests Python (tous niveaux)
+test-python: test-python-unit test-python-integration
+
+# Tests Python unitaires rapides
+test-python-unit:
+    @echo "🧪 Running Python unit tests..."
+    cd backend/python-agent && poetry run pytest tests/unit/ -v
+    cd backend/python-reasoning && poetry run pytest tests/unit/ -v
+
+# Tests Python d'intégration
+test-python-integration:
+    @echo "🧪 Running Python integration tests..."
+    cd backend/python-agent && poetry run pytest tests/integration/ -v
+    cd backend/python-reasoning && poetry run pytest tests/integration/ -v
+
+# Tests Python avec Docker
+test-python-docker:
+    @echo "🧪 Running Python Docker tests..."
+    cd backend/python-agent && poetry run pytest tests/integration/test_grpc_docker.py -v
+    cd backend/python-reasoning && poetry run pytest tests/integration/test_grpc_docker.py -v
+
+# Tests de validation Buf protovalidate
+test-python-validation:
+    @echo "🧪 Running Buf protovalidate tests..."
+    cd backend/python-agent && poetry run pytest tests/unit/test_protobuf_validation.py -v
+    cd backend/python-reasoning && poetry run pytest tests/unit/test_protobuf_validation.py -v
+
+# Tests avec couverture de code
+test-python-coverage:
+    @echo "🧪 Running Python tests with coverage..."
+    cd backend/python-agent && poetry run pytest --cov=src --cov-report=html --cov-report=term
+    cd backend/python-reasoning && poetry run pytest --cov=src --cov-report=html --cov-report=term
+
+# Tests en parallèle (plus rapide)
+test-python-parallel:
+    @echo "🧪 Running Python tests in parallel..."
+    cd backend/python-agent && poetry run pytest -n auto
+    cd backend/python-reasoning && poetry run pytest -n auto
 
 # Tests d'un service spécifique
 test-service service:
     @echo "🧪 Running tests for {{ service }}..."
     cd backend/{{ service }} && poetry run pytest
+
+# Tests d'un service spécifique par niveau
+test-service-unit service:
+    @echo "🧪 Running unit tests for {{ service }}..."
+    cd backend/{{ service }} && poetry run pytest tests/unit/ -v
+
+test-service-integration service:
+    @echo "🧪 Running integration tests for {{ service }}..."
+    cd backend/{{ service }} && poetry run pytest tests/integration/ -v
+
+# Tests end-to-end avec live-reload
+test-e2e:
+    @echo "🧪 Running end-to-end tests..."
+    cd backend/python-agent && poetry run pytest tests/e2e/ -v
+    cd backend/python-reasoning && poetry run pytest tests/e2e/ -v
 
 #=============================================================================
 # Développement et Débogage
@@ -172,3 +231,41 @@ format-python:
     @echo "🎨 Formatting Python code..."
     cd backend/python-agent && poetry run black src/
     cd backend/python-reasoning && poetry run black src/
+
+# Formate le code de test Python
+format-python-tests:
+    @echo "🎨 Formatting Python test code..."
+    cd backend/python-agent && poetry run black tests/
+    cd backend/python-reasoning && poetry run black tests/
+
+# Nettoie les fichiers de cache de test
+clean-test-cache:
+    @echo "🧹 Cleaning test cache..."
+    find backend/ -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+    find backend/ -name "*.pyc" -delete 2>/dev/null || true
+    find backend/ -name ".pytest_cache" -type d -exec rm -rf {} + 2>/dev/null || true
+    find backend/ -name "htmlcov" -type d -exec rm -rf {} + 2>/dev/null || true
+    find backend/ -name ".coverage" -delete 2>/dev/null || true
+
+# Vérifie la qualité du code de test
+lint-python-tests:
+    @echo "🔍 Linting Python test code..."
+    cd backend/python-agent && poetry run mypy tests/ || true
+    cd backend/python-reasoning && poetry run mypy tests/ || true
+
+# Génère un rapport de couverture HTML
+test-coverage-html:
+    @echo "📊 Generating HTML coverage report..."
+    cd backend/python-agent && poetry run pytest --cov=src --cov-report=html
+    cd backend/python-reasoning && poetry run pytest --cov=src --cov-report=html
+    @echo "📊 Coverage reports generated in htmlcov/ directories"
+
+# Teste et génère un rapport complet
+test-report: clean-test-cache test-python-coverage
+    @echo "📋 Complete test report generated!"
+
+# Commande de développement : tests rapides en boucle
+test-watch:
+    @echo "👀 Running tests in watch mode (Ctrl+C to stop)..."
+    cd backend/python-agent && poetry run pytest tests/unit/ --tb=short -q || true
+    cd backend/python-reasoning && poetry run pytest tests/unit/ --tb=short -q || true
