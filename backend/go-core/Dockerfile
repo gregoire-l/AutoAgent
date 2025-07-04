@@ -17,10 +17,9 @@ RUN go mod download && go mod verify
 COPY . .
 
 # Build the Go application
-# Adjust the output path or build flags as needed.
-# Assuming main package is at the root of /app (current directory).
+# Build from the cmd/server directory where main.go is located
 # CGO_ENABLED=0 for static binary, GOOS/GOARCH for cross-compilation if needed.
-RUN CGO_ENABLED=0 go build -v -o /app/go-core-server .
+RUN CGO_ENABLED=0 go build -v -o /app/go-core-server ./cmd/server
 
 # --- Final Stage ---
 # Use a minimal base image for the final application
