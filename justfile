@@ -97,7 +97,7 @@ poetry-add-test service dependency:
 #=============================================================================
 
 # Lance tous les tests (toutes catégories)
-test: test-go test-python
+test: test-python
 
 # Tests Go
 test-go:

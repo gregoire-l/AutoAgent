@@ -13,6 +13,11 @@ import autoagent_api.common_pb2 as common_pb2
 from reasoning_service_py.services.reasoning_service import ReasoningServiceServicer  # type: ignore[import-untyped]
 
 
+def float_equals(a: float, b: float, epsilon: float = 1e-4) -> bool:
+    """Compare two floats with epsilon precision."""
+    return abs(a - b) < epsilon
+
+
 class TestReasoningServiceUnit:
     """Tests unitaires du service Reasoning."""
 
@@ -115,22 +120,22 @@ class TestReasoningServiceUnit:
         
         # Vérifier que random.uniform a été appelé avec les bons paramètres
         expected_calls = [
-            ((0.1, 0.9),),      # predicted_complexity
-            ((0.5, 1.0),),      # predicted_success_probability  
-            ((1, 10),),         # predicted_cost
-            ((0.5, 1.0),)       # model_confidence
+            (0.1, 0.9),      # predicted_complexity
+            (0.5, 1.0),      # predicted_success_probability
+            (1, 10),         # predicted_cost
+            (0.5, 1.0)       # model_confidence
         ]
-        
+
         actual_calls = [call[0] for call in mock_random.call_args_list]
         assert actual_calls == expected_calls
         
         # Vérifier que les valeurs mockées sont utilisées
         result = response.results[0]
         score = result.success.score
-        assert score.predicted_complexity == 0.5
-        assert score.predicted_success_probability == 0.8
-        assert score.predicted_cost == 5.0
-        assert result.success.model_confidence == 0.7
+        assert float_equals(score.predicted_complexity, 0.5)
+        assert float_equals(score.predicted_success_probability, 0.8)
+        assert float_equals(score.predicted_cost, 5.0)
+        assert float_equals(result.success.model_confidence, 0.7)
 
     @patch('reasoning_service_py.services.reasoning_service.logging')
     def test_score_options_logs_request_id(

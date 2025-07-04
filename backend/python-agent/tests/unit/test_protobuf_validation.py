@@ -10,6 +10,7 @@ from google.protobuf.duration_pb2 import Duration
 
 import autoagent_api.agent_service_pb2 as agent_pb2
 import autoagent_api.common_pb2 as common_pb2
+import protovalidate
 
 
 class TestBufProtoValidationAgent:
@@ -36,15 +37,19 @@ class TestBufProtoValidationAgent:
 
     def test_agent_profile_required_field(self) -> None:
         """Test que agent_profile est requis."""
-        with pytest.raises(Exception):  # La validation exacte dépend de l'implémentation buf
-            agent_pb2.StartSessionRequest(
-                request_id=str(uuid.uuid4()),
-                # agent_profile manquant - devrait échouer
-                initial_workspace=common_pb2.WorkspaceReference(
-                    repository="test-repo",
-                    branch="main"
-                )
+        # Create a message without the required agent_profile field
+        invalid_request = agent_pb2.StartSessionRequest(
+            request_id=str(uuid.uuid4()),
+            # agent_profile manquant - devrait échouer lors de la validation
+            initial_workspace=common_pb2.WorkspaceReference(
+                repository="test-repo",
+                branch="main"
             )
+        )
+
+        # Validation should fail because agent_profile is required
+        with pytest.raises(protovalidate.ValidationError):
+            protovalidate.validate(invalid_request)
 
     def test_workspace_reference_repository_pattern(self) -> None:
         """Test que repository respecte le pattern [a-zA-Z0-9_-]+."""
