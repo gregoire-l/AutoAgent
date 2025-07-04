@@ -42,14 +42,14 @@ class TestGRPCServerIntegrationAgent:
         valid_start_session_request: agent_pb2.StartSessionRequest
     ) -> None:
         """Test de communication gRPC complète pour StartSession."""
-        response = grpc_stub.StartSession(valid_start_session_request)
+        response: agent_pb2.StartSessionResponse = grpc_stub.StartSession(valid_start_session_request)  # type: ignore
         
         # Vérifier la réponse
-        assert response.session_id
-        assert len(response.session_id) == 36
+        assert response.session_id  # type: ignore
+        assert len(response.session_id) == 36  # type: ignore
         
         # Vérifier que c'est un UUID valide
-        uuid.UUID(response.session_id)
+        uuid.UUID(response.session_id)  # type: ignore
 
     def test_start_session_multiple_calls_unique_ids(
         self, 
@@ -57,10 +57,10 @@ class TestGRPCServerIntegrationAgent:
         valid_start_session_request: agent_pb2.StartSessionRequest
     ) -> None:
         """Test que plusieurs appels StartSession génèrent des IDs uniques."""
-        response1 = grpc_stub.StartSession(valid_start_session_request)
-        response2 = grpc_stub.StartSession(valid_start_session_request)
+        response1: agent_pb2.StartSessionResponse = grpc_stub.StartSession(valid_start_session_request)  # type: ignore
+        response2: agent_pb2.StartSessionResponse = grpc_stub.StartSession(valid_start_session_request)  # type: ignore
         
-        assert response1.session_id != response2.session_id
+        assert response1.session_id != response2.session_id  # type: ignore
 
     def test_execute_step_grpc_streaming(
         self, 
@@ -72,12 +72,12 @@ class TestGRPCServerIntegrationAgent:
         def request_generator() -> Iterator[agent_pb2.ExecuteStepRequest]:
             yield valid_execute_step_request
         
-        response = grpc_stub.ExecuteStep(request_generator())
+        response: agent_pb2.ExecuteStepResponse = grpc_stub.ExecuteStep(request_generator())  # type: ignore
         
         # Vérifier la réponse
-        assert response.result.status == common_pb2.EXECUTION_STATUS_SUCCESS
-        assert "Hello World from Phase 0 Agent" in response.result.last_stdout
-        assert response.result.summary
+        assert response.result.status == common_pb2.EXECUTION_STATUS_SUCCESS  # type: ignore
+        assert "Hello World from Phase 0 Agent" in response.result.last_stdout  # type: ignore
+        assert response.result.summary  # type: ignore
 
     def test_execute_step_timeout_handling(self, grpc_stub: agent_grpc.AgentSessionServiceStub) -> None:
         """Test de gestion du timeout dans ExecuteStep."""
@@ -95,10 +95,10 @@ class TestGRPCServerIntegrationAgent:
         def request_generator() -> Iterator[agent_pb2.ExecuteStepRequest]:
             yield request
         
-        response = grpc_stub.ExecuteStep(request_generator())
+        response: agent_pb2.ExecuteStepResponse = grpc_stub.ExecuteStep(request_generator())  # type: ignore
         
         # La commande echo devrait réussir même avec un timeout court
-        assert response.result.status == common_pb2.EXECUTION_STATUS_SUCCESS
+        assert response.result.status == common_pb2.EXECUTION_STATUS_SUCCESS  # type: ignore
 
     def test_stop_session_grpc_communication(
         self, 
@@ -106,7 +106,7 @@ class TestGRPCServerIntegrationAgent:
         valid_stop_session_request: agent_pb2.StopSessionRequest
     ) -> None:
         """Test de communication gRPC complète pour StopSession."""
-        response = grpc_stub.StopSession(valid_stop_session_request)
+        response: agent_pb2.StopSessionResponse = grpc_stub.StopSession(valid_stop_session_request)  # type: ignore
         
         # Vérifier que la réponse est vide (pas de final_workspace en Phase 0)
         assert isinstance(response, agent_pb2.StopSessionResponse)
@@ -125,8 +125,8 @@ class TestGRPCServerIntegrationAgent:
             agent_profile=valid_agent_profile,
             initial_workspace=valid_workspace_reference
         )
-        start_response = grpc_stub.StartSession(start_request)
-        session_id = start_response.session_id
+        start_response: agent_pb2.StartSessionResponse = grpc_stub.StartSession(start_request)  # type: ignore
+        session_id: str = start_response.session_id  # type: ignore
         
         # 2. Exécuter une étape
         timeout = Duration()
@@ -142,8 +142,8 @@ class TestGRPCServerIntegrationAgent:
         def request_generator() -> Iterator[agent_pb2.ExecuteStepRequest]:
             yield execute_request
         
-        execute_response = grpc_stub.ExecuteStep(request_generator())
-        assert execute_response.result.status == common_pb2.EXECUTION_STATUS_SUCCESS
+        execute_response: agent_pb2.ExecuteStepResponse = grpc_stub.ExecuteStep(request_generator())  # type: ignore
+        assert execute_response.result.status == common_pb2.EXECUTION_STATUS_SUCCESS  # type: ignore
         
         # 3. Arrêter la session
         stop_request = agent_pb2.StopSessionRequest(
@@ -152,7 +152,7 @@ class TestGRPCServerIntegrationAgent:
             final_status=agent_pb2.FINAL_STATUS_SUCCESS,
             commit_message="Session lifecycle test completed"
         )
-        stop_response = grpc_stub.StopSession(stop_request)
+        stop_response: agent_pb2.StopSessionResponse = grpc_stub.StopSession(stop_request)  # type: ignore
         assert isinstance(stop_response, agent_pb2.StopSessionResponse)
 
     def test_multiple_sessions_isolation(
@@ -164,14 +164,14 @@ class TestGRPCServerIntegrationAgent:
         """Test que plusieurs sessions sont isolées."""
         # Créer deux sessions
         session_ids: List[str] = []
-        for i in range(2):
+        for _ in range(2):
             start_request = agent_pb2.StartSessionRequest(
                 request_id=str(uuid.uuid4()),
                 agent_profile=valid_agent_profile,
                 initial_workspace=valid_workspace_reference
             )
-            response = grpc_stub.StartSession(start_request)
-            session_ids.append(response.session_id)
+            response: agent_pb2.StartSessionResponse = grpc_stub.StartSession(start_request)  # type: ignore
+            session_ids.append(response.session_id)  # type: ignore
         
         # Vérifier que les sessions ont des IDs différents
         assert session_ids[0] != session_ids[1]
@@ -191,8 +191,8 @@ class TestGRPCServerIntegrationAgent:
             def request_generator() -> Iterator[agent_pb2.ExecuteStepRequest]:
                 yield execute_request
             
-            response = grpc_stub.ExecuteStep(request_generator())
-            assert response.result.status == common_pb2.EXECUTION_STATUS_SUCCESS
+            exec_response: agent_pb2.ExecuteStepResponse = grpc_stub.ExecuteStep(request_generator())  # type: ignore
+            assert exec_response.result.status == common_pb2.EXECUTION_STATUS_SUCCESS  # type: ignore
 
     def test_grpc_error_handling(self, grpc_stub: agent_grpc.AgentSessionServiceStub) -> None:
         """Test de gestion d'erreur gRPC avec requête invalide."""
@@ -213,9 +213,9 @@ class TestGRPCServerIntegrationAgent:
         # En Phase 0, le service pourrait toujours répondre
         # mais dans une implémentation complète, cela devrait échouer
         try:
-            response = grpc_stub.ExecuteStep(request_generator())
+            response: agent_pb2.ExecuteStepResponse = grpc_stub.ExecuteStep(request_generator())  # type: ignore
             # Si ça passe, vérifier au moins que la réponse est cohérente
-            assert response.result is not None
+            assert response.result is not None  # type: ignore
         except grpc.RpcError as e:
             # Si ça échoue, vérifier que c'est pour la bonne raison
             assert e.code() in [grpc.StatusCode.INVALID_ARGUMENT, grpc.StatusCode.FAILED_PRECONDITION]
@@ -231,8 +231,8 @@ class TestGRPCServerIntegrationAgent:
         
         def make_request() -> None:
             try:
-                response = grpc_stub.StartSession(valid_start_session_request)
-                responses.append(response)
+                response: agent_pb2.StartSessionResponse = grpc_stub.StartSession(valid_start_session_request)  # type: ignore
+                responses.append(response)  # type: ignore
             except Exception as e:
                 errors.append(e)
         
