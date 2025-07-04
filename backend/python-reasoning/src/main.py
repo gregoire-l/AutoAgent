@@ -21,7 +21,7 @@ def serve():
     port = os.getenv("PYTHON_IA_INTERNAL_GRPC_PORT", "50052")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
-    reasoning_service_pb2_grpc.add_ReasoningServiceServicer_to_server(
+    reasoning_service_pb2_grpc.add_ReasoningServiceServicer_to_server( # type: ignore
         ReasoningServiceServicer(), server
     )
 

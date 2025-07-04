@@ -1,28 +1,32 @@
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "agent-service"
+[tool.poetry]
+name = "agent-service-py"
 version = "0.1.0"
 description = "AutoAgent Agent Session Service for executing tasks."
-authors = [{ name = "AutoAgent Core Team", email = "dev@autoagent.is" }]
-license = { text = "Proprietary" }
-requires-python = ">=3.11"
-dependencies = [
-    # Install our generated gRPC code as a dependency
-    "autoagent-api @ file@../../gen/python",
-    # Core libraries
-    "grpcio>=1.60.0,<2.0.0",
-    "python-dotenv>=1.0.0,<2.0.0",
-]
+authors = ["AutoAgent Core Team <dev@autoagent.is>"]
+license = "Proprietary"
 
-[project.optional-dependencies]
-dev = [
-    "grpcio-tools>=1.60.0,<2.0.0",
-    "mypy>=1.9.0,<2.0.0",
-    "types-protobuf",
-]
+packages = [{ include = "agent_service_py", from = "src" }]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.poetry.dependencies]
+python = "^3.11"
+# Note: autoagent-api will be installed from wheel in Docker build
+# Core libraries
+grpcio = "^1.60.0"
+python-dotenv = "^1.0.0"
+bufbuild-protovalidate-protocolbuffers-pyi = "31.1.0.1.20250612022732+297b8109523d"
+bufbuild-protovalidate-protocolbuffers-python = "31.1.0.1.20250612022732+297b8109523d"
+
+[tool.poetry.group.dev.dependencies]
+grpcio-tools = "^1.60.0"
+types-protobuf = "^6.30.0"
+mypy = "^1.8.0"
+pytest = "^8.0.0"
+
+[[tool.poetry.source]]
+name = "buf"
+url = "https://buf.build/gen/python"
+priority = "supplemental"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

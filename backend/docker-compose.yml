@@ -36,8 +36,8 @@ services:
 
   python-reasoning:
     build:
-      context: ./python-reasoning
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: backend/python-reasoning/Dockerfile
     container_name: autoagent-python-reasoning
     ports:
       - "${PYTHON_REASONING_HOST_PORT}:${PYTHON_REASONING_INTERNAL_GRPC_PORT}"
@@ -56,8 +56,8 @@ services:
 
   python-agent:
     build:
-      context: ./python-agent
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: backend/python-agent/Dockerfile
     container_name: autoagent-python-agent
     ports:
       - "${PYTHON_AGENT_HOST_PORT}:${PYTHON_AGENT_INTERNAL_GRPC_PORT}"
@@ -78,8 +78,8 @@ services:
     image: neo4j # Using a specific version is recommended over :latest
     container_name: autoagent_neo4j
     ports:
-      - "${NEO4J_HOST_PORT_HTTP}:7474"  # Neo4j Browser
-      - "${NEO4J_HOST_PORT_BOLT}:7687"   # Bolt connector
+      - "${NEO4J_HOST_PORT_HTTP}:7474" # Neo4j Browser
+      - "${NEO4J_HOST_PORT_BOLT}:7687" # Bolt connector
     volumes:
       - neo4j_data:/data
       # You can also mount directories for plugins or conf if needed:
@@ -96,11 +96,14 @@ services:
       - autoagent-net
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:7474 || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget --quiet --tries=1 --spider http://localhost:7474 || exit 1",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
-
 
   temporal-postgresql:
     container_name: temporal-postgresql
@@ -125,7 +128,7 @@ services:
     image: temporalio/auto-setup
     container_name: autoagent_temporal
     ports:
-      - "${TEMPORAL_HOST_PORT_UI}:8080"    # Temporal Web UI (auto-setup serves UI on 8080)
+      - "${TEMPORAL_HOST_PORT_UI}:8080" # Temporal Web UI (auto-setup serves UI on 8080)
       - "${TEMPORAL_HOST_PORT_GRPC}:7233" # Temporal Frontend gRPC
       # Ports 7234 (Membership), 7235 (Internode), 6933 (SDK Metrics) are also used by Temporal internally
       # but typically don't need to be exposed on the host for auto-setup.
@@ -146,14 +149,18 @@ services:
       # - DB=sqlite
       # - SQLITE_FILE_PATH=/data/temporal.db # Requires a volume mount for /data
     # volumes:
-      # - ./temporal/config/dynamicconfig:/etc/temporal/config/dynamicconfig
+    # - ./temporal/config/dynamicconfig:/etc/temporal/config/dynamicconfig
     # Uncomment below if using persistent DB like SQLite and define temporal_data volume
     #   - temporal_data:/data
     networks:
       - autoagent-net
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "temporal operator cluster health --address temporal:7233 || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "temporal operator cluster health --address temporal:7233 || exit 1",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -188,7 +195,11 @@ services:
     ports:
       - 8080:8080
     healthcheck:
-      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8080 || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget --quiet --tries=1 --spider http://localhost:8080 || exit 1",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -197,7 +208,7 @@ services:
     image: minio/minio # Using a specific version is recommended
     container_name: autoagent_minio
     ports:
-      - "${MINIO_HOST_PORT_API}:9000"    # MinIO API
+      - "${MINIO_HOST_PORT_API}:9000" # MinIO API
       - "${MINIO_HOST_PORT_CONSOLE}:9001" # MinIO Console
     volumes:
       - minio_data:/data
@@ -211,7 +222,11 @@ services:
       - autoagent-net
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:9000/minio/health/live || exit 1",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
