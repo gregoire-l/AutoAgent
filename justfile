@@ -1,62 +1,174 @@
 #=============================================================================
 # Variables
-# =============================================================================
+#=============================================================================
 
-COMPOSE_FILE := "docker-compose.yml"
+BACKEND_DIR := "backend"
+COMPOSE_FILE := BACKEND_DIR + "/docker-compose.yml"
 
-# =============================================================================
+#=============================================================================
 # Tâches Fondamentales
-# =============================================================================
+#=============================================================================
 
 # Point d'entrée par défaut pour les nouveaux développeurs
 default: help
 
 # Affiche une aide décrivant toutes les commandes disponibles
 help:
-    @echo "Available commands:"
+    @echo "🚀 AutoAgent Development Commands:"
+    @echo ""
     @just --list
 
 # Démarre tous les services en mode détaché
 up:
-    @echo "Starting all services..."
-    docker-compose -f {{ COMPOSE_FILE }} up --build -d
+    @echo "🔄 Starting all services..."
+    cd {{ BACKEND_DIR }} && docker compose up --build -d
+
+# Démarre un service spécifique
+up-service service:
+    @echo "🔄 Starting {{ service }}..."
+    cd {{ BACKEND_DIR }} && docker compose up --build -d {{ service }}
 
 # Arrête tous les services
 down:
-    @echo "Stopping all services..."
-    docker-compose -f {{ COMPOSE_FILE }} down
+    @echo "🛑 Stopping all services..."
+    cd {{ BACKEND_DIR }} && docker compose down
 
 # Affiche les logs de tous les services
 logs:
-    docker-compose -f {{ COMPOSE_FILE }} logs -f
+    @echo "📋 Showing logs for all services..."
+    cd {{ BACKEND_DIR }} && docker compose logs -f
+
+# Logs d'un service spécifique
+logs-service service:
+    @echo "📋 Showing logs for {{ service }}..."
+    cd {{ BACKEND_DIR }} && docker compose logs -f {{ service }}
 
 # Nettoie complètement l'environnement (volumes, réseaux...)
 clean: down
-    @echo "Cleaning up Docker environment..."
-    docker-compose -f {{ COMPOSE_FILE }} down -v --remove-orphans
+    @echo "🧹 Cleaning up Docker environment..."
+    cd {{ BACKEND_DIR }} && docker compose down -v --remove-orphans
+    docker system prune -f
 
-# =============================================================================
-# Tâches de Génération de Code
-# =============================================================================
+#=============================================================================
+# Génération de Code
+#=============================================================================
 
 # Génère les stubs gRPC pour tous les langages
 proto-gen:
-    @echo "Generating gRPC stubs for all languages..."
+    @echo "🔧 Generating gRPC stubs..."
     buf generate
 
-# =============================================================================
-# Tâches de Test
-# =============================================================================
+#=============================================================================
+# Gestion des Dépendances Poetry
+#=============================================================================
+
+# Met à jour tous les lock files Poetry
+poetry-lock:
+    @echo "🔒 Updating Poetry lock files..."
+    cd gen/python && poetry lock
+    cd backend/python-agent && poetry lock
+    cd backend/python-reasoning && poetry lock
+
+# Installe les dépendances Poetry en mode développement
+poetry-install:
+    @echo "📦 Installing Poetry dependencies..."
+    cd gen/python && poetry install
+    cd backend/python-agent && poetry install
+    cd backend/python-reasoning && poetry install
+
+# Ajoute une dépendance à un service spécifique
+poetry-add service dependency:
+    @echo "➕ Adding {{ dependency }} to {{ service }}..."
+    cd backend/{{ service }} && poetry add {{ dependency }}
+
+#=============================================================================
+# Tests
+#=============================================================================
 
 # Lance tous les tests
 test: test-go test-python
 
-# Lance les tests unitaires Go
+# Tests Go
 test-go:
-    @echo "Running Go tests..."
-    cd services/go-core && go test ./...
+    @echo "🧪 Running Go tests..."
+    cd backend/go-core && go test ./...
 
-# Lance les tests unitaires Python
+# Tests Python
 test-python:
-    @echo "Running Python tests..."
-    # Commande pour lancer pytest ici
+    @echo "🧪 Running Python tests..."
+    cd backend/python-agent && poetry run pytest
+    cd backend/python-reasoning && poetry run pytest
+
+# Tests d'un service spécifique
+test-service service:
+    @echo "🧪 Running tests for {{ service }}..."
+    cd backend/{{ service }} && poetry run pytest
+
+#=============================================================================
+# Développement et Débogage
+#=============================================================================
+
+# Rebuild et redémarre un service spécifique
+rebuild service:
+    @echo "🔨 Rebuilding and restarting {{ service }}..."
+    cd {{ BACKEND_DIR }} && docker compose up --build -d {{ service }}
+
+# Ouvre un shell dans un container en cours d'exécution
+shell service:
+    @echo "🐚 Opening shell in {{ service }} container..."
+    cd {{ BACKEND_DIR }} && docker compose exec {{ service }} /bin/bash
+
+# Affiche le statut de tous les services
+status:
+    @echo "📊 Service status:"
+    cd {{ BACKEND_DIR }} && docker compose ps
+
+# Affiche les ressources utilisées par les containers
+stats:
+    @echo "📈 Container resource usage:"
+    docker stats --no-stream
+
+#=============================================================================
+# Maintenance et Nettoyage
+#=============================================================================
+
+# Nettoie les images Docker inutilisées
+clean-images:
+    @echo "🗑️  Cleaning unused Docker images..."
+    docker image prune -f
+
+# Nettoie tout (containers, images, volumes, networks)
+clean-all: down
+    @echo "🧹 Deep cleaning Docker environment..."
+    cd {{ BACKEND_DIR }} && docker compose down -v --remove-orphans
+    docker system prune -a -f --volumes
+
+# Redémarre complètement l'environnement
+restart: down up
+    @echo "♻️  Environment restarted!"
+
+#=============================================================================
+# Utilitaires de Développement
+#=============================================================================
+
+# Vérifie la syntaxe des fichiers Docker Compose
+validate:
+    @echo "✅ Validating Docker Compose configuration..."
+    cd {{ BACKEND_DIR }} && docker compose config
+
+# Affiche les variables d'environnement utilisées
+env:
+    @echo "🔍 Environment variables:"
+    cd {{ BACKEND_DIR }} && docker compose config --services
+
+# Lance un linter sur le code Python
+lint-python:
+    @echo "🔍 Linting Python code..."
+    cd backend/python-agent && poetry run mypy src/
+    cd backend/python-reasoning && poetry run mypy src/
+
+# Formate le code Python avec black
+format-python:
+    @echo "🎨 Formatting Python code..."
+    cd backend/python-agent && poetry run black src/
+    cd backend/python-reasoning && poetry run black src/
